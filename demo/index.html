@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      canvas{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+      body{
+        background: black;
+      }
+      header,
+      footer{
+        position: fixed;
+        left: 0;
+        width: 100%;
+        background: #000000;
+        font-size: 3vh;
+        height: 3em;
+        z-index: 2;
+      }
+      header{
+        top: 0;
+      }
+      footer{
+        bottom: 0;
+      }
+      .footer,
+      .header{
+        font-family: sans-serif;
+        text-transform: uppercase;
+        z-index: 3;
+        line-height: 1em;
+        position: fixed;
+        color: #ffffff
+      }
+      .footer{
+        bottom: 1em;
+      }
+      .header{
+        top: 1em;
+      }
+      .header-left,
+      .footer-left{
+        left: 1em;
+      }
+      .header-right,
+      .footer-right{
+        right: 1em;
+      }
+      .header-mid,
+      .footer-mid{
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-left header">< Exit</div>
+      <div class="header-mid header">Metro</div>
+      <div class="header-right header">Station</div>
+    </header>
+    <footer>
+      <div class="footer-left footer">Avatar</div>
+      <div class="footer-mid footer" id="footerMid">x:0 | y:0</div>
+      <div class="footer-right footer">About</div>
+    </footer>
+    <canvas id="acid" width="240" height="240"></canvas>
+    <canvas id="canvas" class="zdog-canvas" width="240" height="240"></canvas>
+    <script src="https://unpkg.com/zdog@1/dist/zdog.dist.min.js"></script>
+    <!-- <script src="acid.js"></script> -->
+    <script src="index.js"></script>
+  </body>
+</html>

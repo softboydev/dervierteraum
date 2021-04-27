@@ -1,0 +1,5 @@
+- Add socket functions
+- Add nickname on hover
+- Add avatar customisation
+- Add blobjoining
+- Add interactive visuals
