@@ -59,6 +59,14 @@
         left: 50%;
         transform: translateX(-50%);
       }
+      #display{
+        position: fixed;
+        top: 0;
+        left: 0;
+        font-size: 3vh;
+        font-family: sans-serif;
+        text-transform: uppercase;
+      }
     </style>
   </head>
   <body>
@@ -76,6 +84,9 @@
     <canvas id="canvas" class="zdog-canvas" width="240" height="240"></canvas>
     <script src="https://unpkg.com/zdog@1/dist/zdog.dist.min.js"></script>
     <!-- <script src="acid.js"></script> -->
+    <div id="display"></div>
+    <script src="scripts.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="index.js"></script>
   </body>
 </html>
