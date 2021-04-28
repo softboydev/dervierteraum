@@ -2,9 +2,10 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>METRO:STATION</title>
     <style media="screen">
-      canvas{
+      canvas,
+      body{
         position: fixed;
         top: 0;
         left: 0;
@@ -15,64 +16,71 @@
       body{
         background: black;
       }
-      header,
-      footer{
+      .controls{
         position: fixed;
+        bottom: 0;
         left: 0;
-        width: 100%;
-        /* background: #000000; */
-        font-size: 3vh;
-        height: 3em;
+        display: flex;
+        justify-content: space-between;
+        width: calc(100% - 4vh);
+        height: 6vh;
+        padding: 2vh;
         z-index: 2;
       }
-      header{
-        top: 0;
-      }
-      footer{
-        bottom: 0;
-      }
-      .footer,
-      .header{
-        font-family: sans-serif;
-        text-transform: uppercase;
-        z-index: 3;
-        line-height: 1em;
-        position: fixed;
-        color: #ffffff;
-        background: #000000;
-        padding: 0.5em;
-      }
-      .footer{
-        bottom: 1em;
-      }
-      .header{
-        top: 1em;
-      }
-      .header-left,
-      .footer-left{
-        left: 1em;
-      }
-      .header-right,
-      .footer-right{
-        right: 1em;
-      }
-      .header-mid,
-      .footer-mid{
-        left: 50%;
-        transform: translateX(-50%);
-      }
-      #display{
-        position: fixed;
-        top: 0;
-        left: 0;
+      .controls button{
+        width: 15%;
+        height: 100%;
+        border: 2px solid white;
+        background: rgba(0,0,0,0.1);
+        padding: 0;
+        text-align: center;
+        color: white;
         font-size: 3vh;
-        font-family: sans-serif;
-        text-transform: uppercase;
+        transition: all 0.1s ease-in-out;
+      }
+      .controls button:hover{
+        background: white;
+        color: black;
+      }
+      #controlsSpace{
+        width: 30%;
+      }
+      #chatToggle{
+        width: 6vh;
+      }
+      #chat{
+        position: fixed;
+        right: 2vh;
+        bottom: 10vh;
+        height: auto;
+        max-height: 80vh;
+        border: 2px solid white;
+        background: black;
+        overflow-x: hidden;
+        overflow-y: auto;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        width: 20vw;
+        padding-top: 2vh;
+        z-index: 3;
+      }
+      #chat li{
+        display: block;
+        margin: 2vh;
+        margin-top: 0;
+        background: white;
+        width: calc(100% - 6vh);
+        height: 10vh;
+        pointer-events: none;
+      }
+      #chat li:not(.self){
+        margin-left: 4vh;
       }
     </style>
   </head>
   <body>
-    <header>
+    <!-- <header>
       <div class="header-left header">< Exit</div>
       <div class="header-mid header">Metro</div>
       <div class="header-right header">Station</div>
@@ -81,12 +89,42 @@
       <div class="footer-left footer">Avatar</div>
       <div class="footer-mid footer" id="footerMid">x:0 | y:0</div>
       <div class="footer-right footer">About</div>
-    </footer>
+    </footer> -->
+    <div class="footer-mid footer" id="footerMid">x:0 | y:0</div>
     <canvas id="acid" width="240" height="240"></canvas>
     <canvas id="canvas" class="zdog-canvas" width="240" height="240"></canvas>
+    <nav class="controls">
+      <button id="controlsLeft">ᐊ</button>
+      <button id="controlsRight">ᐅ</button>
+      <button id="controlsSpace"></button>
+      <button id="controlsUp">ᐃ</button>
+      <button id="controlsDown">ᐁ</button>
+      <button id="chatToggle">⾔</div>
+    </nav>
+    <!-- <ol id="chat">
+      <li class="a"></li>
+      <li class="b"></li>
+      <li class="c self"></li>
+      <li class="a"></li>
+      <li class="b"></li>
+      <li class="c"></li>
+      <li class="a"></li>
+      <li class="b"></li>
+      <li class="c"></li>
+      <li class="a"></li>
+      <li class="b"></li>
+      <li class="c"></li>
+      <li class="a"></li>
+      <li class="b"></li>
+      <li class="c"></li>
+      <li class="a"></li>
+      <li class="b"></li>
+      <li class="c"></li>
+      <li class="a"></li>
+      <li class="b"></li>
+      <li class="c"></li>
+    </ol> -->
     <script src="https://unpkg.com/zdog@1/dist/zdog.dist.min.js"></script>
-    <!-- <script src="acid.js"></script> -->
-    <div id="display"></div>
     <script src="scripts.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="index.js"></script>

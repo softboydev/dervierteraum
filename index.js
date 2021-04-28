@@ -1,5 +1,6 @@
 const socket = io()
 const canvas = document.getElementById("canvas")
+let controls = {}
 canvas.width = window.innerWidth
 canvas.height = window.innerHeight
 let scale = 20
@@ -32,6 +33,7 @@ let avatar = {
   dY: 0,
   d: 40,
   state: 0,
+  relD: 0,
   cd: 0.1,
   shape:new Zdog.Shape({
     addTo: render,
@@ -80,9 +82,49 @@ function init(){
   // kd.DOWN.down(function () {
   //   avatar.move(0,1)
   // })
-  // kd.SPACE.down(function () {
-  //   avatar.flash()
-  // })
+  kd.SPACE.down(function () {
+    avatar.flash()
+  })
+  document.getElementById("controlsUp").addEventListener("mousedown",function(){
+    controls.up = setInterval(function(){
+      avatar.move(0,-1)
+    },100)
+  })
+  document.getElementById("controlsUp").addEventListener("mouseup",function(){
+    clearInterval(controls.up)
+  })
+  document.getElementById("controlsDown").addEventListener("mousedown",function(){
+    controls.down = setInterval(function(){
+      avatar.move(0,1)
+    },100)
+  })
+  document.getElementById("controlsDown").addEventListener("mouseup",function(){
+    clearInterval(controls.down)
+  })
+  document.getElementById("controlsLeft").addEventListener("mousedown",function(){
+    controls.left = setInterval(function(){
+      avatar.move(-1,0)
+    },100)
+  })
+  document.getElementById("controlsLeft").addEventListener("mouseup",function(){
+    clearInterval(controls.left)
+  })
+  document.getElementById("controlsRight").addEventListener("mousedown",function(){
+    controls.right = setInterval(function(){
+      avatar.move(1,0)
+    },100)
+  })
+  document.getElementById("controlsRight").addEventListener("mouseup",function(){
+    clearInterval(controls.right)
+  })
+  document.getElementById("controlsSpace").addEventListener("mousedown",function(){
+    controls.space = setInterval(function(){
+      avatar.flash()
+    },100)
+  })
+  document.getElementById("controlsSpace").addEventListener("mouseup",function(){
+    clearInterval(controls.space)
+  })
   window.addEventListener("keydown",function(e){
     switch(e.keyCode){
       case 37:
@@ -97,9 +139,9 @@ function init(){
       case 40:
         avatar.move(0,1)
         break
-      case 32:
-        avatar.flash()
-        break
+      // case 32:
+      //   avatar.flash()
+      //   break
     }
   })
   for(let y = 0; y < scale + 1; y ++){
@@ -221,7 +263,7 @@ function init(){
       avatar.y = avatars[avatar.id].y
       avatar.shape.path = [{x: 0, y: 0, z: (points[scale * 0.5][scale * 0.5] * delta + avatar.d + size * avatarsAt[scale * 0.5][scale * 0.5] * 0.5)}]
       avatar.shape.color = avatars[avatar.id].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[avatar.id].state) * 255 + "," + (1 - avatars[avatar.id].state) * 255 + ")"
-      avatar.shape.stroke =  size * avatarsAt[scale * 0.5][scale * 0.5]
+      avatar.shape.stroke =  size * Math.max(1,avatarsAt[scale * 0.5][scale * 0.5])
       avatar.shape.updatePath();
       document.getElementById("footerMid").innerText = "X " + avatar.x + " | Y " + avatar.y
     }
