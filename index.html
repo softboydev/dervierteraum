@@ -48,6 +48,16 @@
       #chatToggle{
         width: 6vh;
       }
+      #display{
+        position: fixed;
+        font-family: sans-serif;
+        text-transform: uppercase;
+        top: 2vh;
+        left: 2vh;
+        color: white;
+        font-size: 2vh;
+        z-index: 3;
+      }
       #chat{
         position: fixed;
         right: 2vh;
@@ -93,6 +103,7 @@
     <div class="footer-mid footer" id="footerMid">x:0 | y:0</div>
     <canvas id="acid" width="240" height="240"></canvas>
     <canvas id="canvas" class="zdog-canvas" width="240" height="240"></canvas>
+    <div id="display">x:0 | y:0</div>
     <nav class="controls">
       <button id="controlsLeft">ᐊ</button>
       <button id="controlsRight">ᐅ</button>

@@ -265,7 +265,7 @@ function init(){
       avatar.shape.color = avatars[avatar.id].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[avatar.id].state) * 255 + "," + (1 - avatars[avatar.id].state) * 255 + ")"
       avatar.shape.stroke =  size * Math.max(1,avatarsAt[scale * 0.5][scale * 0.5])
       avatar.shape.updatePath();
-      document.getElementById("footerMid").innerText = "X " + avatar.x + " | Y " + avatar.y
+      document.getElementById("display").innerText = "X " + avatar.x + " | Y " + avatar.y
     }
   });
   animate()
