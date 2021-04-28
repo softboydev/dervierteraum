@@ -2,12 +2,12 @@ const socket = io()
 const canvas = document.getElementById("canvas")
 canvas.width = window.innerWidth
 canvas.height = window.innerHeight
-let scale = 10
-let size = 20
+let scale = 20
+let size = 40
 let delta = 14
 let points = []
 let shapes = []
-let speed = 0.0001
+let speed = 0.0003
 let grain = 0.5
 let render = new Zdog.Illustration({
   element: '.zdog-canvas',
@@ -21,13 +21,13 @@ let avatar = {
   y: 0,
   dX: 0,
   dY: 0,
-  d: 20,
+  d: 40,
   state: 0,
   cd: 0.1,
   shape:new Zdog.Shape({
     addTo: render,
     path: [{x: size * scale * 0.5, y: size * scale * 0.5, z: 100}],
-    stroke: 10,
+    stroke: size,
     color: "#fff"
   }),
   move: function(x,y){
@@ -35,7 +35,9 @@ let avatar = {
     this.dY += y
   },
   flash: function(){
-    this.state = 1
+    // if(this.state <= 0){
+      this.state = 2
+    // }
   }
 }
 let avatars = {}
@@ -119,35 +121,43 @@ function init(){
   socket.emit('join', {name:avatar.name,id:avatar.id})
   socket.on('update', function(msg) {
     kd.tick()
-    socket.emit('alive', {id:avatar.id,x:avatar.dX,y:avatar.dY})
+    socket.emit('alive', {id:avatar.id,x:avatar.dX,y:avatar.dY,state:avatar.state})
     avatar.dX = 0
     avatar.dY = 0
+    if(avatar.state > 0){
+      avatar.state -= avatar.cd
+    }
     avatars = msg
+    if(avatar.state > 0){
+      avatar.state -= avatar.cd
+    }
     for(let s in avatarShapes){
       if(!avatars[s]){
         avatarShapes[s].remove()
       }
     }
-    for(let a in avatars){
-      let relX = scale * 0.5 + avatars[a].x - avatar.x
-      let relY = scale * 0.5 + avatars[a].y - avatar.y
-      if(a != avatar.id){
-        if(relX >= 0 && relX < scale && relY >= 0 && relY < scale){
+    for(let a in avatars){ // for each avatar in the list of avatars
+      let relX = scale * 0.5 + avatars[a].x - avatar.x //determine the relative position
+      let relY = scale * 0.5 + avatars[a].y - avatar.y //relative to avatar position and virtual center, range 0 - scale
+      if(a != avatar.id){ //when the current avatar is not the users avatar
+        if(relX >= 0 && relX <= scale && relY >= 0 && relY <= scale){ //when the relative position is within the view
           if(!avatarShapes[a]){
             avatarShapes[a] = new Zdog.Shape({
               addTo: render,
-              path: [{x: (avatars[a].x - avatar.x) * scale, y: (avatars[a].y - avatar.y) * scale, z: points[relY][relX] * delta + avatar.d}],
-              stroke: 10,
-              color: "#00f"
+              path: [{x: (avatars[a].x - avatar.x) * size, y: (avatars[a].y - avatar.y) * size, z: points[relY][relX] * delta + avatar.d}],
+              stroke: size,
+              color: avatars[a].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[a].state) * 255 + "," + (1 - avatars[a].state) * 255 + ")"
             })
           }
           else{
-            avatarShapes[a].path = [{x: (avatars[a].x - avatar.x) * scale, y: (avatars[a].y - avatar.y) * scale, z: points[relY][relX] * delta + avatar.d}]
+            avatarShapes[a].path = [{x: (avatars[a].x - avatar.x) * size, y: (avatars[a].y - avatar.y) * size, z: points[relY][relX] * delta + avatar.d}]
+            avatarShapes[a].color = avatars[a].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[a].state) * 255 + "," + (1 - avatars[a].state) * 255 + ")"
             avatarShapes[a].updatePath();
           }
         }
-        else if(avatarShapes[a]){
+        else if(avatarShapes[a]){ //when it is not but there is still a shape representing it
           avatarShapes[a].remove()
+          delete avatarShapes[a]
         }
       }
     }
@@ -155,6 +165,7 @@ function init(){
       avatar.x = avatars[avatar.id].x
       avatar.y = avatars[avatar.id].y
       avatar.shape.path = [{x: 0, y: 0, z: (points[scale * 0.5][scale * 0.5] * delta + avatar.d)}]
+      avatar.shape.color = avatars[avatar.id].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[avatar.id].state) * 255 + "," + (1 - avatars[avatar.id].state) * 255 + ")"
       avatar.shape.updatePath();
       document.getElementById("footerMid").innerText = "X " + avatar.x + " | Y " + avatar.y
     }
@@ -193,11 +204,6 @@ function update(){
       }
     }
   }
-  // if(avatar.state > 0){
-  //   avatar.state -= avatar.cd
-  // }
-  // avatar.shape.color =  "rgb(" + 255 + "," + (1 - avatar.state) * 255 + "," + (1 - avatar.state) * 255 + ")"
-
   render.updateRenderGraph();
 }
 function animate() {

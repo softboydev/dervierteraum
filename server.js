@@ -32,6 +32,7 @@ io.on('connection', (socket) => {
       players[msg.id].alive = KILL_PLAYERS_AFTER
       players[msg.id].x += msg.x
       players[msg.id].y += msg.y
+      players[msg.id].state = msg.state
     }
     // else{
     //   io.emit('logout', msg);
