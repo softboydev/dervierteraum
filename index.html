@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>METRO:STATION</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=no">
     <style media="screen">
       canvas,
       body{
@@ -15,6 +16,7 @@
       }
       body{
         background: black;
+        user-select: none;
       }
       .controls{
         position: fixed;
@@ -38,9 +40,34 @@
         font-size: 3vh;
         transition: all 0.1s ease-in-out;
       }
-      .controls button:hover{
-        background: white;
-        color: black;
+      .header{
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: space-between;
+        width: calc(100% - 4vh);
+        height: 6vh;
+        padding: 2vh;
+        z-index: 2;
+      }
+      .header button{
+        width: 20%;
+        height: 100%;
+        border: 2px solid white;
+        background: rgba(0,0,0,0.1);
+        padding: 0;
+        text-align: center;
+        color: white;
+        font-size: 3vh;
+        transition: all 0.1s ease-in-out;
+      }
+      button{
+        cursor: pointer;
+      }
+      button:hover{
+        background: white !important;
+        color: black !important;
       }
       #controlsSpace{
         width: 30%;
@@ -58,34 +85,68 @@
         font-size: 2vh;
         z-index: 3;
       }
+
       #chat{
         position: fixed;
-        right: 2vh;
+        right: -100%;
         bottom: 10vh;
-        height: auto;
-        max-height: 80vh;
+        height: 80vh;
         border: 2px solid white;
-        background: black;
+        background: rgba(0,0,0,0.1);
+        overflow: hidden;
+        padding: 0;
+        margin: 0;
+        width: calc(calc(100% - 4vh) - 4px);
+        max-width: 480px;
+        z-index: 3;
+        transition: all 0.2s ease-in-out;
+      }
+      .chat-is-active #chat{
+        right: 2vh;
+      }
+      #chat .chat-window{
+        padding: 0 2vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: calc(100% - 4vh);
+        height: calc(100% - 14vh);
         overflow-x: hidden;
         overflow-y: auto;
         list-style: none;
-        padding: 0;
-        margin: 0;
-        width: 20vw;
-        padding-top: 2vh;
-        z-index: 3;
       }
-      #chat li{
+      #chat .chat-buttons{
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        justify-content: space-between;
+        width: calc(100% - 4vh);
+        height: 6vh;
+        padding: 2vh;
+        z-index: 2;
+        border-top: 2px solid white;
+      }
+      #chat .chat-buttons button{
+        width: 6vh;
+        height: 6vh;
+        border: 2px solid white;
+        font-size: 3vh;
+        text-align: center;
+        background: transparent;
+        color: white;
+      }
+      #chat .chat-window li{
         display: block;
-        margin: 2vh;
+        margin-bottom: 2vh;
         margin-top: 0;
         background: white;
-        width: calc(100% - 6vh);
+        width: calc(100% - 4vh);
         height: 10vh;
         pointer-events: none;
       }
-      #chat li:not(.self){
-        margin-left: 4vh;
+      #chat .chat-window li.self{
+        margin-left: 2vh;
       }
     </style>
   </head>
@@ -100,10 +161,13 @@
       <div class="footer-mid footer" id="footerMid">x:0 | y:0</div>
       <div class="footer-right footer">About</div>
     </footer> -->
-    <div class="footer-mid footer" id="footerMid">x:0 | y:0</div>
-    <canvas id="acid" width="240" height="240"></canvas>
     <canvas id="canvas" class="zdog-canvas" width="240" height="240"></canvas>
-    <div id="display">x:0 | y:0</div>
+    <!-- <nav class="header">
+      <button>X : <span id="headerX">0</span></button>
+      <button>Y : <span id="headerY">0</span></button>
+      <button id="controlsMinus">-</button>
+      <button id="controlsPlus">+</button>
+    </nav>
     <nav class="controls">
       <button id="controlsLeft">ᐊ</button>
       <button id="controlsRight">ᐅ</button>
@@ -112,32 +176,39 @@
       <button id="controlsDown">ᐁ</button>
       <button id="chatToggle">⾔</div>
     </nav>
-    <!-- <ol id="chat">
-      <li class="a"></li>
-      <li class="b"></li>
-      <li class="c self"></li>
-      <li class="a"></li>
-      <li class="b"></li>
-      <li class="c"></li>
-      <li class="a"></li>
-      <li class="b"></li>
-      <li class="c"></li>
-      <li class="a"></li>
-      <li class="b"></li>
-      <li class="c"></li>
-      <li class="a"></li>
-      <li class="b"></li>
-      <li class="c"></li>
-      <li class="a"></li>
-      <li class="b"></li>
-      <li class="c"></li>
-      <li class="a"></li>
-      <li class="b"></li>
-      <li class="c"></li>
-    </ol> -->
-    <script src="https://unpkg.com/zdog@1/dist/zdog.dist.min.js"></script>
-    <script src="scripts.js"></script>
+    <section id="chat">
+      <nav class="chat-buttons">
+        <button id="chatA">A</button>
+        <button id="chatB">B</button>
+        <button id="chatC">C</button>
+        <button id="chatD">D</button>
+      </nav>
+      <ol class="chat-window">
+        <li class="a"></li>
+        <li class="b"></li>
+        <li class="c self"></li>
+        <li class="a"></li>
+        <li class="b"></li>
+        <li class="c"></li>
+        <li class="a"></li>
+        <li class="b"></li>
+        <li class="c"></li>
+        <li class="a"></li>
+        <li class="b"></li>
+        <li class="c"></li>
+        <li class="a"></li>
+        <li class="b"></li>
+        <li class="c"></li>
+        <li class="a"></li>
+        <li class="b"></li>
+        <li class="c"></li>
+        <li class="a"></li>
+        <li class="b"></li>
+        <li class="c"></li>
+      </ol>
+    </section> -->
     <script src="/socket.io/socket.io.js"></script>
+    <script src="scripts.js"></script>
     <script src="index.js"></script>
   </body>
 </html>

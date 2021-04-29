@@ -1,27 +1,20 @@
 const socket = io()
 const canvas = document.getElementById("canvas")
 let controls = {}
+let moveInterval = false
 canvas.width = window.innerWidth
 canvas.height = window.innerHeight
-let scale = 20
+let scale = 16
 let size = 40
 let delta = 14
 let points = []
-let enviroments = []
-let avatarsAt = []
-let enviromentColors = [
-  "#0000ff",
-  "#00ff00",
-  "#000000",
-  "#ff0000"
-]
 let enviromentsGrain = 0.01
 let shapes = []
 let speed = 0.0003
 let grain = 0.5
 let render = new Zdog.Illustration({
   element: '.zdog-canvas',
-  dragRotate: true,
+  // dragRotate: true,
 });
 
 let avatar = {
@@ -35,15 +28,21 @@ let avatar = {
   state: 0,
   relD: 0,
   cd: 0.1,
-  shape:new Zdog.Shape({
+  shape: new Zdog.Anchor({
     addTo: render,
-    path: [{x: size * scale * 0.5, y: size * scale * 0.5, z: 100}],
-    stroke: size,
-    color: "#fff"
+    translate: {x: size * scale * 0.5, y: size * scale * 0.5, z: 100}
   }),
-  move: function(x,y){
-    this.dX += x
-    this.dY += y
+  shapes: {},
+  // ball:new Zdog.Shape({
+  //   addTo: this.shape,
+  //   // path: [{x: size * scale * 0.5, y: size * scale * 0.5, z: 100}],
+  //   path: [{x:0,y:0,z:0}],
+  //   stroke: size,
+  //   color: "#fff"
+  // }),
+  move: function(v){
+    this.dX += v.x
+    this.dY += v.y
   },
   flash: function(){
     // if(this.state <= 0){
@@ -51,6 +50,29 @@ let avatar = {
     // }
   }
 }
+avatar.shapes.ball = new Zdog.Anchor({
+  addTo: avatar.shape
+}),
+
+// new Zdog.Shape({
+//   addTo: avatar.shapes.ball,
+//   path: [{x:0,y:0,z:0}],
+//   stroke: size,
+//   color: "#fff"
+// })
+new Zdog.Hemisphere({
+  addTo: avatar.shapes.ball,
+  diameter: size,
+  stroke: false,
+  color: '#f00'
+});
+new Zdog.Hemisphere({
+  addTo: avatar.shapes.ball,
+  diameter: size,
+  stroke: false,
+  color: '#00f',
+  rotate: { x: Zdog.TAU/2 }
+});
 let avatars = {}
 let avatarShapes = {}
 
@@ -58,9 +80,25 @@ window.addEventListener("load",init)
 window.addEventListener("wheel",function(e){
   changeZoom(e.deltaY);
 })
-// window.addEventListener("mousemove",function(e){
-//   pointer(e.clientX,e.clientY)
-// })
+window.addEventListener("mousemove",function(e){
+  let d =  e.clientX / window.innerWidth
+  render.rotate = {x: Zdog.TAU * 0.2,y: 0,z: Zdog.TAU * d}
+})
+window.addEventListener("mouseup",function(){
+  if(moveInterval){
+    clearInterval(moveInterval)
+    moveInterval = false
+  }
+})
+window.addEventListener("mousedown",function(){
+  if(!moveInterval){
+    moveInterval = setInterval(function(){
+      let d = new Zdog.Vector({ x: 0, y: -1 }).rotate({ z: Zdog.TAU - render.rotate.z });
+      console.log(d);
+      avatar.move(d)
+    },30)
+  }
+})
 window.addEventListener("resize",function(){
   canvas.width = window.innerWidth
   canvas.height = window.innerHeight
@@ -70,92 +108,18 @@ window.addEventListener("resize",function(){
 
 
 function init(){
-  // kd.LEFT.down(function () {
-  //   avatar.move(-1,0)
-  // })
-  // kd.RIGHT.down(function () {
-  //   avatar.move(1,0)
-  // })
-  // kd.UP.down(function () {
-  //   avatar.move(0,-1)
-  // })
-  // kd.DOWN.down(function () {
-  //   avatar.move(0,1)
-  // })
   kd.SPACE.down(function () {
     avatar.flash()
   })
-  document.getElementById("controlsUp").addEventListener("mousedown",function(){
-    controls.up = setInterval(function(){
-      avatar.move(0,-1)
-    },100)
-  })
-  document.getElementById("controlsUp").addEventListener("mouseup",function(){
-    clearInterval(controls.up)
-  })
-  document.getElementById("controlsDown").addEventListener("mousedown",function(){
-    controls.down = setInterval(function(){
-      avatar.move(0,1)
-    },100)
-  })
-  document.getElementById("controlsDown").addEventListener("mouseup",function(){
-    clearInterval(controls.down)
-  })
-  document.getElementById("controlsLeft").addEventListener("mousedown",function(){
-    controls.left = setInterval(function(){
-      avatar.move(-1,0)
-    },100)
-  })
-  document.getElementById("controlsLeft").addEventListener("mouseup",function(){
-    clearInterval(controls.left)
-  })
-  document.getElementById("controlsRight").addEventListener("mousedown",function(){
-    controls.right = setInterval(function(){
-      avatar.move(1,0)
-    },100)
-  })
-  document.getElementById("controlsRight").addEventListener("mouseup",function(){
-    clearInterval(controls.right)
-  })
-  document.getElementById("controlsSpace").addEventListener("mousedown",function(){
-    controls.space = setInterval(function(){
-      avatar.flash()
-    },100)
-  })
-  document.getElementById("controlsSpace").addEventListener("mouseup",function(){
-    clearInterval(controls.space)
-  })
-  window.addEventListener("keydown",function(e){
-    switch(e.keyCode){
-      case 37:
-        avatar.move(-1,0)
-        break
-      case 38:
-        avatar.move(0,-1)
-        break
-      case 39:
-        avatar.move(1,0)
-        break
-      case 40:
-        avatar.move(0,1)
-        break
-      // case 32:
-      //   avatar.flash()
-      //   break
-    }
-  })
+  // document.getElementById("chatToggle").addEventListener("click",function(){
+  //   document.body.classList.toggle("chat-is-active")
+  // })
   for(let y = 0; y < scale + 1; y ++){
     let row = []
-    let env = []
-    let a = []
     for(let x = 0; x < scale + 1; x ++){
       row.push(0)
-      env.push(0)
-      a.push(0)
     }
     points.push(row)
-    enviroments.push(env)
-    avatarsAt.push(a)
   }
   for(let y = 0; y <= scale; y ++){
     let row = []
@@ -192,14 +156,14 @@ function init(){
             path: [{x: 0, y: 0, z: 0},{x: 0, y: 0, z: 0},{x: 0, y: 0, z: 0},{x: 0, y: 0, z: 0}],
             stroke: 0,
             fill: true,
-            color: "#f00",
+            color: "#000",
           })
         ])
       }
     }
     shapes.push(row)
   }
-  avatar.name = prompt("Nickname?")
+  avatar.name = "A"
   avatar.id = "id_" + performance.now() + "_" + Math.floor(Math.random() * 1000000)
   socket.emit('join', {name:avatar.name,id:avatar.id})
   socket.on('update', function(msg) {
@@ -219,18 +183,6 @@ function init(){
         avatarShapes[s].remove()
       }
     }
-    for(let y = 0; y <= scale; y++){
-      for(let x = 0; x <= scale; x++){
-        avatarsAt[y][x] = 0
-      }
-    }
-    for(let a in avatars){ // for each avatar in the list of avatars
-        let relX = scale * 0.5 + avatars[a].x - avatar.x //determine the relative position
-        let relY = scale * 0.5 + avatars[a].y - avatar.y //relative to avatar position and virtual center, range 0 - scale
-        if(relX >= 0 && relX <= scale && relY >= 0 && relY <= scale){ //when the relative position is within the view
-          avatarsAt[relY][relX] += 1
-        }
-    }
     for(let a in avatars){ // for each avatar in the list of avatars
       let relX = scale * 0.5 + avatars[a].x - avatar.x //determine the relative position
       let relY = scale * 0.5 + avatars[a].y - avatar.y //relative to avatar position and virtual center, range 0 - scale
@@ -239,15 +191,15 @@ function init(){
           if(!avatarShapes[a]){
             avatarShapes[a] = new Zdog.Shape({
               addTo: render,
-              path: [{x: (avatars[a].x - avatar.x) * size, y: (avatars[a].y - avatar.y) * size, z: points[relY][relX] * delta + avatar.d + size * 0.5 * avatarsAt[relY][relX]}],
-              stroke: size * avatarsAt[relY][relX],
+              path: [{x: (avatars[a].x - avatar.x) * size, y: (avatars[a].y - avatar.y) * size, z: getZAt(relX,relY) * delta + avatar.d + size}],
+              stroke: size,
               color: avatars[a].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[a].state) * 255 + "," + (1 - avatars[a].state) * 255 + ")"
             })
           }
           else{
-            avatarShapes[a].path = [{x: (avatars[a].x - avatar.x) * size, y: (avatars[a].y - avatar.y) * size, z: points[relY][relX] * delta + avatar.d + size * 0.5 * avatarsAt[relY][relX]}]
+            avatarShapes[a].path = [{x: (avatars[a].x - avatar.x) * size, y: (avatars[a].y - avatar.y) * size, z: getZAt(relX,relY) * delta + avatar.d + size}]
             avatarShapes[a].color = avatars[a].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[a].state) * 255 + "," + (1 - avatars[a].state) * 255 + ")"
-            avatarShapes[a].stroke = size * avatarsAt[relY][relX],
+            avatarShapes[a].stroke = size,
             avatarShapes[a].updatePath();
           }
         }
@@ -261,37 +213,42 @@ function init(){
     if(avatars[avatar.id]){
       avatar.x = avatars[avatar.id].x
       avatar.y = avatars[avatar.id].y
-      avatar.shape.path = [{x: 0, y: 0, z: (points[scale * 0.5][scale * 0.5] * delta + avatar.d + size * avatarsAt[scale * 0.5][scale * 0.5] * 0.5)}]
-      avatar.shape.color = avatars[avatar.id].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[avatar.id].state) * 255 + "," + (1 - avatars[avatar.id].state) * 255 + ")"
-      avatar.shape.stroke =  size * Math.max(1,avatarsAt[scale * 0.5][scale * 0.5])
-      avatar.shape.updatePath();
-      document.getElementById("display").innerText = "X " + avatar.x + " | Y " + avatar.y
+      avatar.shape.translate = {x: 0, y: 0, z: getZAt(scale * 0.5,scale * 0.5) * delta + avatar.d + size}
+      avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
+      // avatar.shape.path = [{x: 0, y: 0, z: getZAt(scale * 0.5,scale * 0.5) * delta + avatar.d + size}]
+      // avatar.shape.color = avatars[avatar.id].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[avatar.id].state) * 255 + "," + (1 - avatars[avatar.id].state) * 255 + ")"
+      // avatar.shape.stroke =  size
+      // avatar.shape.updatePath();
     }
   });
   animate()
 }
+function getZAt(x,y,q){
+  let n = 0
+  let _x = q ? Math.round(avatar.x) : avatar.x
+  let _y = q ? Math.round(avatar.y) : avatar.y
+  let d = (1 + noise.simplex3((1000 + x + _x) * 0.01,(1000 + y + _y) * 0.01,1000) * 10) * 0.5
+  let e = Math.floor((1 + noise.simplex3((10000 + x + _x) * enviromentsGrain,(10000 + y + _y) * enviromentsGrain,1000)) * 2) // 0 - 3
+  switch(e){
+    case 0: //water at sea level 0 - 1
+      n = (1 + Math.sin(y + performance.now() * 0.001) * 0.5)
+      break
+    case 1: //moving planes 2 - 3
+      n = 2 + ((1 + noise.simplex3(x + _x * grain,y + _y * grain,performance.now() * speed)) * 0.5)
+      break
+    case 2: //cityblocks 3 - 8
+      n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * grain,((y + _y) + ((y + _y) % 2)) * grain,0)) * 0.5),4)
+      break
+    case 3: // mountains 0 - 16
+      n = 2 + Math.pow(((1 + noise.simplex3(x + _x * grain * 0.1,y + _y * grain * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 16
+      break
+  }
+  return n - 12
+}
 function update(){
   for(let y = 0; y < scale + 1; y++){
     for(let x = 0; x < scale + 1; x++){
-      let n = 0
-      let d = (1 + noise.simplex3((1000 + x + avatar.x) * 0.01,(1000 + y + avatar.y) * 0.01,1000) * 10) * 0.5
-      let e = Math.floor((1 + noise.simplex3((10000 + x + avatar.x) * enviromentsGrain,(10000 + y + avatar.y) * enviromentsGrain,1000)) * 2) // 0 - 3
-      switch(e){
-        case 0: //water at sea level 0 - 1
-          n = (1 + Math.sin(y + performance.now() * 0.001) * 0.5)
-          break
-        case 1: //moving planes 2 - 3
-          n = 2 + ((1 + noise.simplex3(x + avatar.x * grain,y + avatar.y * grain,performance.now() * speed)) * 0.5)
-          break
-        case 2: //cityblocks 3 - 8
-          n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + avatar.x) + ((x + avatar.x) % 2)) * grain,((y + avatar.y) + ((y + avatar.y) % 2)) * grain,0)) * 0.5),4)
-          break
-        case 3: // mountains 0 - 16
-          n = 2 + Math.pow(((1 + noise.simplex3(x + avatar.x * grain * 0.1,y + avatar.y * grain * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 16
-          break
-      }
-      points[y][x] = n - 12 + d
-      enviroments[y][x] = e
+      points[y][x] = getZAt(x,y,true)
     }
   }
   for(let y = 0; y <= scale; y++){
@@ -334,7 +291,24 @@ function update(){
             z:points[y + 1][x] * delta
           }
         ]
-        shapes[x][y][2].color = enviromentColors[enviroments[y][x]]
+        let hp = Math.max(points[y][x],points[y + 1][x],points[y][x + 1],points[y + 1][x + 1])
+        let lp = Math.min(points[y][x],points[y + 1][x],points[y][x + 1],points[y + 1][x + 1])
+        let mod = hp - lp
+        let base = 1
+        if(hp == lp){
+          base = 4
+          mod = 4
+        }
+        else if(hp == points[y + 1][x]){
+          base = 3
+        }
+        else if(hp == points[y + 1][x + 1]){
+          base = 4
+        }
+        else if(hp == points[y][x + 1]){
+          base = 3
+        }
+        let c = base * mod
         shapes[x][y][2].updatePath();
       }
     }

@@ -16,8 +16,8 @@ app.get('/index.js',function(req,res){
 app.get('/scripts.js',function(req,res){
     res.sendFile(__dirname + '/scripts.js');
 });
-io.on('connection', (socket) => {
-  socket.on('join', msg => {
+io.on("connection", (socket) => {
+  socket.on("join", msg => {
     players[msg.id] = {
       name: msg.name,
       id: msg.id,
@@ -27,13 +27,14 @@ io.on('connection', (socket) => {
       alive: KILL_PLAYERS_AFTER
     }
   });
-  socket.on('alive', msg => {
+  socket.on("alive", msg => {
     if(players[msg.id]){
       players[msg.id].alive = KILL_PLAYERS_AFTER
       players[msg.id].x += msg.x
       players[msg.id].y += msg.y
       players[msg.id].state = msg.state
     }
+
     // else{
     //   io.emit('logout', msg);
     // }
