@@ -2,6 +2,9 @@ const socket = io()
 const canvas = document.getElementById("canvas")
 let controls = {}
 let moveInterval = false
+let pointerFlag = false
+let rotateX = 0
+let rotateY = 0
 canvas.width = window.innerWidth
 canvas.height = window.innerHeight
 let scale = 16
@@ -50,51 +53,114 @@ let avatar = {
     // }
   }
 }
-avatar.shapes.ball = new Zdog.Anchor({
-  addTo: avatar.shape
-}),
+let oldAvatars = false
+let avatars = false
+let avatarShapes = {}
+let timestamp = performance.now()
+let lastResponseTime = 250
 
-// new Zdog.Shape({
-//   addTo: avatar.shapes.ball,
-//   path: [{x:0,y:0,z:0}],
-//   stroke: size,
-//   color: "#fff"
-// })
+avatar.shapes.ball = {
+  group: new Zdog.Group({addTo:avatar.shape,visible:false})
+}
+avatar.shapes.ball.anchor = new Zdog.Anchor({
+  addTo: avatar.shapes.ball.group
+})
+
+
 new Zdog.Hemisphere({
-  addTo: avatar.shapes.ball,
+  addTo: avatar.shapes.ball.anchor,
   diameter: size,
   stroke: false,
   color: '#f00'
 });
 new Zdog.Hemisphere({
-  addTo: avatar.shapes.ball,
+  addTo: avatar.shapes.ball.anchor,
   diameter: size,
   stroke: false,
   color: '#00f',
   rotate: { x: Zdog.TAU/2 }
 });
-let avatars = {}
-let avatarShapes = {}
+// avatar.shapes.tri = new Zdog.Anchor({
+//   addTo: avatar.shape
+// })
+// new Zdog.Shape({
+//   addTo: avatar.shapes.tri,
+//   path: [{x:0,y:0,z:-size},{x:size*0.5,y:-size*0.5,z:0},{x:size*0.5,y:size*0.5,z:0}],
+//   stroke: 0,
+//   fill: true,
+//   color: "#000"
+// })
+// new Zdog.Shape({
+//   addTo: avatar.shapes.tri,
+//   path: [{x:0,y:0,z:-size},{x:size*0.5,y:size*0.5,z:0},{x:-size*0.5,y:size*0.5,z:0}],
+//   stroke: 0,
+//   fill: true,
+//   color: "#000"
+// })
+// new Zdog.Shape({
+//   addTo: avatar.shapes.tri,
+//   path: [{x:0,y:0,z:-size},{x:-size*0.5,y:size*0.5,z:0},{x:-size*0.5,y:-size*0.5,z:0}],
+//   stroke: 0,
+//   fill: true,
+//   color: "#f00"
+// })
+// new Zdog.Shape({
+//   addTo: avatar.shapes.tri,
+//   path: [{x:0,y:0,z:-size},{x:-size*0.5,y:-size*0.5,z:0},{x:size*0.5,y:-size*0.5,z:0}],
+//   stroke: 0,
+//   fill: true,
+//   color: "#000"
+// })
+// new Zdog.Shape({
+//   addTo: avatar.shapes.tri,
+//   path: [{x:0,y:0,z:size},{x:size*0.5,y:-size*0.5,z:0},{x:size*0.5,y:size*0.5,z:0}],
+//   stroke: 0,
+//   fill: true,
+//   color: "#000"
+// })
+// new Zdog.Shape({
+//   addTo: avatar.shapes.tri,
+//   path: [{x:0,y:0,z:size},{x:size*0.5,y:size*0.5,z:0},{x:-size*0.5,y:size*0.5,z:0}],
+//   stroke: 0,
+//   fill: true,
+//   color: "#f00"
+// })
+// new Zdog.Shape({
+//   addTo: avatar.shapes.tri,
+//   path: [{x:0,y:0,z:size},{x:-size*0.5,y:size*0.5,z:0},{x:-size*0.5,y:-size*0.5,z:0}],
+//   stroke: 0,
+//   fill: true,
+//   color: "#fff"
+// })
+// new Zdog.Shape({
+//   addTo: avatar.shapes.tri,
+//   path: [{x:0,y:0,z:size},{x:-size*0.5,y:-size*0.5,z:0},{x:size*0.5,y:-size*0.5,z:0}],
+//   stroke: 0,
+//   fill: true,
+//   color: "#f00"
+// })
 
 window.addEventListener("load",init)
 window.addEventListener("wheel",function(e){
   changeZoom(e.deltaY);
 })
 window.addEventListener("mousemove",function(e){
-  let d =  e.clientX / window.innerWidth
-  render.rotate = {x: Zdog.TAU * 0.2,y: 0,z: Zdog.TAU * d}
+  let dX =  e.clientX / window.innerWidth
+  let dY = 0.4 + e.clientY / window.innerHeight * 0.6
+  render.rotate = {x: Zdog.TAU * 0.2 * dY,y: 0,z: Zdog.TAU * dX}
 })
 window.addEventListener("mouseup",function(){
+  pointerFlag = false
   if(moveInterval){
     clearInterval(moveInterval)
     moveInterval = false
   }
 })
 window.addEventListener("mousedown",function(){
+  pointerFlag = true
   if(!moveInterval){
     moveInterval = setInterval(function(){
       let d = new Zdog.Vector({ x: 0, y: -1 }).rotate({ z: Zdog.TAU - render.rotate.z });
-      console.log(d);
       avatar.move(d)
     },30)
   }
@@ -156,7 +222,7 @@ function init(){
             path: [{x: 0, y: 0, z: 0},{x: 0, y: 0, z: 0},{x: 0, y: 0, z: 0},{x: 0, y: 0, z: 0}],
             stroke: 0,
             fill: true,
-            color: "#000",
+            color: "#000"
           })
         ])
       }
@@ -167,6 +233,7 @@ function init(){
   avatar.id = "id_" + performance.now() + "_" + Math.floor(Math.random() * 1000000)
   socket.emit('join', {name:avatar.name,id:avatar.id})
   socket.on('update', function(msg) {
+    timestamp = performance.now()
     kd.tick()
     socket.emit('alive', {id:avatar.id,x:avatar.dX,y:avatar.dY,state:avatar.state})
     avatar.dX = 0
@@ -174,6 +241,7 @@ function init(){
     if(avatar.state > 0){
       avatar.state -= avatar.cd
     }
+    oldAvatars = avatars || msg
     avatars = msg
     if(avatar.state > 0){
       avatar.state -= avatar.cd
@@ -210,18 +278,18 @@ function init(){
       }
     }
 
-    if(avatars[avatar.id]){
-      avatar.x = avatars[avatar.id].x
-      avatar.y = avatars[avatar.id].y
-      avatar.shape.translate = {x: 0, y: 0, z: getZAt(scale * 0.5,scale * 0.5) * delta + avatar.d + size}
-      avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
-      // avatar.shape.path = [{x: 0, y: 0, z: getZAt(scale * 0.5,scale * 0.5) * delta + avatar.d + size}]
-      // avatar.shape.color = avatars[avatar.id].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[avatar.id].state) * 255 + "," + (1 - avatars[avatar.id].state) * 255 + ")"
-      // avatar.shape.stroke =  size
-      // avatar.shape.updatePath();
-    }
+    // if(avatars[avatar.id]){
+    //   avatar.x = avatars[avatar.id].x
+    //   avatar.y = avatars[avatar.id].y
+    //   avatar.shape.translate = {x: 0, y: 0, z: getZAt(scale * 0.5,scale * 0.5) * delta + avatar.d + size}
+    //   avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
+    //   // avatar.shape.path = [{x: 0, y: 0, z: getZAt(scale * 0.5,scale * 0.5) * delta + avatar.d + size}]
+    //   // avatar.shape.color = avatars[avatar.id].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[avatar.id].state) * 255 + "," + (1 - avatars[avatar.id].state) * 255 + ")"
+    //   // avatar.shape.stroke =  size
+    //   // avatar.shape.updatePath();
+    // }
   });
-  animate()
+  update()
 }
 function getZAt(x,y,q){
   let n = 0
@@ -246,6 +314,14 @@ function getZAt(x,y,q){
   return n - 12
 }
 function update(){
+  if(avatars[avatar.id]){
+    let d = Math.min(1,(performance.now() - timestamp) / lastResponseTime)
+    avatar.x = d * oldAvatars[avatar.id].x + (1 - d) * avatars[avatar.id].x
+    avatar.y = d * oldAvatars[avatar.id].y + (1 - d) * avatars[avatar.id].y
+    avatar.shape.translate = {z: getZAt(scale * 0.5,scale * 0.5) * delta + size + avatar.d * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
+    avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
+    avatar.shapes.ball.group.visible = true
+  }
   for(let y = 0; y < scale + 1; y++){
     for(let x = 0; x < scale + 1; x++){
       points[y][x] = getZAt(x,y,true)
@@ -253,71 +329,52 @@ function update(){
   }
   for(let y = 0; y <= scale; y++){
     for(let x = 0; x <= scale; x++){
+      let X = x + (avatar.x % 1)
+      let Y = y + (avatar.y % 1)
       if(x == scale && y == scale){
         //
       }
       else if(x == scale){
         shapes[x][y][0].stroke = 2 / render.zoom
-        shapes[x][y][0].path = [{ x: (-0.5 * size * scale) + x * size,y:(-0.5 * size * scale) + y*size,z:points[y][x] * delta },{ x: (-0.5 * size * scale) + x * size,y:(-0.5 * size * scale) + (y + 1)*size,z:points[y + 1][x] * delta }]
+        shapes[x][y][0].path = [{ x: (-0.5 * size * scale) + X * size,y:(-0.5 * size * scale) + Y*size,z:points[y][x] * delta },{ x: (-0.5 * size * scale) + X * size,y:(-0.5 * size * scale) + (Y + 1)*size,z:points[y + 1][x] * delta }]
         shapes[x][y][0].updatePath();
       }
       else if(y == scale){
         shapes[x][y][0].stroke = 2 / render.zoom
-        shapes[x][y][0].path = [{ x: (-0.5 * size * scale) + x * size,y:(-0.5 * size * scale) + y*size,z:points[y][x] * delta },{ x: (-0.5 * size * scale) + (x + 1) * size,y:(-0.5 * size * scale) + y*size,z:points[y][x + 1] * delta }]
+        shapes[x][y][0].path = [{ x: (-0.5 * size * scale) + X * size,y:(-0.5 * size * scale) + Y*size,z:points[y][x] * delta },{ x: (-0.5 * size * scale) + (X + 1) * size,y:(-0.5 * size * scale) + Y*size,z:points[y][x + 1] * delta }]
         shapes[x][y][0].updatePath();
       }
       else{
         shapes[x][y][0].stroke = 2 / render.zoom
-        shapes[x][y][0].path = [{ x: (-0.5 * size * scale) + x * size,y:(-0.5 * size * scale) + y*size,z:points[y][x] * delta },{ x: (-0.5 * size * scale) + (x + 1) * size,y:(-0.5 * size * scale) + y*size,z:points[y][x + 1] * delta }]
+        shapes[x][y][0].path = [{ x: (-0.5 * size * scale) + X * size,y:(-0.5 * size * scale) + Y*size,z:points[y][x] * delta },{ x: (-0.5 * size * scale) + (X + 1) * size,y:(-0.5 * size * scale) + Y*size,z:points[y][x + 1] * delta }]
         shapes[x][y][0].updatePath();
         shapes[x][y][1].stroke = 2 / render.zoom
-        shapes[x][y][1].path = [{ x: (-0.5 * size * scale) + x * size,y:(-0.5 * size * scale) + y*size,z:points[y][x] * delta },{ x: (-0.5 * size * scale) + x * size,y:(-0.5 * size * scale) + (y + 1)*size,z:points[y + 1][x] * delta }]
+        shapes[x][y][1].path = [{ x: (-0.5 * size * scale) + X * size,y:(-0.5 * size * scale) + Y*size,z:points[y][x] * delta },{ x: (-0.5 * size * scale) + X * size,y:(-0.5 * size * scale) + (Y + 1)*size,z:points[y + 1][x] * delta }]
         shapes[x][y][1].updatePath();
         shapes[x][y][2].path = [
-          { x: (-0.5 * size * scale) + x * size,
-            y:(-0.5 * size * scale) + y*size,
+          { x: (-0.5 * size * scale) + X * size,
+            y:(-0.5 * size * scale) + Y*size,
             z:points[y][x] * delta
           },
-          { x: (-0.5 * size * scale) + (x + 1) * size,
-            y:(-0.5 * size * scale) + y*size,
+          { x: (-0.5 * size * scale) + (X + 1) * size,
+            y:(-0.5 * size * scale) + Y*size,
             z:points[y][x + 1] * delta
           },
-          { x: (-0.5 * size * scale) + (x + 1) * size,
-            y:(-0.5 * size * scale) + (y + 1) *size,
+          { x: (-0.5 * size * scale) + (X + 1) * size,
+            y:(-0.5 * size * scale) + (Y + 1) *size,
             z:points[y + 1][x + 1] * delta
           },
-          { x: (-0.5 * size * scale) + x * size,
-            y:(-0.5 * size * scale) + (y + 1)*size,
+          { x: (-0.5 * size * scale) + X * size,
+            y:(-0.5 * size * scale) + (Y + 1)*size,
             z:points[y + 1][x] * delta
           }
         ]
-        let hp = Math.max(points[y][x],points[y + 1][x],points[y][x + 1],points[y + 1][x + 1])
-        let lp = Math.min(points[y][x],points[y + 1][x],points[y][x + 1],points[y + 1][x + 1])
-        let mod = hp - lp
-        let base = 1
-        if(hp == lp){
-          base = 4
-          mod = 4
-        }
-        else if(hp == points[y + 1][x]){
-          base = 3
-        }
-        else if(hp == points[y + 1][x + 1]){
-          base = 4
-        }
-        else if(hp == points[y][x + 1]){
-          base = 3
-        }
-        let c = base * mod
         shapes[x][y][2].updatePath();
       }
     }
   }
   render.updateRenderGraph();
-}
-function animate() {
-  update()
-  requestAnimationFrame( animate );
+  requestAnimationFrame(update);
 }
 function changeZoom(d){
   const config = {
