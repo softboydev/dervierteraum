@@ -144,47 +144,59 @@ new Zdog.Hemisphere({
 // })
 
 window.addEventListener("load",init)
-window.addEventListener("wheel",function(e){
-  changeZoom(e.deltaY);
-})
 window.addEventListener("mousemove",function(e){
-  if(pointerFlag){
-    let dX =  (lastPointer.x - e.clientX) / window.innerWidth
-    // let dY =  (lastPointer.y - e.clientY) / window.innerHeight
-    deltaPointerRotation.z = dX
-    // deltaPointerRotation.x = (0 < (pointerRotation.x + deltaPointerRotation.x + dY) < 1) ? dY : 0
-    deltaPointerRotation.x = 0
-  }
-  // render.rotate = {x: Zdog.TAU * (0.225 + ((pointerRotation.x + deltaPointerRotation.x) * 0.2)),y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
-  render.rotate = {x: Zdog.TAU * (0.2 + ((pointerRotation.x + deltaPointerRotation.x) * 0.2)),y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
+  handleRotate(e.clientX,e.clientY)
 })
-window.addEventListener("mouseup",function(){
-  pointerRotation.z += deltaPointerRotation.z
-  pointerRotation.x += deltaPointerRotation.x
-  deltaPointerRotation = {x:0,y:0,z:0}
-  pointerFlag = false
-  if(moveInterval){
-    clearInterval(moveInterval)
-    moveInterval = false
-  }
+window.addEventListener("touchmove", function(e){
+  handleRotate(e.targetTouches[0].clientX,e.targetTouches[0].clientY)
 })
 window.addEventListener("mousedown",function(e){
-  lastPointer = {x:e.clientX,y:e.clientY}
-  pointerFlag = true
-  if(!moveInterval){
-    moveInterval = setInterval(function(){
-      let d = new Zdog.Vector({ x: 0, y: -1 }).rotate({ z: Zdog.TAU - render.rotate.z });
-      avatar.move(d)
-    },30)
-  }
+  pointerDown(e.clientX,e.clientY)
 })
+window.addEventListener("touchstart",function(e){
+  pointerDown(e.targetTouches[0].clientX,e.targetTouches[0].clientY)
+})
+window.addEventListener("mouseup",pointerUp)
+window.addEventListener("touchend",pointerUp)
 window.addEventListener("resize",function(){
   canvas.width = window.innerWidth
   canvas.height = window.innerHeight
 })
 
-
-
+function pointerDown(x,y){
+  if(!pointerFlag){
+    lastPointer = {x:x,y:y}
+    pointerFlag = true
+    if(!moveInterval){
+      moveInterval = setInterval(function(){
+        let d = new Zdog.Vector({ x: 0, y: -1 }).rotate({ z: Zdog.TAU - render.rotate.z });
+        avatar.move(d)
+      },30)
+    }
+  }
+}
+function pointerUp(){
+  if(pointerFlag){
+    pointerRotation.z += deltaPointerRotation.z
+    pointerRotation.x += deltaPointerRotation.x
+    deltaPointerRotation = {x:0,y:0,z:0}
+    pointerFlag = false
+    if(moveInterval){
+      clearInterval(moveInterval)
+      moveInterval = false
+    }
+  }
+}
+function handleRotate(x,y){
+  if(pointerFlag){
+    let dX =  (lastPointer.x - x) / window.innerWidth
+    let dY =  (lastPointer.y - y) / window.innerHeight
+    deltaPointerRotation.z = dX
+    deltaPointerRotation.x = (-0.5 < (pointerRotation.x + dY) && (pointerRotation.x + dY) < 0.5) ? dY : (pointerRotation.x + dY) > 0.5 ? 0.5 - pointerRotation.x : -0.5 - pointerRotation.x
+  }
+  render.zoom = 1 + pointerRotation.x + deltaPointerRotation.x
+  render.rotate = {x: Zdog.TAU * 0.2,y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
+}
 
 function init(){
   kd.SPACE.down(function () {
@@ -403,12 +415,4 @@ function update(){
   }
   render.updateRenderGraph();
   requestAnimationFrame(update);
-}
-function changeZoom(d){
-  const config = {
-    min: 0.1,
-    max: 10,
-    steps: 0.001
-  }
-  render.zoom = Math.min(config.max,Math.max(config.min,render.zoom + d * config.steps))
 }
