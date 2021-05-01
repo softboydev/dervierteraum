@@ -3,11 +3,14 @@ const canvas = document.getElementById("canvas")
 let controls = {}
 let moveInterval = false
 let pointerFlag = false
+let pointerRotation = {x:0,y:0,z:0}
+let deltaPointerRotation = {x:0,y:0,z:0}
+let lastPointer = false
 let rotateX = 0
 let rotateY = 0
 canvas.width = window.innerWidth
 canvas.height = window.innerHeight
-let scale = 16
+let scale = 32
 let size = 40
 let delta = 14
 let points = []
@@ -17,7 +20,7 @@ let speed = 0.0003
 let grain = 0.5
 let render = new Zdog.Illustration({
   element: '.zdog-canvas',
-  // dragRotate: true,
+  rotate: {x: Zdog.TAU * (0.2 + ((pointerRotation.x + deltaPointerRotation.x) * 0.2)),y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
 });
 
 let avatar = {
@@ -57,7 +60,7 @@ let oldAvatars = false
 let avatars = false
 let avatarShapes = {}
 let timestamp = performance.now()
-let lastResponseTime = 250
+let lastResponseTime = 1000
 
 avatar.shapes.ball = {
   group: new Zdog.Group({addTo:avatar.shape,visible:false})
@@ -145,18 +148,28 @@ window.addEventListener("wheel",function(e){
   changeZoom(e.deltaY);
 })
 window.addEventListener("mousemove",function(e){
-  let dX =  e.clientX / window.innerWidth
-  let dY = 0.4 + e.clientY / window.innerHeight * 0.6
-  render.rotate = {x: Zdog.TAU * 0.2 * dY,y: 0,z: Zdog.TAU * dX}
+  if(pointerFlag){
+    let dX =  (lastPointer.x - e.clientX) / window.innerWidth
+    // let dY =  (lastPointer.y - e.clientY) / window.innerHeight
+    deltaPointerRotation.z = dX
+    // deltaPointerRotation.x = (0 < (pointerRotation.x + deltaPointerRotation.x + dY) < 1) ? dY : 0
+    deltaPointerRotation.x = 0
+  }
+  // render.rotate = {x: Zdog.TAU * (0.225 + ((pointerRotation.x + deltaPointerRotation.x) * 0.2)),y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
+  render.rotate = {x: Zdog.TAU * (0.2 + ((pointerRotation.x + deltaPointerRotation.x) * 0.2)),y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
 })
 window.addEventListener("mouseup",function(){
+  pointerRotation.z += deltaPointerRotation.z
+  pointerRotation.x += deltaPointerRotation.x
+  deltaPointerRotation = {x:0,y:0,z:0}
   pointerFlag = false
   if(moveInterval){
     clearInterval(moveInterval)
     moveInterval = false
   }
 })
-window.addEventListener("mousedown",function(){
+window.addEventListener("mousedown",function(e){
+  lastPointer = {x:e.clientX,y:e.clientY}
   pointerFlag = true
   if(!moveInterval){
     moveInterval = setInterval(function(){
@@ -246,6 +259,11 @@ function init(){
     if(avatar.state > 0){
       avatar.state -= avatar.cd
     }
+    if(avatars[avatar.id]){
+      avatar.x = avatars[avatar.id].x
+      avatar.y = avatars[avatar.id].y
+      avatar.shapes.ball.group.visible = true
+    }
     for(let s in avatarShapes){
       if(!avatars[s]){
         avatarShapes[s].remove()
@@ -315,13 +333,19 @@ function getZAt(x,y,q){
 }
 function update(){
   if(avatars[avatar.id]){
-    let d = Math.min(1,(performance.now() - timestamp) / lastResponseTime)
-    avatar.x = d * oldAvatars[avatar.id].x + (1 - d) * avatars[avatar.id].x
-    avatar.y = d * oldAvatars[avatar.id].y + (1 - d) * avatars[avatar.id].y
     avatar.shape.translate = {z: getZAt(scale * 0.5,scale * 0.5) * delta + size + avatar.d * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
     avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
-    avatar.shapes.ball.group.visible = true
   }
+  // if(avatars[avatar.id]){
+  //   // let d = Math.min(1,(performance.now() - timestamp) / lastResponseTime)
+  //   // avatar.x = d * oldAvatars[avatar.id].x + (1 - d) * avatars[avatar.id].x
+  //   // avatar.y = d * oldAvatars[avatar.id].y + (1 - d) * avatars[avatar.id].y
+  //   avatar.x = avatars[avatar.id].x
+  //   avatar.y = avatars[avatar.id].y
+  //   avatar.shape.translate = {z: getZAt(scale * 0.5,scale * 0.5) * delta + size + avatar.d * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
+  //   avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
+  //   avatar.shapes.ball.group.visible = true
+  // }
   for(let y = 0; y < scale + 1; y++){
     for(let x = 0; x < scale + 1; x++){
       points[y][x] = getZAt(x,y,true)
@@ -369,6 +393,10 @@ function update(){
             z:points[y + 1][x] * delta
           }
         ]
+        // let lp = Math.min(points[y][x],points[y+1][x],points[y][x+1],points[y+1][x+1])
+        // let hp = Math.max(points[y][x],points[y+1][x],points[y][x+1],points[y+1][x+1])
+        // let dp = hp - lp > 3 ? 255 : 0
+        // shapes[x][y][2].color = "rgb("+dp+","+dp+","+dp+")"
         shapes[x][y][2].updatePath();
       }
     }

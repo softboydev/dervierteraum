@@ -39,7 +39,7 @@ io.on("connection", (socket) => {
     //   io.emit('logout', msg);
     // }
   })
-  setInterval(update, 250);
+  setInterval(update, 100);
 });
 
 function update(){
