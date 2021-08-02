@@ -3,14 +3,23 @@ const canvas = document.getElementById("canvas")
 let controls = {}
 let moveInterval = false
 let pointerFlag = false
+let pointerStamp = 0
+let clickTime = 150
 let pointerRotation = {x:0,y:0,z:0}
 let deltaPointerRotation = {x:0,y:0,z:0}
 let lastPointer = false
 let rotateX = 0
 let rotateY = 0
+let updateUIAfter = 10
+let uiUpdateClock = 0
 canvas.width = window.innerWidth
 canvas.height = window.innerHeight
-let scale = 32
+window.addEventListener("reset",function(){
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+})
+let scale = 24
+let virtualSize = 48
 let size = 40
 let delta = 14
 let points = []
@@ -20,10 +29,12 @@ let speed = 0.0003
 let grain = 0.5
 let render = new Zdog.Illustration({
   element: '.zdog-canvas',
+  resize: true,
   rotate: {x: Zdog.TAU * (0.2 + ((pointerRotation.x + deltaPointerRotation.x) * 0.2)),y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
 });
 
 let avatar = {
+  joined: false,
   id: "",
   name: "",
   x: 0,
@@ -39,6 +50,7 @@ let avatar = {
     translate: {x: size * scale * 0.5, y: size * scale * 0.5, z: 100}
   }),
   shapes: {},
+  coloredShapes: {},
   // ball:new Zdog.Shape({
   //   addTo: this.shape,
   //   // path: [{x: size * scale * 0.5, y: size * scale * 0.5, z: 100}],
@@ -50,15 +62,16 @@ let avatar = {
     this.dX += v.x
     this.dY += v.y
   },
-  flash: function(){
-    // if(this.state <= 0){
-      this.state = 2
-    // }
-  }
+  // flash: function(){
+  //   if(this.state.flash <= 0){
+  //     this.state.flash = 1
+  //   }
+  // }
 }
 let oldAvatars = false
 let avatars = false
 let avatarShapes = {}
+let poiInView = {}
 let timestamp = performance.now()
 let lastResponseTime = 1000
 
@@ -68,80 +81,19 @@ avatar.shapes.ball = {
 avatar.shapes.ball.anchor = new Zdog.Anchor({
   addTo: avatar.shapes.ball.group
 })
-
-
-new Zdog.Hemisphere({
+avatar.coloredShapes.ballA = new Zdog.Hemisphere({
   addTo: avatar.shapes.ball.anchor,
   diameter: size,
   stroke: false,
-  color: '#f00'
+  color: "#ffffff"
 });
-new Zdog.Hemisphere({
+avatar.coloredShapes.ballB = new Zdog.Hemisphere({
   addTo: avatar.shapes.ball.anchor,
   diameter: size,
   stroke: false,
-  color: '#00f',
+  color: "#0000ff",
   rotate: { x: Zdog.TAU/2 }
 });
-// avatar.shapes.tri = new Zdog.Anchor({
-//   addTo: avatar.shape
-// })
-// new Zdog.Shape({
-//   addTo: avatar.shapes.tri,
-//   path: [{x:0,y:0,z:-size},{x:size*0.5,y:-size*0.5,z:0},{x:size*0.5,y:size*0.5,z:0}],
-//   stroke: 0,
-//   fill: true,
-//   color: "#000"
-// })
-// new Zdog.Shape({
-//   addTo: avatar.shapes.tri,
-//   path: [{x:0,y:0,z:-size},{x:size*0.5,y:size*0.5,z:0},{x:-size*0.5,y:size*0.5,z:0}],
-//   stroke: 0,
-//   fill: true,
-//   color: "#000"
-// })
-// new Zdog.Shape({
-//   addTo: avatar.shapes.tri,
-//   path: [{x:0,y:0,z:-size},{x:-size*0.5,y:size*0.5,z:0},{x:-size*0.5,y:-size*0.5,z:0}],
-//   stroke: 0,
-//   fill: true,
-//   color: "#f00"
-// })
-// new Zdog.Shape({
-//   addTo: avatar.shapes.tri,
-//   path: [{x:0,y:0,z:-size},{x:-size*0.5,y:-size*0.5,z:0},{x:size*0.5,y:-size*0.5,z:0}],
-//   stroke: 0,
-//   fill: true,
-//   color: "#000"
-// })
-// new Zdog.Shape({
-//   addTo: avatar.shapes.tri,
-//   path: [{x:0,y:0,z:size},{x:size*0.5,y:-size*0.5,z:0},{x:size*0.5,y:size*0.5,z:0}],
-//   stroke: 0,
-//   fill: true,
-//   color: "#000"
-// })
-// new Zdog.Shape({
-//   addTo: avatar.shapes.tri,
-//   path: [{x:0,y:0,z:size},{x:size*0.5,y:size*0.5,z:0},{x:-size*0.5,y:size*0.5,z:0}],
-//   stroke: 0,
-//   fill: true,
-//   color: "#f00"
-// })
-// new Zdog.Shape({
-//   addTo: avatar.shapes.tri,
-//   path: [{x:0,y:0,z:size},{x:-size*0.5,y:size*0.5,z:0},{x:-size*0.5,y:-size*0.5,z:0}],
-//   stroke: 0,
-//   fill: true,
-//   color: "#fff"
-// })
-// new Zdog.Shape({
-//   addTo: avatar.shapes.tri,
-//   path: [{x:0,y:0,z:size},{x:-size*0.5,y:-size*0.5,z:0},{x:size*0.5,y:-size*0.5,z:0}],
-//   stroke: 0,
-//   fill: true,
-//   color: "#f00"
-// })
 
 window.addEventListener("load",init)
 window.addEventListener("mousemove",function(e){
@@ -164,18 +116,26 @@ window.addEventListener("resize",function(){
 })
 
 function pointerDown(x,y){
+  pointerStamp = performance.now()
   if(!pointerFlag){
     lastPointer = {x:x,y:y}
     pointerFlag = true
     if(!moveInterval){
-      moveInterval = setInterval(function(){
-        let d = new Zdog.Vector({ x: 0, y: -1 }).rotate({ z: Zdog.TAU - render.rotate.z });
-        avatar.move(d)
-      },30)
+      setTimeout(function () {
+        if(pointerFlag){
+          moveInterval = setInterval(function(){
+            let d = new Zdog.Vector({ x: 0, y: -1 }).rotate({ z: Zdog.TAU - render.rotate.z });
+            avatar.move(d)
+          },30)
+        }
+      }, clickTime);
     }
   }
 }
 function pointerUp(){
+  // if(performance.now() - pointerStamp < clickTime){
+  //   avatar.flash()
+  // }
   if(pointerFlag){
     pointerRotation.z += deltaPointerRotation.z
     pointerRotation.x += deltaPointerRotation.x
@@ -195,15 +155,35 @@ function handleRotate(x,y){
     deltaPointerRotation.x = (-0.5 < (pointerRotation.x + dY) && (pointerRotation.x + dY) < 0.5) ? dY : (pointerRotation.x + dY) > 0.5 ? 0.5 - pointerRotation.x : -0.5 - pointerRotation.x
   }
   render.zoom = 1 + pointerRotation.x + deltaPointerRotation.x
-  render.rotate = {x: Zdog.TAU * 0.2,y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
+  render.rotate = {x: Zdog.TAU * 0.2 + (pointerRotation.x + deltaPointerRotation.x) * 0.6,y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
+}
+
+function popup(){
+  document.getElementById("buttonJoin").addEventListener("click",join)
+  document.getElementById("popupJoin").classList.add("is-active")
+}
+
+function join(){
+  document.getElementById("popupJoin").classList.remove("is-active")
+  avatar.state = {
+    colorA: document.getElementById("inputColorFirst").value,
+    colorB: document.getElementById("inputColorSecond").value,
+    invertA: "#" + invertHex(document.getElementById("inputColorFirst").value.replace("#","")),
+    invertB: "#" + invertHex(document.getElementById("inputColorSecond").value.replace("#","")),
+    // flash: 0
+  }
+  avatar.coloredShapes.ballA.color = document.getElementById("inputColorFirst").value
+  avatar.coloredShapes.ballB.color = document.getElementById("inputColorSecond").value
+  avatar.name = "unknown"
+  avatar.id = "" + performance.now() + Math.floor(Math.random() * 1000000)
+  avatar.shapes.ball.group.visible = true
+  socket.emit('join', {name:avatar.name,id:avatar.id,state:avatar.state})
+  avatar.joined = true
 }
 
 function init(){
-  kd.SPACE.down(function () {
-    avatar.flash()
-  })
-  // document.getElementById("chatToggle").addEventListener("click",function(){
-  //   document.body.classList.toggle("chat-is-active")
+  // kd.SPACE.down(function () {
+  //   avatar.flash()
   // })
   for(let y = 0; y < scale + 1; y ++){
     let row = []
@@ -254,13 +234,12 @@ function init(){
     }
     shapes.push(row)
   }
-  avatar.name = "A"
-  avatar.id = "id_" + performance.now() + "_" + Math.floor(Math.random() * 1000000)
-  socket.emit('join', {name:avatar.name,id:avatar.id})
   socket.on('update', function(msg) {
     timestamp = performance.now()
     kd.tick()
-    socket.emit('alive', {id:avatar.id,x:avatar.dX,y:avatar.dY,state:avatar.state})
+    if(avatar.joined){
+      socket.emit('alive', {id:avatar.id,x:avatar.dX,y:avatar.dY,state:avatar.state})
+    }
     avatar.dX = 0
     avatar.dY = 0
     if(avatar.state > 0){
@@ -277,48 +256,77 @@ function init(){
       avatar.shapes.ball.group.visible = true
     }
     for(let s in avatarShapes){
-      if(!avatars[s]){
+      if(!avatars[s] && avatarShapes[s]){
         avatarShapes[s].remove()
       }
     }
     for(let a in avatars){ // for each avatar in the list of avatars
-      let relX = scale * 0.5 + avatars[a].x - avatar.x //determine the relative position
-      let relY = scale * 0.5 + avatars[a].y - avatar.y //relative to avatar position and virtual center, range 0 - scale
+      let relX = (scale * 0.5 + avatars[a].x - avatar.x) % virtualSize //determine the relative position
+      let relY = (scale * 0.5 + avatars[a].y - avatar.y) % virtualSize //relative to avatar position and virtual center, range 0 - scale
       if(a != avatar.id){ //when the current avatar is not the users avatar
         if(relX >= 0 && relX <= scale && relY >= 0 && relY <= scale){ //when the relative position is within the view
           if(!avatarShapes[a]){
-            avatarShapes[a] = new Zdog.Shape({
-              addTo: render,
-              path: [{x: (avatars[a].x - avatar.x) * size, y: (avatars[a].y - avatar.y) * size, z: getZAt(relX,relY) * delta + avatar.d + size}],
-              stroke: size,
-              color: avatars[a].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[a].state) * 255 + "," + (1 - avatars[a].state) * 255 + ")"
+            let group = new Zdog.Group({
+              addTo:render,
+              visible:true
             })
+            let anchor = new Zdog.Anchor({
+              translate: {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size},
+              addTo: group
+            })
+            if(avatars[a].poi){
+              let shape = new Zdog.Shape({
+                addTo: anchor,
+                stroke: size,
+                color: avatars[a].state.color,
+              });
+              avatarShapes[a] = {
+                shape: shape,
+                group: group,
+                anchor: anchor
+              }
+              poiInView[avatars[a].id] = avatars[a]
+            }
+            else{
+              let sphereA = new Zdog.Hemisphere({
+                addTo: anchor,
+                diameter: size,
+                stroke: false,
+                color: avatars[a].state.colorA
+              });
+              let sphereB = new Zdog.Hemisphere({
+                addTo: anchor,
+                diameter: size,
+                stroke: false,
+                color: avatars[a].state.colorB,
+                rotate: { x: Zdog.TAU/2 }
+              });
+              avatarShapes[a] = {
+                group: group,
+                anchor: anchor,
+                sphereA: sphereA,
+                sphereB: sphereB
+              }
+            }
           }
           else{
-            avatarShapes[a].path = [{x: (avatars[a].x - avatar.x) * size, y: (avatars[a].y - avatar.y) * size, z: getZAt(relX,relY) * delta + avatar.d + size}]
-            avatarShapes[a].color = avatars[a].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[a].state) * 255 + "," + (1 - avatars[a].state) * 255 + ")"
-            avatarShapes[a].stroke = size,
-            avatarShapes[a].updatePath();
+            (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5)
+            avatarShapes[a].anchor.translate = {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size}
+            let rotation = Zdog.TAU * (performance.now() + Number(avatars[a].id)) * 0.0001
+            avatarShapes[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
           }
         }
         else if(avatarShapes[a]){ //when it is not but there is still a shape representing it
-          avatarShapes[a].remove()
+          if(avatars[a].poi){
+            delete poiInView[avatars[a].id]
+          }
+          avatarShapes[a].group.remove()
           delete avatarShapes[a]
         }
       }
     }
-
-    // if(avatars[avatar.id]){
-    //   avatar.x = avatars[avatar.id].x
-    //   avatar.y = avatars[avatar.id].y
-    //   avatar.shape.translate = {x: 0, y: 0, z: getZAt(scale * 0.5,scale * 0.5) * delta + avatar.d + size}
-    //   avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
-    //   // avatar.shape.path = [{x: 0, y: 0, z: getZAt(scale * 0.5,scale * 0.5) * delta + avatar.d + size}]
-    //   // avatar.shape.color = avatars[avatar.id].state >= 1 ? "#f00" : "rgb(" + 255 + "," + (1 - avatars[avatar.id].state) * 255 + "," + (1 - avatars[avatar.id].state) * 255 + ")"
-    //   // avatar.shape.stroke =  size
-    //   // avatar.shape.updatePath();
-    // }
   });
+  popup()
   update()
 }
 function getZAt(x,y,q){
@@ -344,19 +352,33 @@ function getZAt(x,y,q){
   return n - 12
 }
 function update(){
+  uiUpdateClock++
+  if((uiUpdateClock % updateUIAfter) == 0){
+    document.getElementById("outputPlayer").innerText = "X: " + Math.round(avatar.x % virtualSize) + " Y: " + Math.round(avatar.y % virtualSize)
+    let poiList = document.getElementById("outputPOI")
+    poiList.innerHTML = ""
+    for(let poi in poiInView){
+      let li = document.createElement("li")
+      let a = document.createElement("a")
+      a.style.color = poiInView[poi].state.color
+      a.href = poiInView[poi].state.link
+      a.innerText = poiInView[poi].name
+      li.appendChild(a)
+      poiList.appendChild(li)
+    }
+  }
   if(avatars[avatar.id]){
+    avatar.state = avatars[avatar.id].state
     avatar.shape.translate = {z: getZAt(scale * 0.5,scale * 0.5) * delta + size + avatar.d * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
     avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
   }
-  // if(avatars[avatar.id]){
-  //   // let d = Math.min(1,(performance.now() - timestamp) / lastResponseTime)
-  //   // avatar.x = d * oldAvatars[avatar.id].x + (1 - d) * avatars[avatar.id].x
-  //   // avatar.y = d * oldAvatars[avatar.id].y + (1 - d) * avatars[avatar.id].y
-  //   avatar.x = avatars[avatar.id].x
-  //   avatar.y = avatars[avatar.id].y
-  //   avatar.shape.translate = {z: getZAt(scale * 0.5,scale * 0.5) * delta + size + avatar.d * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
-  //   avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
-  //   avatar.shapes.ball.group.visible = true
+  // if(avatar.state.flash > 0){
+  //   avatar.coloredShapes.ballA.color = avatar.state.invertA
+  //   avatar.coloredShapes.ballB.color = avatar.state.invertB
+  // }
+  // else{
+  //   avatar.coloredShapes.ballA.color = avatar.state.colorA
+  //   avatar.coloredShapes.ballB.color = avatar.state.colorB
   // }
   for(let y = 0; y < scale + 1; y++){
     for(let x = 0; x < scale + 1; x++){
@@ -405,14 +427,13 @@ function update(){
             z:points[y + 1][x] * delta
           }
         ]
-        // let lp = Math.min(points[y][x],points[y+1][x],points[y][x+1],points[y+1][x+1])
-        // let hp = Math.max(points[y][x],points[y+1][x],points[y][x+1],points[y+1][x+1])
-        // let dp = hp - lp > 3 ? 255 : 0
-        // shapes[x][y][2].color = "rgb("+dp+","+dp+","+dp+")"
         shapes[x][y][2].updatePath();
       }
     }
   }
   render.updateRenderGraph();
   requestAnimationFrame(update);
+}
+function invertHex(hex) {
+  return (Number(`0x1${hex}`) ^ 0xFFFFFF).toString(16).substr(1).toUpperCase()
 }

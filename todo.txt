@@ -1,0 +1,7 @@
+- [ ] Flash implementation -> Later
+- [X] POI implementation
+List of POI
+Virtual X and Y in viewport
+- [ ] Rerender on resize -> Later
+- [ ] Organise code
+- [ ] Kick Popup -> Later

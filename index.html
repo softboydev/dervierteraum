@@ -148,6 +148,90 @@
       #chat .chat-window li.self{
         margin-left: 2vh;
       }
+      #popupJoin{
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        padding: 24px;
+        border-radius: 12px;
+        background: white;
+        color: black;
+        text-align: center;
+        transform: translate(-50%,-50%);
+        font-family: monospace;
+        font-weight: bold;
+        z-index: 2;
+        transition: all 0.2s ease-in-out;
+        opacity: 0;
+        pointer-events: none;
+        max-width: 90vw;
+        max-height: 80vh;
+      }
+      #popupJoin.is-active{
+        opacity: 1;
+        pointer-events: all;
+      }
+      #popupJoin p{
+        padding: 0;
+        margin: 0;
+      }
+      #popupJoin input{
+        margin: 0 0.5em 1em 0.5em;
+        background: transparent;
+        outline: none;
+        border: 2px solid black;
+        padding: 6px;
+        border-radius: 6px;
+        width: 3em;
+        height: 3em;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+      }
+      #popupJoin input:hover{
+        background: black;
+      }
+      #popupJoin button{
+        padding: 1em 2em;
+        border-radius: 1.5em;
+        line-height: 1em;
+        background: white;
+        color: black;
+        text-transform: uppercase;
+        border: 2px solid black;
+        outline: none;
+        margin-top: 2em;
+        font-weight: bold;
+        transition: all 0.2s ease-in-out;
+      }
+      #popupJoin button:hover{
+        background: black !important;
+        color: white !important;
+      }
+      #outputPlayer{
+        position: fixed;
+        bottom: 1em;
+        left: 1em;
+        font-weight: bold;
+        color: white;
+        z-index: 2;
+        font-family: monospace;
+      }
+      #outputPOI{
+        position: fixed;
+        bottom: 1em;
+        right: 1em;
+        font-weight: bold;
+        color: white;
+        z-index: 2;
+        font-family: monospace;
+        list-style: none;
+      }
+      #outputPOI:before{
+        content: "POI close to you"
+      }
+      #outputPOI a{
+        text-decoration: none;
+      }
     </style>
   </head>
   <body>
@@ -162,6 +246,17 @@
       <div class="footer-right footer">About</div>
     </footer> -->
     <canvas id="canvas" class="zdog-canvas" width="240" height="240"></canvas>
+    <div id="popupJoin">
+      <h2>Welcome to
+      <p>Pick your two favourite colours:</p><br>
+      <input type="color" id="inputColorFirst" name="firstColor" value="#0000ff">
+      <input type="color" id="inputColorSecond" name="secondColor" value="#ff0000"><br>
+      <p>Press the mouse or tap the screen to move forward.</p><br>
+      <p>Slide to the left and right to turn.</p>
+      <button id="buttonJoin">Enter</button>
+    </div>
+    <div id="outputPlayer">X: 0 Y: 0</div>
+    <div id="outputPOI"></div>
     <!-- <nav class="header">
       <button>X : <span id="headerX">0</span></button>
       <button>Y : <span id="headerY">0</span></button>
