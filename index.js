@@ -32,19 +32,27 @@ let render = new Zdog.Illustration({
   resize: true,
   rotate: {x: Zdog.TAU * (0.2 + ((pointerRotation.x + deltaPointerRotation.x) * 0.2)),y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
 });
-
+let ui = {
+  x:false,
+  y:false,
+  clock:false,
+  people:false,
+  colorA:false,
+  colorB:false
+}
 let avatar = {
   joined: false,
   id: "",
   name: "",
   x: 0,
   y: 0,
-  dX: 0,
-  dY: 0,
+  // dX: 0,
+  // dY: 0,
   d: 40,
   state: 0,
   relD: 0,
   cd: 0.1,
+  speed: 0.5,
   shape: new Zdog.Anchor({
     addTo: render,
     translate: {x: size * scale * 0.5, y: size * scale * 0.5, z: 100}
@@ -59,8 +67,10 @@ let avatar = {
   //   color: "#fff"
   // }),
   move: function(v){
-    this.dX += v.x
-    this.dY += v.y
+    // this.dX += v.x
+    // this.dY += v.y
+    this.x += v.x * this.speed
+    this.y += v.y * this.speed
   },
   // flash: function(){
   //   if(this.state.flash <= 0){
@@ -159,21 +169,26 @@ function handleRotate(x,y){
 }
 
 function popup(){
-  document.getElementById("buttonJoin").addEventListener("click",join)
-  document.getElementById("popupJoin").classList.add("is-active")
+  // document.getElementById("buttonJoin").addEventListener("click",join)
+  // document.getElementById("popupJoin").classList.add("is-active")
+  join()
 }
 
 function join(){
-  document.getElementById("popupJoin").classList.remove("is-active")
+  // document.getElementById("popupJoin").classList.remove("is-active")
+  let colorA = rainbow(128,Math.floor(Math.random() * 128))
   avatar.state = {
-    colorA: document.getElementById("inputColorFirst").value,
-    colorB: document.getElementById("inputColorSecond").value,
-    invertA: "#" + invertHex(document.getElementById("inputColorFirst").value.replace("#","")),
-    invertB: "#" + invertHex(document.getElementById("inputColorSecond").value.replace("#","")),
-    // flash: 0
+    // colorA: document.getElementById("inputColorFirst").value,
+    // colorB: document.getElementById("inputColorSecond").value,
+    // invertA: "#" + invertHex(document.getElementById("inputColorFirst").value.replace("#","")),
+    // invertB: "#" + invertHex(document.getElementById("inputColorSecond").value.replace("#","")),
+    colorA: colorA,
+    colorB: colorA,
+    invertA: "#" + invertHex(colorA.replace("#","")),
+    invertB: "#" + invertHex(colorA.replace("#","")),
   }
-  avatar.coloredShapes.ballA.color = document.getElementById("inputColorFirst").value
-  avatar.coloredShapes.ballB.color = document.getElementById("inputColorSecond").value
+  avatar.coloredShapes.ballA.color = avatar.state.colorA
+  avatar.coloredShapes.ballB.color = avatar.state.invertA
   avatar.name = "unknown"
   avatar.id = "" + performance.now() + Math.floor(Math.random() * 1000000)
   avatar.shapes.ball.group.visible = true
@@ -181,10 +196,34 @@ function join(){
   avatar.joined = true
 }
 
+function rainbow(numOfSteps, step) {
+    var r, g, b;
+    var h = step / numOfSteps;
+    var i = ~~(h * 6);
+    var f = h * 6 - i;
+    var q = 1 - f;
+    switch(i % 6){
+        case 0: r = 1; g = f; b = 0; break;
+        case 1: r = q; g = 1; b = 0; break;
+        case 2: r = 0; g = 1; b = f; break;
+        case 3: r = 0; g = q; b = 1; break;
+        case 4: r = f; g = 0; b = 1; break;
+        case 5: r = 1; g = 0; b = q; break;
+    }
+    var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+    return (c);
+}
+
 function init(){
   // kd.SPACE.down(function () {
   //   avatar.flash()
   // })
+  ui.x = document.getElementById("avatarX")
+  ui.y = document.getElementById("avatarY")
+  ui.clock = document.getElementById("timeOnServer")
+  ui.people = document.getElementById("peopleOnServer")
+  ui.colorA = document.getElementById("avatarFirstColor")
+  ui.colorB = document.getElementById("avatarSecondColor")
   for(let y = 0; y < scale + 1; y ++){
     let row = []
     for(let x = 0; x < scale + 1; x ++){
@@ -238,7 +277,8 @@ function init(){
     timestamp = performance.now()
     kd.tick()
     if(avatar.joined){
-      socket.emit('alive', {id:avatar.id,x:avatar.dX,y:avatar.dY,state:avatar.state})
+      // socket.emit('alive', {id:avatar.id,x:avatar.dX,y:avatar.dY,state:avatar.state})
+      socket.emit('alive', {id:avatar.id,x:avatar.x,y:avatar.y,state:avatar.state})
     }
     avatar.dX = 0
     avatar.dY = 0
@@ -251,13 +291,15 @@ function init(){
       avatar.state -= avatar.cd
     }
     if(avatars[avatar.id]){
-      avatar.x = avatars[avatar.id].x
-      avatar.y = avatars[avatar.id].y
+      avatars[avatar.id].x = avatar.x
+      avatars[avatar.id].y = avatar.y
       avatar.shapes.ball.group.visible = true
     }
     for(let s in avatarShapes){
       if(!avatars[s] && avatarShapes[s]){
-        avatarShapes[s].remove()
+        avatarShapes[s].group.remove()
+        delete avatarShapes[s]
+        // delete poiInView[avatars[s].id]
       }
     }
     for(let a in avatars){ // for each avatar in the list of avatars
@@ -265,7 +307,7 @@ function init(){
       let relY = (scale * 0.5 + avatars[a].y - avatar.y) % virtualSize //relative to avatar position and virtual center, range 0 - scale
       if(a != avatar.id){ //when the current avatar is not the users avatar
         if(relX >= 0 && relX <= scale && relY >= 0 && relY <= scale){ //when the relative position is within the view
-          if(!avatarShapes[a]){
+          if(!avatarShapes[a]){ //when there is no shape for the avatar
             let group = new Zdog.Group({
               addTo:render,
               visible:true
@@ -275,11 +317,63 @@ function init(){
               addTo: group
             })
             if(avatars[a].poi){
-              let shape = new Zdog.Shape({
+              // let shape = new Zdog.Box({
+              //   addTo: anchor,
+              //   width: size,
+              //   height: size,
+              //   depth: size,
+              //   stroke: false,
+              //   color: avatars[a].state.colors[0],
+              //   leftFace: avatars[a].state.colors[1],
+              //   rightFace: avatars[a].state.colors[1],
+              //   rearFace: avatars[a].state.colors[0],
+              //   topFace: avatars[a].state.colors[2],
+              //   bottomFace: avatars[a].state.colors[2]
+              // });
+              let shape = new Zdog.Cylinder({
                 addTo: anchor,
-                stroke: size,
-                color: avatars[a].state.color,
+                diameter: size,
+                length: size,
+                stroke: false,
+                color: avatars[a].state.colors[0],
+                frontFace: avatars[a].state.colors[1],
+                backface: avatars[a].state.colors[2],
               });
+              // var tetrahedron = new Zdog.Anchor({
+              //   addTo: anchor,
+              //   translate: { x: 0, y: 0 },
+              //   scale: 60,
+              // });
+              // var TAU = Zdog.TAU;
+              // var radius = 0.5;
+              // var inradius = Math.cos( TAU/6 ) * radius;
+              // var height = radius + inradius;
+              // var triangle = new Zdog.Polygon({
+              //   sides: 3,
+              //   radius: radius,
+              //   addTo: tetrahedron,
+              //   translate: { y: height/2 },
+              //   fill: true,
+              //   stroke: false,
+              //   color: avatars[a].state.colors[3] || "#000000"
+              // });
+              // for ( var i=0; i < 3; i++ ) {
+              //   var rotor1 = new Zdog.Anchor({
+              //     addTo: tetrahedron,
+              //     rotate: { y: TAU/3 * -i },
+              //   });
+              //   var rotor2 = new Zdog.Anchor({
+              //     addTo: rotor1,
+              //     translate: { z: inradius, y: height/2 },
+              //     rotate: { x: Math.acos(1/3) * -1 + TAU/4  },
+              //   });
+              //   triangle.copy({
+              //     addTo: rotor2,
+              //     translate: { y: -inradius },
+              //     color: avatars[a].state.colors[i]
+              //   });
+              // }
+              // triangle.rotate.set({ x: -TAU/4, z: -TAU/2 });
               avatarShapes[a] = {
                 shape: shape,
                 group: group,
@@ -298,7 +392,7 @@ function init(){
                 addTo: anchor,
                 diameter: size,
                 stroke: false,
-                color: avatars[a].state.colorB,
+                color: avatars[a].state.invertA,
                 rotate: { x: Zdog.TAU/2 }
               });
               avatarShapes[a] = {
@@ -309,10 +403,10 @@ function init(){
               }
             }
           }
-          else{
+          else{ //when there is a shape
             (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5)
             avatarShapes[a].anchor.translate = {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size}
-            let rotation = Zdog.TAU * (performance.now() + Number(avatars[a].id)) * 0.0001
+            let rotation = Zdog.TAU * (performance.now()) * 0.0001
             avatarShapes[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
           }
         }
@@ -343,10 +437,12 @@ function getZAt(x,y,q){
       n = 2 + ((1 + noise.simplex3(x + _x * grain,y + _y * grain,performance.now() * speed)) * 0.5)
       break
     case 2: //cityblocks 3 - 8
-      n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * grain,((y + _y) + ((y + _y) % 2)) * grain,0)) * 0.5),4)
+      // n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * grain,((y + _y) + ((y + _y) % 2)) * grain,0)) * 0.5),4)
+      n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * grain,((y + _y) + ((y + _y) % 2)) * grain,0)) * 0.5),3)
       break
     case 3: // mountains 0 - 16
-      n = 2 + Math.pow(((1 + noise.simplex3(x + _x * grain * 0.1,y + _y * grain * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 16
+      // n = 2 + Math.pow(((1 + noise.simplex3(x + _x * grain * 0.1,y + _y * grain * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 16
+      n = 2 + Math.pow(((1 + noise.simplex3(x + _x * grain * 0.1,y + _y * grain * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 8
       break
   }
   return n - 12
@@ -354,17 +450,34 @@ function getZAt(x,y,q){
 function update(){
   uiUpdateClock++
   if((uiUpdateClock % updateUIAfter) == 0){
-    document.getElementById("outputPlayer").innerText = "X: " + Math.round(avatar.x % virtualSize) + " Y: " + Math.round(avatar.y % virtualSize)
+    let time = Math.floor(performance.now() / 1000)
+    ui.x.innerText = Math.round(avatar.x % virtualSize)
+    ui.y.innerText = Math.round(avatar.y % virtualSize)
+    ui.clock.innerText = Math.floor(time / 60 / 60) + ":" + Math.floor(time / 60) % 60 + ":" + time % 60
+    ui.people.innerText = Object.keys(avatars).length
+    ui.colorA.style.background = avatar.state.colorA
+    ui.colorB.style.background = avatar.state.invertA
     let poiList = document.getElementById("outputPOI")
     poiList.innerHTML = ""
     for(let poi in poiInView){
-      let li = document.createElement("li")
+      let tr = document.createElement("tr")
+      let th = document.createElement("th")
+      let td = document.createElement("td")
       let a = document.createElement("a")
-      a.style.color = poiInView[poi].state.color
+      // a.style.color = poiInView[poi].state.color
       a.href = poiInView[poi].state.link
       a.innerText = poiInView[poi].name
-      li.appendChild(a)
-      poiList.appendChild(li)
+      for(let c in poiInView[poi].state.colors){
+        let span = document.createElement("span")
+        span.classList.add("color")
+        span.style.background = poiInView[poi].state.colors[c]
+        td.appendChild(span)
+      }
+      tr.appendChild(td)
+      th.appendChild(a)
+      tr.appendChild(th)
+
+      poiList.appendChild(tr)
     }
   }
   if(avatars[avatar.id]){

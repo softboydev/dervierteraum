@@ -2,9 +2,13 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>BDSM | Big Dumb State Machine</title>
+    <title>Frappant Vierter Raum</title>
     <meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=no">
     <style media="screen">
+      @font-face {
+        font-family: 'SpaceMono';
+        src:  url('./fonts/SpaceMono-Regular.ttf') format('truetype');
+      }
       canvas,
       body{
         position: fixed;
@@ -13,141 +17,15 @@
         width: 100%;
         height: 100%;
         z-index: 1;
+        text-transform: uppercase;
+        font-size: 1.5vh;
+        font-family: "SpaceMono"
       }
       body{
         background: black;
         user-select: none;
       }
-      .controls{
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        display: flex;
-        justify-content: space-between;
-        width: calc(100% - 4vh);
-        height: 6vh;
-        padding: 2vh;
-        z-index: 2;
-      }
-      .controls button{
-        width: 15%;
-        height: 100%;
-        border: 2px solid white;
-        background: rgba(0,0,0,0.1);
-        padding: 0;
-        text-align: center;
-        color: white;
-        font-size: 3vh;
-        transition: all 0.1s ease-in-out;
-      }
-      .header{
-        position: fixed;
-        top: 0;
-        left: 0;
-        display: flex;
-        justify-content: space-between;
-        width: calc(100% - 4vh);
-        height: 6vh;
-        padding: 2vh;
-        z-index: 2;
-      }
-      .header button{
-        width: 20%;
-        height: 100%;
-        border: 2px solid white;
-        background: rgba(0,0,0,0.1);
-        padding: 0;
-        text-align: center;
-        color: white;
-        font-size: 3vh;
-        transition: all 0.1s ease-in-out;
-      }
-      button{
-        cursor: pointer;
-      }
-      button:hover{
-        background: white !important;
-        color: black !important;
-      }
-      #controlsSpace{
-        width: 30%;
-      }
-      #chatToggle{
-        width: 6vh;
-      }
-      #display{
-        position: fixed;
-        font-family: sans-serif;
-        text-transform: uppercase;
-        top: 2vh;
-        left: 2vh;
-        color: white;
-        font-size: 2vh;
-        z-index: 3;
-      }
 
-      #chat{
-        position: fixed;
-        right: -100%;
-        bottom: 10vh;
-        height: 80vh;
-        border: 2px solid white;
-        background: rgba(0,0,0,0.1);
-        overflow: hidden;
-        padding: 0;
-        margin: 0;
-        width: calc(calc(100% - 4vh) - 4px);
-        max-width: 480px;
-        z-index: 3;
-        transition: all 0.2s ease-in-out;
-      }
-      .chat-is-active #chat{
-        right: 2vh;
-      }
-      #chat .chat-window{
-        padding: 0 2vh;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: calc(100% - 4vh);
-        height: calc(100% - 14vh);
-        overflow-x: hidden;
-        overflow-y: auto;
-        list-style: none;
-      }
-      #chat .chat-buttons{
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        display: flex;
-        justify-content: space-between;
-        width: calc(100% - 4vh);
-        height: 6vh;
-        padding: 2vh;
-        z-index: 2;
-        border-top: 2px solid white;
-      }
-      #chat .chat-buttons button{
-        width: 6vh;
-        height: 6vh;
-        border: 2px solid white;
-        font-size: 3vh;
-        text-align: center;
-        background: transparent;
-        color: white;
-      }
-      #chat .chat-window li{
-        display: block;
-        margin-bottom: 2vh;
-        margin-top: 0;
-        background: white;
-        width: calc(100% - 4vh);
-        height: 10vh;
-        pointer-events: none;
-      }
-      #chat .chat-window li.self{
-        margin-left: 2vh;
-      }
       #popupJoin{
         position: fixed;
         top: 50%;
@@ -158,8 +36,6 @@
         color: black;
         text-align: center;
         transform: translate(-50%,-50%);
-        font-family: monospace;
-        font-weight: bold;
         z-index: 2;
         transition: all 0.2s ease-in-out;
         opacity: 0;
@@ -200,7 +76,6 @@
         border: 2px solid black;
         outline: none;
         margin-top: 2em;
-        font-weight: bold;
         transition: all 0.2s ease-in-out;
       }
       #popupJoin button:hover{
@@ -211,26 +86,91 @@
         position: fixed;
         bottom: 1em;
         left: 1em;
-        font-weight: bold;
         color: white;
         z-index: 2;
-        font-family: monospace;
+      }
+      @media (max-aspect-ratio: 1/1){
+        #outputPlayer{
+          left: auto;
+          bottom: auto;
+          top: 1em;
+          right: 1em;
+          text-align: right;
+        }
       }
       #outputPOI{
         position: fixed;
         bottom: 1em;
         right: 1em;
-        font-weight: bold;
         color: white;
         z-index: 2;
-        font-family: monospace;
         list-style: none;
+        text-align: right;
       }
-      #outputPOI:before{
-        content: "POI close to you"
+      #logo{
+        position: fixed;
+        top: 2em;
+        left: 2em;
+        z-index: 2;
+        width: 2em;
+        height: 2em;
+      }
+      #menu{
+        position: fixed;
+        top: 2em;
+        right: 2em;
+        z-index: 2;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      @media (max-aspect-ratio: 1/1){
+        #menu{
+          top: auto;
+          right: auto;
+          left: 2em;
+          bottom: 2em;
+          transform-origin: 0% 100%;
+          transform: rotate(-90deg);
+          mix-blend-mode: difference;
+        }
+      }
+      #menu a{
+        color: white;
+        text-decoration: none;
+      }
+      #menu li{
+        display: inline-block;
+      }
+      #title{
+        position: fixed;
+        top: 1em;
+        right: 1em;
+        z-index: 2;
+        font-size: 1em;
+        line-height: 1em;
+        height: auto;
+        color: white;
+        font-weight: normal;
+        text-align: right;
+      }
+      #outputPOI a{
+        color: white;
       }
       #outputPOI a{
         text-decoration: none;
+      }
+      table{
+        border-spacing: 1em;
+      }
+      th,td{
+        min-width: 3em;
+        line-height: 1em;
+      }
+      .color{
+        width: 1em;
+        height: 1em;
+        display: inline-block;
       }
     </style>
   </head>
@@ -246,7 +186,7 @@
       <div class="footer-right footer">About</div>
     </footer> -->
     <canvas id="canvas" class="zdog-canvas" width="240" height="240"></canvas>
-    <div id="popupJoin">
+    <!-- <div id="popupJoin">
       <h2>Welcome to
       <p>Pick your two favourite colours:</p><br>
       <input type="color" id="inputColorFirst" name="firstColor" value="#0000ff">
@@ -254,9 +194,44 @@
       <p>Press the mouse or tap the screen to move forward.</p><br>
       <p>Slide to the left and right to turn.</p>
       <button id="buttonJoin">Enter</button>
-    </div>
-    <div id="outputPlayer">X: 0 Y: 0</div>
-    <div id="outputPOI"></div>
+    </div> -->
+    <img id="logo" src="./logo.png" alt="Frappant Vierter Raum Logo">
+    <ul id="menu">
+      <li>
+        <a href="/">Frappant</a>
+      </li>
+      <li>
+        <a href="/">About</a>
+      </li>
+      <li>
+        <a href="/">Privacy</a>
+      </li>
+      <li>
+        <a href="/">Contact</a>
+      </li>
+    </ul>
+    <table id="outputPlayer">
+      <tr>
+        <th>X__</th>
+        <td id="avatarX"></td>
+        <th>Y__</th>
+        <td id="avatarY"></td>
+      </tr>
+      <tr>
+        <th>C_1</th>
+        <td><span class="color" style="background:white" id="avatarFirstColor"></span></td>
+        <th>C_2</th>
+        <td><span class="color" style="background:white" id="avatarSecondColor"></span></td>
+      </tr>
+      <tr>
+        <th>PPL</th>
+        <td id="peopleOnServer"></td>
+        <th>TIM</th>
+        <td id="timeOnServer"></td>
+      </tr>
+    </table>
+    <table id="outputPOI">
+    </table>
     <!-- <nav class="header">
       <button>X : <span id="headerX">0</span></button>
       <button>Y : <span id="headerY">0</span></button>
