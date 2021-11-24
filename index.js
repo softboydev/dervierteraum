@@ -19,7 +19,7 @@ window.addEventListener("reset",function(){
   canvas.height = window.innerHeight
 })
 let scale = 24
-let virtualSize = 48
+let virtualSize = 20
 let size = 40
 let delta = 14
 let points = []
@@ -44,8 +44,8 @@ let avatar = {
   joined: false,
   id: "",
   name: "",
-  x: 0,
-  y: 0,
+  x: -10 + Math.floor(Math.random() * 20),
+  y: -10 + Math.floor(Math.random() * 20),
   // dX: 0,
   // dY: 0,
   d: 40,
@@ -218,12 +218,12 @@ function init(){
   // kd.SPACE.down(function () {
   //   avatar.flash()
   // })
-  ui.x = document.getElementById("avatarX")
-  ui.y = document.getElementById("avatarY")
-  ui.clock = document.getElementById("timeOnServer")
-  ui.people = document.getElementById("peopleOnServer")
-  ui.colorA = document.getElementById("avatarFirstColor")
-  ui.colorB = document.getElementById("avatarSecondColor")
+  // ui.x = document.getElementById("avatarX")
+  // ui.y = document.getElementById("avatarY")
+  // ui.clock = document.getElementById("timeOnServer")
+  // ui.people = document.getElementById("peopleOnServer")
+  // ui.colorA = document.getElementById("avatarFirstColor")
+  // ui.colorB = document.getElementById("avatarSecondColor")
   for(let y = 0; y < scale + 1; y ++){
     let row = []
     for(let x = 0; x < scale + 1; x ++){
@@ -330,15 +330,71 @@ function init(){
               //   topFace: avatars[a].state.colors[2],
               //   bottomFace: avatars[a].state.colors[2]
               // });
-              let shape = new Zdog.Cylinder({
-                addTo: anchor,
-                diameter: size,
-                length: size,
-                stroke: false,
-                color: avatars[a].state.colors[0],
-                frontFace: avatars[a].state.colors[1],
-                backface: avatars[a].state.colors[2],
-              });
+              let _z = getZAt(relX,relY) * delta + avatar.d + size
+              anchor = new Zdog.Anchor({
+                translate: {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: _z},
+                addTo: render
+              })
+              for(let z = 0; z < 5; z++){
+                let block = avatars[a].state.plan[0][z]
+                let color = avatars[a].state.plan[1][z]
+                let translate = {
+                  x: 0,
+                  y: 0,
+                  z: _z + z * size,
+                }
+                switch(block){
+                  case "X":
+                  let box = new Zdog.Box({
+                    addTo: anchor,
+                    width: size,
+                    height: size,
+                    depth: size,
+                    stroke: true,
+                    color: color,
+                    translate: translate
+                  });
+                  break
+                  case "A":
+                  translate.z = translate.z - 0.5 * size
+                  new Zdog.Cone({
+                    addTo: anchor,
+                    diameter: size,
+                    length: size,
+                    stroke: false,
+                    color: color,
+                    translate: translate
+                  });
+                  break
+                  case "O":
+                  new Zdog.Shape({
+                    addTo: anchor,
+                    stroke: size,
+                    color: color,
+                    translate: translate
+                  });
+                  break
+                  case "I":
+                  new Zdog.Cylinder({
+                    addTo: anchor,
+                    diameter: size,
+                    length: size,
+                    stroke: false,
+                    color: color,
+                    translate:translate
+                  });
+                  break
+                }
+              }
+              // let shape = new Zdog.Cylinder({
+              //   addTo: anchor,
+              //   diameter: size,
+              //   length: size,
+              //   stroke: false,
+              //   color: avatars[a].state.colors[0],
+              //   frontFace: avatars[a].state.colors[1],
+              //   backface: avatars[a].state.colors[2],
+              // });
               // var tetrahedron = new Zdog.Anchor({
               //   addTo: anchor,
               //   translate: { x: 0, y: 0 },
@@ -375,7 +431,7 @@ function init(){
               // }
               // triangle.rotate.set({ x: -TAU/4, z: -TAU/2 });
               avatarShapes[a] = {
-                shape: shape,
+                // shape: shape,
                 group: group,
                 anchor: anchor
               }
@@ -406,15 +462,22 @@ function init(){
           else{ //when there is a shape
             (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5)
             avatarShapes[a].anchor.translate = {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size}
-            let rotation = Zdog.TAU * (performance.now()) * 0.0001
-            avatarShapes[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
+            if(!avatars[a].poi){
+              rotation = Zdog.TAU * (performance.now()) * 0.0001
+              avatarShapes[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
+            }
+
           }
         }
         else if(avatarShapes[a]){ //when it is not but there is still a shape representing it
           if(avatars[a].poi){
             delete poiInView[avatars[a].id]
+            avatarShapes[a].anchor.remove()
           }
-          avatarShapes[a].group.remove()
+          else{
+            avatarShapes[a].group.remove()
+          }
+
           delete avatarShapes[a]
         }
       }
@@ -449,37 +512,37 @@ function getZAt(x,y,q){
 }
 function update(){
   uiUpdateClock++
-  if((uiUpdateClock % updateUIAfter) == 0){
-    let time = Math.floor(performance.now() / 1000)
-    ui.x.innerText = Math.round(avatar.x % virtualSize)
-    ui.y.innerText = Math.round(avatar.y % virtualSize)
-    ui.clock.innerText = Math.floor(time / 60 / 60) + ":" + Math.floor(time / 60) % 60 + ":" + time % 60
-    ui.people.innerText = Object.keys(avatars).length
-    ui.colorA.style.background = avatar.state.colorA
-    ui.colorB.style.background = avatar.state.invertA
-    let poiList = document.getElementById("outputPOI")
-    poiList.innerHTML = ""
-    for(let poi in poiInView){
-      let tr = document.createElement("tr")
-      let th = document.createElement("th")
-      let td = document.createElement("td")
-      let a = document.createElement("a")
-      // a.style.color = poiInView[poi].state.color
-      a.href = poiInView[poi].state.link
-      a.innerText = poiInView[poi].name
-      for(let c in poiInView[poi].state.colors){
-        let span = document.createElement("span")
-        span.classList.add("color")
-        span.style.background = poiInView[poi].state.colors[c]
-        td.appendChild(span)
-      }
-      tr.appendChild(td)
-      th.appendChild(a)
-      tr.appendChild(th)
-
-      poiList.appendChild(tr)
-    }
-  }
+  // if((uiUpdateClock % updateUIAfter) == 0){
+  //   let time = Math.floor(performance.now() / 1000)
+  //   ui.x.innerText = Math.round(avatar.x % virtualSize)
+  //   ui.y.innerText = Math.round(avatar.y % virtualSize)
+  //   ui.clock.innerText = Math.floor(time / 60 / 60) + ":" + Math.floor(time / 60) % 60 + ":" + time % 60
+  //   ui.people.innerText = Object.keys(avatars).length
+  //   ui.colorA.style.background = avatar.state.colorA
+  //   ui.colorB.style.background = avatar.state.invertA
+  //   let poiList = document.getElementById("outputPOI")
+  //   poiList.innerHTML = ""
+  //   for(let poi in poiInView){
+  //     let tr = document.createElement("tr")
+  //     let th = document.createElement("th")
+  //     let td = document.createElement("td")
+  //     let a = document.createElement("a")
+  //     // a.style.color = poiInView[poi].state.color
+  //     a.href = poiInView[poi].state.link
+  //     a.innerText = poiInView[poi].name
+  //     for(let c in poiInView[poi].state.colors){
+  //       let span = document.createElement("span")
+  //       span.classList.add("color")
+  //       span.style.background = poiInView[poi].state.colors[c]
+  //       td.appendChild(span)
+  //     }
+  //     tr.appendChild(td)
+  //     th.appendChild(a)
+  //     tr.appendChild(th)
+  //
+  //     poiList.appendChild(tr)
+  //   }
+  // }
   if(avatars[avatar.id]){
     avatar.state = avatars[avatar.id].state
     avatar.shape.translate = {z: getZAt(scale * 0.5,scale * 0.5) * delta + size + avatar.d * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}

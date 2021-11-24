@@ -13,7 +13,7 @@ let players = {
     y: 0,
     poi: true,
     state: {
-      colors: ["#0F2C67","#CD1818","#F3950D"],
+      plan: [["X","X","O","X","O","X"],["#fff","#fff","#f00","#00f","#00f","#fff"]],
       link: "https://example.com"
     }
   },
@@ -24,7 +24,7 @@ let players = {
     y: -6,
     poi: true,
     state: {
-      colors: ["#FF0075","#172774","77D970"],
+      plan: [["X","I","I","A","O","O"],["#f00","#0f0","#ff0","#0f0","#ff0","#fff"]],
       link: "https://example.com"
     }
   },
@@ -35,7 +35,7 @@ let players = {
     y: 12,
     poi: true,
     state: {
-      colors: ["#ff0000","#00ff00","#0000ff"],
+      plan: [["I","I","I","X","I","O"],["#00f","#00f","#00f","#f0f","#ff0","#f0f"]],
       link: "https://example.com"
     }
   }
@@ -55,6 +55,9 @@ app.get('/fonts/SpaceMono-Regular.ttf',function(req,res){
 });
 app.get('/logo.png',function(req,res){
     res.sendFile(__dirname + '/logo.png');
+});
+app.get('/logo_inverted.png',function(req,res){
+    res.sendFile(__dirname + '/logo_inverted.png');
 });
 io.on("connection", (socket) => {
   socket.on("join", msg => {
