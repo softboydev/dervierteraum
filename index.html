@@ -25,6 +25,9 @@
         background: black;
         user-select: none;
       }
+      *{
+        user-select: none;
+      }
 
       #popupJoin{
         position: fixed;
@@ -172,6 +175,146 @@
         height: 1em;
         display: inline-block;
       }
+      #info{
+        position: fixed;
+        top: -50%;
+        left: 50%;
+        transform: translate(-50%,-50%) scale(50%) rotate3d(1,0,0,90deg);
+        background: black;
+        width: 90vw;
+        height: 80vh;
+        max-width: 640px;
+        max-height: 640px;
+        z-index: 2;
+        border: 1px solid white;
+        transition: all 0.5s ease-in-out;
+        transform-origin: 50% 50%;
+      }
+      .info-open #info{
+        top: 50%;
+        transform: translate(-50%,-50%) scale(100%) rotate3d(1,0,0,0deg);
+      }
+      #canvas{
+        transform: translateY(0%) scale(100%);
+        transition: all 0.5s ease-in-out;
+      }
+      .info-open #canvas{
+        transform: translateY(30%) scale(70%);
+      }
+      .info-inner{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        overflow: hidden;
+        overflow-y: hidden;
+        height: calc(100% - 3rem);
+        overflow-y: auto;
+      }
+      .info-body{
+        overflow: hidden;
+        overflow-y: auto;
+      }
+      .info-footer{
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        border-top: 1px solid white;
+        height: 3rem;
+        background: black;
+      }
+      #infoTitle{
+        color: white;
+        font-size: 1rem;
+        line-height: 1.2em;
+        margin: 0;
+        padding: 0;
+        padding: 1rem;
+        border-bottom: 1px solid white;
+      }
+      #infoArtists{
+        color: white;
+        font-size: 1rem;
+        line-height: 1.2em;
+        margin: 0;
+        padding: 0;
+        padding: 1rem;
+        border-bottom: 1px solid white;
+      }
+      #infoDate{
+        color: white;
+        font-size: 1rem;
+        line-height: 1em;
+        padding: 1rem;
+        border-bottom: 1px solid white;
+      }
+      #infoDesc{
+        color: white;
+        font-size: 1rem;
+        line-height: 1.5em;
+        padding: 1rem;
+      }
+      #infoOpen{
+        width: calc(50% - 2rem);
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        height: 1rem;
+        font-size: 1rem;
+        line-height: 1em;
+        text-decoration: none;
+        padding: 1rem;
+        text-align: center;
+        background: transparent;
+        border: 0;
+        outline: none;
+        font-family: "SpaceMono";
+        color: white;
+        text-transform: uppercase;
+        cursor: pointer;
+        border-left: 1px solid white;
+      }
+      #infoExit{
+        font-size: 1rem;
+        line-height: 1em;
+        text-decoration: none;
+        width: calc(50% - 2rem);
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 1rem;
+        padding: 1rem;
+        text-align: center;
+        background: transparent;
+        border: 0;
+        outline: none;
+        font-family: "SpaceMono";
+        color: white;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      #tutorial{
+        font-family: "SpaceMono";
+        color: white;
+        font-size: 1rem;
+        line-height: 1em;
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%,-100vh);
+        width: 80vw;
+        text-align: center;
+        z-index: 1000;
+        background: black;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.5s ease-in-out;
+      }
+      .tutorial-open #tutorial{
+        transform: translate(-50%,0);
+        opacity: 1;
+      }
     </style>
   </head>
   <body>
@@ -277,6 +420,42 @@
         <li class="c"></li>
       </ol>
     </section> -->
+    <div id="info">
+      <div class="info-inner">
+        <div class="info-header">
+          <h2 id="infoTitle">
+            Rabbithole
+          </h2>
+          <h3 id="infoArtists">
+            Peter Lustig, Franka Potente
+          </h3>
+          <div id="infoDate">
+            15.12.21 - 06.09.22, Mo - So, 6 - 22
+          </div>
+        </div>
+        <div class="info-body">
+          <div id="infoDesc">
+            It's urgent, but we don't have time in the next two years to test it, but we must prioritize it. At least we don't need to obfuscate it. You must rethink the whole process. We will give you a slice of pizza if you finish the code until yesterday. Make it pop remember, the entirety is equal or better. We must build a queue system to ensure it gets the data from our API so this will result in a delay. How does this indicator should look? Also please answer to question from the next mail. Kind reminder. Please inform us where we are on this. After the release, we will need to test it individually.
+          </div>
+        </div>
+      </div>
+      <div class="info-footer">
+        <a href="/" target="_blank" id="infoOpen">
+          Enter
+        </a>
+        <a onclick="closeInfo()" id="infoExit">
+          Exit
+        </a>
+      </div>
+    </div>
+    <div id="tutorial">
+      Use your mouse or finger.<br>
+      Hold to move.<br>
+      Slide to turn.<br>
+      Tap to flash.<br><br>
+      Stand close to a pillar.
+    </div>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="scripts.js"></script>
     <script src="index.js"></script>

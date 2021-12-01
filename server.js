@@ -14,17 +14,23 @@ let players = {
     poi: true,
     state: {
       plan: [["X","X","O","X","O","X"],["#fff","#fff","#f00","#00f","#00f","#fff"]],
-      link: "https://example.com"
+      artists:"/",
+      date:"24/7",
+      description:"Visit the website of the Frappant e.V.",
+      link: "https://frappant.org"
     }
   },
   poi2: {
-    name: "Was ist der vierte Raum?",
+    name: "Examlpe",
     id: "poi2",
     x: 2,
     y: -6,
     poi: true,
     state: {
       plan: [["X","I","I","A","O","O"],["#f00","#0f0","#ff0","#0f0","#ff0","#fff"]],
+      artists:"Peter Maffay, Franka Potente",
+      date:"23.4.21 - 01.12.22, Mo-So, 6-16",
+      description:"A very nice exhibit",
       link: "https://example.com"
     }
   },
@@ -36,6 +42,9 @@ let players = {
     poi: true,
     state: {
       plan: [["I","I","I","X","I","O"],["#00f","#00f","#00f","#f0f","#ff0","#f0f"]],
+      artists:"Lülülü",
+      date:"23.4.21 - 01.12.22, Mo-So, 6-16",
+      description:"Ipsem dolor",
       link: "https://example.com"
     }
   }
@@ -64,8 +73,8 @@ io.on("connection", (socket) => {
     players[msg.id] = {
       name: msg.name,
       id: msg.id,
-      x: -10 + Math.floor(Math.random() * 20),
-      y: -10 + Math.floor(Math.random() * 20),
+      x: msg.position && msg.position.x ? msg.position.x : -10 + Math.floor(Math.random() * 20),
+      y: msg.position && msg.position.y ? msg.position.y : -10 + Math.floor(Math.random() * 20),
       state: msg.state,
       alive: KILL_PLAYERS_AFTER,
       poi: false

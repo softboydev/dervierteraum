@@ -12,6 +12,11 @@ let rotateX = 0
 let rotateY = 0
 let updateUIAfter = 10
 let uiUpdateClock = 0
+let infoFlag = 0
+let infoCD = 10
+let hasMovedAfterClose = false
+let infoArea = 4
+let colors = ['#87CEFA','#483D8B','#9370DB','#8B0000','#F0FFFF','#2E8B57','#FFF8DC','#000080','#778899','#A9A9A9','#DA70D6','#FFF5EE','#A0522D','#B0E0E6','#B8860B','#6B8E23','#5F9EA0','#FFF0F5','#FFE4E1','#DC143C','#90EE90','#FFFF00','#FF1493','#556B2F','#E6E6FA','#D2B48C','#FF69B4','#E9967A','#708090','#DDA0DD','#EE82EE','#9400D3','#DCDCDC','#4682B4','#008B8B','#3CB371','#6A5ACD','#F5F5DC','#808000','#FFD700','#9ACD32','#FFDEAD','#DAA520','#696969','#9932CC','#FFE4B5','#800080','#F5DEB3','#E0FFFF','#FFFFE0','#191970','#00FFFF','#B0C4DE','#F5F5F5','#006400','#7FFFD4','#20B2AA','#7FFF00','#C0C0C0','#FFDAB9','#FFE4C4','#40E0D0','#D2691E','#BA55D3','#FFB6C1','#A52A2A','#D8BFD8','#FFFAFA','#FFFFFF','#AFEEEE','#7CFC00','#FF7F50','#32CD32','#F8F8FF','#6495ED','#F0FFF0','#00FF00','#4169E1','#BC8F8F','#00BFFF','#00008B','#00FF7F','#DB7093','#FF00FF','#808080','#00CED1','#ADFF2F','#FFA500','#FF00FF','#66CDAA','#800000','#2F4F4F','#00FFFF','#FFA07A','#F0F8FF','#DEB887','#FDF5E6','#FF0000','#CD853F','#0000FF','#7B68EE','#FFFAF0','#48D1CC','#FAEBD7','#F08080','#EEE8AA','#F0E68C','#FFEFD5','#9966CC','#FF6347','#1E90FF','#FF8C00','#CD5C5C','#00FA9A','#228B22','#8FBC8F','#FF4500','#7B68EE','#FFFFF0','#B22222','#000000','#FA8072','#ADD8E6','#8B008B','#D3D3D3','#FFA07A','#8A2BE2','#FFEBCD','#0000CD','#F4A460','#FFC0CB','#4B0082','#F5FFFA','#BDB76B','#87CEEB','#008080','#C71585','#FAF0E6','#008000','#8B4513','#FAFAD2','#FFFACD','#98FB98']
 canvas.width = window.innerWidth
 canvas.height = window.innerHeight
 window.addEventListener("reset",function(){
@@ -39,6 +44,13 @@ let ui = {
   people:false,
   colorA:false,
   colorB:false
+}
+let info = {
+  title: false,
+  artists: false,
+  date: false,
+  desc: false,
+  link: false
 }
 let avatar = {
   joined: false,
@@ -69,8 +81,11 @@ let avatar = {
   move: function(v){
     // this.dX += v.x
     // this.dY += v.y
-    this.x += v.x * this.speed
-    this.y += v.y * this.speed
+    if(infoFlag != 1){
+      this.x += v.x * this.speed
+      this.y += v.y * this.speed
+    }
+
   },
   // flash: function(){
   //   if(this.state.flash <= 0){
@@ -133,6 +148,8 @@ function pointerDown(x,y){
     if(!moveInterval){
       setTimeout(function () {
         if(pointerFlag){
+          hasMovedAfterClose = true
+          document.body.classList.remove("tutorial-open")
           moveInterval = setInterval(function(){
             let d = new Zdog.Vector({ x: 0, y: -1 }).rotate({ z: Zdog.TAU - render.rotate.z });
             avatar.move(d)
@@ -158,14 +175,16 @@ function pointerUp(){
   }
 }
 function handleRotate(x,y){
-  if(pointerFlag){
-    let dX =  (lastPointer.x - x) / window.innerWidth
-    let dY =  (lastPointer.y - y) / window.innerHeight
-    deltaPointerRotation.z = dX
-    deltaPointerRotation.x = (-0.5 < (pointerRotation.x + dY) && (pointerRotation.x + dY) < 0.5) ? dY : (pointerRotation.x + dY) > 0.5 ? 0.5 - pointerRotation.x : -0.5 - pointerRotation.x
+  if(infoFlag != 1){
+    if(pointerFlag){
+      let dX =  (lastPointer.x - x) / window.innerWidth
+      let dY =  (lastPointer.y - y) / window.innerHeight
+      deltaPointerRotation.z = dX
+      deltaPointerRotation.x = (-0.5 < (pointerRotation.x + dY) && (pointerRotation.x + dY) < 0.5) ? dY : (pointerRotation.x + dY) > 0.5 ? 0.5 - pointerRotation.x : -0.5 - pointerRotation.x
+    }
+    render.zoom = 1 + pointerRotation.x + deltaPointerRotation.x
+    render.rotate = {x: Zdog.TAU * 0.2 + (pointerRotation.x + deltaPointerRotation.x) * 0.6,y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
   }
-  render.zoom = 1 + pointerRotation.x + deltaPointerRotation.x
-  render.rotate = {x: Zdog.TAU * 0.2 + (pointerRotation.x + deltaPointerRotation.x) * 0.6,y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
 }
 
 function popup(){
@@ -175,8 +194,18 @@ function popup(){
 }
 
 function join(){
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
   // document.getElementById("popupJoin").classList.remove("is-active")
-  let colorA = rainbow(128,Math.floor(Math.random() * 128))
+  let colorA = urlParams.get('color') ? "#" + urlParams.get('color') : rainbow()
+  let position = urlParams.get('x') && urlParams.get('y') ? {x:Number(urlParams.get('x')),y:Number(urlParams.get('x'))} : false
+  if(position){
+    avatar.x = position.x
+    avatar.y = position.y
+  }
+  else{
+    document.body.classList.add("tutorial-open")
+  }
   avatar.state = {
     // colorA: document.getElementById("inputColorFirst").value,
     // colorB: document.getElementById("inputColorSecond").value,
@@ -185,33 +214,19 @@ function join(){
     colorA: colorA,
     colorB: colorA,
     invertA: "#" + invertHex(colorA.replace("#","")),
-    invertB: "#" + invertHex(colorA.replace("#","")),
+    invertB: "#" + invertHex(colorA.replace("#",""))
   }
   avatar.coloredShapes.ballA.color = avatar.state.colorA
   avatar.coloredShapes.ballB.color = avatar.state.invertA
   avatar.name = "unknown"
   avatar.id = "" + performance.now() + Math.floor(Math.random() * 1000000)
-  avatar.shapes.ball.group.visible = true
-  socket.emit('join', {name:avatar.name,id:avatar.id,state:avatar.state})
+  // avatar.shapes.ball.group.visible = true
+  socket.emit('join', {name:avatar.name,id:avatar.id,state:avatar.state,position:position})
   avatar.joined = true
 }
 
-function rainbow(numOfSteps, step) {
-    var r, g, b;
-    var h = step / numOfSteps;
-    var i = ~~(h * 6);
-    var f = h * 6 - i;
-    var q = 1 - f;
-    switch(i % 6){
-        case 0: r = 1; g = f; b = 0; break;
-        case 1: r = q; g = 1; b = 0; break;
-        case 2: r = 0; g = 1; b = f; break;
-        case 3: r = 0; g = q; b = 1; break;
-        case 4: r = f; g = 0; b = 1; break;
-        case 5: r = 1; g = 0; b = q; break;
-    }
-    var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
-    return (c);
+function rainbow() {
+    return colors[Math.floor(colors.length * Math.random())]
 }
 
 function init(){
@@ -224,6 +239,33 @@ function init(){
   // ui.people = document.getElementById("peopleOnServer")
   // ui.colorA = document.getElementById("avatarFirstColor")
   // ui.colorB = document.getElementById("avatarSecondColor")
+  ui.title = document.getElementById("infoTitle")
+  ui.artists = document.getElementById("infoArtists")
+  ui.date = document.getElementById("infoDate")
+  ui.desc = document.getElementById("infoDesc")
+  ui.link = document.getElementById("infoOpen")
+  setInterval(function () {
+    if(infoFlag == 0 && !moveInterval && hasMovedAfterClose){
+      let pos = {
+        x: Math.round((virtualSize + (avatar.x % virtualSize)) % virtualSize),
+        y: Math.round((virtualSize + (avatar.y % virtualSize)) % virtualSize)
+      }
+      for(let a in avatars){
+        let p = avatars[a]
+        if(p.poi){
+          let _x = Math.round((virtualSize + (p.x % virtualSize)) % virtualSize)
+          let _y = Math.round((virtualSize + (p.y % virtualSize)) % virtualSize)
+          if(pos.x > (_x - infoArea)  && pos.x < (_x + infoArea) && pos.y > (_y - infoArea)  && pos.y < (_y + infoArea) ){
+            openInfo(p)
+            return
+          }
+        }
+      }
+    }
+    else if(infoFlag < 0){
+      infoFlag += 1
+    }
+  }, 250);
   for(let y = 0; y < scale + 1; y ++){
     let row = []
     for(let x = 0; x < scale + 1; x ++){
@@ -313,7 +355,7 @@ function init(){
               visible:true
             })
             let anchor = new Zdog.Anchor({
-              translate: {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size},
+              translate: avatars[a].poi ? {x: (((scale * 0.5 + avatars[a].x - 0.5 - avatar.x) % virtualSize) - scale * 0.5) * size , y: (((scale * 0.5 + avatars[a].y - 0.5 - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size} : {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: 4 + getZAt(relX,relY) * 0.5 * delta + avatar.d + size},
               addTo: group
             })
             if(avatars[a].poi){
@@ -335,7 +377,7 @@ function init(){
                 translate: {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: _z},
                 addTo: render
               })
-              for(let z = 0; z < 5; z++){
+              for(let z = 0; z < 6; z++){
                 let block = avatars[a].state.plan[0][z]
                 let color = avatars[a].state.plan[1][z]
                 let translate = {
@@ -461,12 +503,14 @@ function init(){
           }
           else{ //when there is a shape
             (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5)
-            avatarShapes[a].anchor.translate = {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size}
-            if(!avatars[a].poi){
+            if(avatars[a].poi){
+              avatarShapes[a].anchor.translate = {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size}
+            }
+            else{
+              avatarShapes[a].anchor.translate = {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: 4 + getZAt(relX,relY) * 0.5 * delta + avatar.d + size}
               rotation = Zdog.TAU * (performance.now()) * 0.0001
               avatarShapes[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
             }
-
           }
         }
         else if(avatarShapes[a]){ //when it is not but there is still a shape representing it
@@ -491,7 +535,7 @@ function getZAt(x,y,q){
   let _x = q ? Math.round(avatar.x) : avatar.x
   let _y = q ? Math.round(avatar.y) : avatar.y
   let d = (1 + noise.simplex3((1000 + x + _x) * 0.01,(1000 + y + _y) * 0.01,1000) * 10) * 0.5
-  let e = Math.floor((1 + noise.simplex3((10000 + x + _x) * enviromentsGrain,(10000 + y + _y) * enviromentsGrain,1000)) * 2) // 0 - 3
+  let e = Math.round((0.5 + noise.simplex3((10000 + x + _x) * enviromentsGrain,(10000 + y + _y) * enviromentsGrain,1000) * 0.5) * 4) // 0 - 3
   switch(e){
     case 0: //water at sea level 0 - 1
       n = (1 + Math.sin(y + performance.now() * 0.001) * 0.5)
@@ -499,7 +543,10 @@ function getZAt(x,y,q){
     case 1: //moving planes 2 - 3
       n = 2 + ((1 + noise.simplex3(x + _x * grain,y + _y * grain,performance.now() * speed)) * 0.5)
       break
-    case 2: //cityblocks 3 - 8
+    case 2: //still planes
+      n = 3
+      break
+    case 3: //cityblocks 3 - 8
       // n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * grain,((y + _y) + ((y + _y) % 2)) * grain,0)) * 0.5),4)
       n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * grain,((y + _y) + ((y + _y) % 2)) * grain,0)) * 0.5),3)
       break
@@ -509,6 +556,22 @@ function getZAt(x,y,q){
       break
   }
   return n - 12
+}
+function openInfo(poi){
+  if(!infoFlag){
+    hasMovedAfterClose = false
+    infoFlag = 1
+    ui.title.innerText = poi.state.name
+    ui.artists.innerText = poi.state.artists
+    ui.date.innerText = poi.state.date
+    ui.desc.innerText = poi.state.description
+    ui.link.setAttribute("href",poi.state.link)
+    document.body.classList.add("info-open")
+  }
+}
+function closeInfo(){
+  document.body.classList.remove("info-open")
+  infoFlag = -infoCD
 }
 function update(){
   uiUpdateClock++
@@ -545,7 +608,7 @@ function update(){
   // }
   if(avatars[avatar.id]){
     avatar.state = avatars[avatar.id].state
-    avatar.shape.translate = {z: getZAt(scale * 0.5,scale * 0.5) * delta + size + avatar.d * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
+    avatar.shape.translate = {z: 4 + getZAt(scale * 0.5,scale * 0.5) * 0.5 * delta + size + avatar.d * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
     avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
   }
   // if(avatar.state.flash > 0){
