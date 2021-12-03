@@ -6,46 +6,82 @@ const port = process.env.PORT || 3000;
 const KILL_PLAYERS_AFTER = 100
 
 let players = {
-  poi1: {
-    name: "Frappant e.V. Webseite",
-    id: "poi1",
+  frappant: {
+    name: "Frappant",
+    id: "frappant",
     x: 0,
     y: 0,
     poi: true,
+    vip: true,
     state: {
-      plan: [["X","X","O","X","O","X"],["#fff","#fff","#f00","#00f","#00f","#fff"]],
-      artists:"/",
-      date:"24/7",
-      description:"Visit the website of the Frappant e.V.",
-      link: "https://frappant.org"
+      plan: [["X","I","A","","X","","V","X"],["#fff","#fff","#fff","#000","#fff","#000","#fff","#fff"]],
+      artists:false,
+      date:false,
+      description:"Frappant is an art gallery and off-space in Hamburg, Germany. This virtual exhibition room was founded within it by members of it. Visit the Frappant website to learn more:",
+      link: "https://frappant.org",
+      linktitle: "Visit Website"
     }
   },
-  poi2: {
-    name: "Examlpe",
-    id: "poi2",
-    x: 2,
-    y: -6,
+  about: {
+    name: "About",
+    id: "about",
+    x: 8,
+    y: 8,
     poi: true,
+    vip: true,
     state: {
-      plan: [["X","I","I","A","O","O"],["#f00","#0f0","#ff0","#0f0","#ff0","#fff"]],
-      artists:"Peter Maffay, Franka Potente",
-      date:"23.4.21 - 01.12.22, Mo-So, 6-16",
-      description:"A very nice exhibit",
-      link: "https://example.com"
+      plan: [["X","I","I","I","I","X","","O"],["#fff","#fff","#fff","#fff","#fff","#fff","#000","#fff"]],
+      artists:false,
+      date:false,
+      description:"The 'Vierter Raum' is an exhibition space founded by Frappant e.V. to showcase digital and hybrid exhibitions. Go to the contact pillar to get in touch, follow us on Instagram or visit the Frappant website to learn more about our physical sibling.",
+      link: false,
     }
   },
-  poi3: {
+  contact: {
+    name: "Contact",
+    id: "contact",
+    x: 0,
+    y: 8,
+    poi: true,
+    vip: true,
+    state: {
+      plan: [["X","I","I","X","","X","","X"],["#fff","#fff","#fff","#fff","#000","#fff","#000","#fff"]],
+      artists:false,
+      date:false,
+      description:"Get in touch if you would like to exhibit here or become a part of the 'Vierter Raum' Team",
+      link: "mailto:info@frappant.org",
+      linktitle: "Send a mail"
+    }
+  },
+  instagram: {
+    name: "Instagram",
+    id: "instagram",
+    x: 8,
+    y: 0,
+    poi: true,
+    vip: true,
+    state: {
+      plan: [["I","X","","V","","O","","A"],["#fff","#fff","#000","#fff","#000","#fff","#000","#fff"]],
+      artists:false,
+      date:false,
+      description:"Follow us on Instagram to stay up to date about upcoming exhibitions and more.",
+      link: "https://instagram.com/frappantev",
+      linktitle: "Follow on Instagram"
+    }
+  },
+  rabbithole: {
     name: "Rabbithole",
-    id: "poi3",
-    x: -10,
-    y: 12,
+    id: "rabbithole",
+    x: 16,
+    y: 3,
     poi: true,
+    vip: false,
     state: {
-      plan: [["I","I","I","X","I","O"],["#00f","#00f","#00f","#f0f","#ff0","#f0f"]],
-      artists:"Lülülü",
-      date:"23.4.21 - 01.12.22, Mo-So, 6-16",
-      description:"Ipsem dolor",
-      link: "https://example.com"
+      plan: [["X","V","O","A","V","O","A","X"],["#db2109","#1847f2","#e620e6","#db2109","#e620e6","#db2109","#1847f2","#59b020"]],
+      artists:"Michael, Alain, Various Artists",
+      date:"15.12.21 - 15.09.22",
+      description:"10 years after the first rabbithole we once again revisit this collection of pieces of pop culture.",
+      link: "https://rabbithole.com/2021"
     }
   }
 }

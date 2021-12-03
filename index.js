@@ -1,5 +1,4 @@
 const socket = io()
-const canvas = document.getElementById("canvas")
 let controls = {}
 let moveInterval = false
 let pointerFlag = false
@@ -15,16 +14,10 @@ let uiUpdateClock = 0
 let infoFlag = 0
 let infoCD = 10
 let hasMovedAfterClose = false
-let infoArea = 4
+let infoArea = 2
 let colors = ['#87CEFA','#483D8B','#9370DB','#8B0000','#F0FFFF','#2E8B57','#FFF8DC','#000080','#778899','#A9A9A9','#DA70D6','#FFF5EE','#A0522D','#B0E0E6','#B8860B','#6B8E23','#5F9EA0','#FFF0F5','#FFE4E1','#DC143C','#90EE90','#FFFF00','#FF1493','#556B2F','#E6E6FA','#D2B48C','#FF69B4','#E9967A','#708090','#DDA0DD','#EE82EE','#9400D3','#DCDCDC','#4682B4','#008B8B','#3CB371','#6A5ACD','#F5F5DC','#808000','#FFD700','#9ACD32','#FFDEAD','#DAA520','#696969','#9932CC','#FFE4B5','#800080','#F5DEB3','#E0FFFF','#FFFFE0','#191970','#00FFFF','#B0C4DE','#F5F5F5','#006400','#7FFFD4','#20B2AA','#7FFF00','#C0C0C0','#FFDAB9','#FFE4C4','#40E0D0','#D2691E','#BA55D3','#FFB6C1','#A52A2A','#D8BFD8','#FFFAFA','#FFFFFF','#AFEEEE','#7CFC00','#FF7F50','#32CD32','#F8F8FF','#6495ED','#F0FFF0','#00FF00','#4169E1','#BC8F8F','#00BFFF','#00008B','#00FF7F','#DB7093','#FF00FF','#808080','#00CED1','#ADFF2F','#FFA500','#FF00FF','#66CDAA','#800000','#2F4F4F','#00FFFF','#FFA07A','#F0F8FF','#DEB887','#FDF5E6','#FF0000','#CD853F','#0000FF','#7B68EE','#FFFAF0','#48D1CC','#FAEBD7','#F08080','#EEE8AA','#F0E68C','#FFEFD5','#9966CC','#FF6347','#1E90FF','#FF8C00','#CD5C5C','#00FA9A','#228B22','#8FBC8F','#FF4500','#7B68EE','#FFFFF0','#B22222','#000000','#FA8072','#ADD8E6','#8B008B','#D3D3D3','#FFA07A','#8A2BE2','#FFEBCD','#0000CD','#F4A460','#FFC0CB','#4B0082','#F5FFFA','#BDB76B','#87CEEB','#008080','#C71585','#FAF0E6','#008000','#8B4513','#FAFAD2','#FFFACD','#98FB98']
-canvas.width = window.innerWidth
-canvas.height = window.innerHeight
-window.addEventListener("reset",function(){
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-})
 let scale = 24
-let virtualSize = 20
+let virtualSize = 24
 let size = 40
 let delta = 14
 let points = []
@@ -135,10 +128,6 @@ window.addEventListener("touchstart",function(e){
 })
 window.addEventListener("mouseup",pointerUp)
 window.addEventListener("touchend",pointerUp)
-window.addEventListener("resize",function(){
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-})
 
 function pointerDown(x,y){
   pointerStamp = performance.now()
@@ -355,7 +344,8 @@ function init(){
               visible:true
             })
             let anchor = new Zdog.Anchor({
-              translate: avatars[a].poi ? {x: (((scale * 0.5 + avatars[a].x - 0.5 - avatar.x) % virtualSize) - scale * 0.5) * size , y: (((scale * 0.5 + avatars[a].y - 0.5 - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size} : {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: 4 + getZAt(relX,relY) * 0.5 * delta + avatar.d + size},
+              // translate: avatars[a].poi ? {x: (((scale * 0.5 + avatars[a].x - 0.5 - avatar.x) % virtualSize)) * size , y: (((scale * 0.5 + avatars[a].y - 0.5 - avatar.y) % virtualSize)) * size, z: getZAt(relX,relY) * delta + avatar.d + size} : {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: 4 + getZAt(relX,relY) * 0.5 * delta + avatar.d + size},
+                            translate: {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: 4 + getZAt(relX,relY) * 0.5 * delta + avatar.d + size},
               addTo: group
             })
             if(avatars[a].poi){
@@ -377,9 +367,11 @@ function init(){
                 translate: {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: _z},
                 addTo: render
               })
-              for(let z = 0; z < 6; z++){
+              let shapes = []
+              for(let z = 0; z < 8; z++){
                 let block = avatars[a].state.plan[0][z]
                 let color = avatars[a].state.plan[1][z]
+                let shape
                 let translate = {
                   x: 0,
                   y: 0,
@@ -387,19 +379,19 @@ function init(){
                 }
                 switch(block){
                   case "X":
-                  let box = new Zdog.Box({
+                  shape = new Zdog.Box({
                     addTo: anchor,
                     width: size,
                     height: size,
                     depth: size,
-                    stroke: true,
+                    stroke: false,
                     color: color,
                     translate: translate
                   });
                   break
                   case "A":
                   translate.z = translate.z - 0.5 * size
-                  new Zdog.Cone({
+                  shape = new Zdog.Cone({
                     addTo: anchor,
                     diameter: size,
                     length: size,
@@ -408,8 +400,24 @@ function init(){
                     translate: translate
                   });
                   break
+                  case "V":
+                  translate.z = translate.z - 0.5 * size
+                  shape = new Zdog.Cone({
+                    addTo: anchor,
+                    diameter: size,
+                    length: size,
+                    stroke: false,
+                    color: color,
+                    translate: {
+                      x: 0,
+                      y: 0,
+                      z: translate.z + size,
+                    },
+                    rotate: {x:0,y:Zdog.TAU/2,z:0}
+                  });
+                  break
                   case "O":
-                  new Zdog.Shape({
+                  shape = new Zdog.Shape({
                     addTo: anchor,
                     stroke: size,
                     color: color,
@@ -417,7 +425,7 @@ function init(){
                   });
                   break
                   case "I":
-                  new Zdog.Cylinder({
+                  shape = new Zdog.Cylinder({
                     addTo: anchor,
                     diameter: size,
                     length: size,
@@ -427,6 +435,7 @@ function init(){
                   });
                   break
                 }
+                shapes.push(shape)
               }
               // let shape = new Zdog.Cylinder({
               //   addTo: anchor,
@@ -473,7 +482,7 @@ function init(){
               // }
               // triangle.rotate.set({ x: -TAU/4, z: -TAU/2 });
               avatarShapes[a] = {
-                // shape: shape,
+                shape: shapes,
                 group: group,
                 anchor: anchor
               }
@@ -505,6 +514,11 @@ function init(){
             (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5)
             if(avatars[a].poi){
               avatarShapes[a].anchor.translate = {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size}
+              // for(let s in avatarShapes[a].shape){
+              //   let shape = avatarShapes[a].shape[s]
+              //   rotation = Zdog.TAU * (performance.now()) * 0.0001
+              //   shape.rotate = { x: 0, y: 0,z: rotation}
+              // }
             }
             else{
               avatarShapes[a].anchor.translate = {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: 4 + getZAt(relX,relY) * 0.5 * delta + avatar.d + size}
@@ -561,9 +575,21 @@ function openInfo(poi){
   if(!infoFlag){
     hasMovedAfterClose = false
     infoFlag = 1
-    ui.title.innerText = poi.state.name
-    ui.artists.innerText = poi.state.artists
-    ui.date.innerText = poi.state.date
+    ui.title.innerText = poi.name
+    if(poi.state.artists){
+      ui.artists.innerText = poi.state.artists
+      ui.artists.style.display = "block"
+    }
+    else{
+      ui.artists.style.display = "none"
+    }
+    if(poi.state.date){
+      ui.date.innerText = poi.state.date
+      ui.date.style.display = "block"
+    }
+    else{
+      ui.date.style.display = "none"
+    }
     ui.desc.innerText = poi.state.description
     ui.link.setAttribute("href",poi.state.link)
     document.body.classList.add("info-open")
@@ -575,37 +601,45 @@ function closeInfo(){
 }
 function update(){
   uiUpdateClock++
-  // if((uiUpdateClock % updateUIAfter) == 0){
-  //   let time = Math.floor(performance.now() / 1000)
-  //   ui.x.innerText = Math.round(avatar.x % virtualSize)
-  //   ui.y.innerText = Math.round(avatar.y % virtualSize)
-  //   ui.clock.innerText = Math.floor(time / 60 / 60) + ":" + Math.floor(time / 60) % 60 + ":" + time % 60
-  //   ui.people.innerText = Object.keys(avatars).length
-  //   ui.colorA.style.background = avatar.state.colorA
-  //   ui.colorB.style.background = avatar.state.invertA
-  //   let poiList = document.getElementById("outputPOI")
-  //   poiList.innerHTML = ""
-  //   for(let poi in poiInView){
-  //     let tr = document.createElement("tr")
-  //     let th = document.createElement("th")
-  //     let td = document.createElement("td")
-  //     let a = document.createElement("a")
-  //     // a.style.color = poiInView[poi].state.color
-  //     a.href = poiInView[poi].state.link
-  //     a.innerText = poiInView[poi].name
-  //     for(let c in poiInView[poi].state.colors){
-  //       let span = document.createElement("span")
-  //       span.classList.add("color")
-  //       span.style.background = poiInView[poi].state.colors[c]
-  //       td.appendChild(span)
-  //     }
-  //     tr.appendChild(td)
-  //     th.appendChild(a)
-  //     tr.appendChild(th)
-  //
-  //     poiList.appendChild(tr)
-  //   }
-  // }
+  if((uiUpdateClock % updateUIAfter) == 0){
+    let time = Math.floor(performance.now() / 1000)
+    // ui.x.innerText = Math.round(avatar.x % virtualSize)
+    // ui.y.innerText = Math.round(avatar.y % virtualSize)
+    // ui.clock.innerText = Math.floor(time / 60 / 60) + ":" + Math.floor(time / 60) % 60 + ":" + time % 60
+    // ui.people.innerText = Object.keys(avatars).length
+    // ui.colorA.style.background = avatar.state.colorA
+    // ui.colorB.style.background = avatar.state.invertA
+    let poiList = document.getElementById("outputPOI")
+    poiList.innerHTML = ""
+    let tr = document.createElement("tr")
+    let th = document.createElement("th")
+    let td = document.createElement("td")
+    let a = document.createElement("a")
+    a.href = "https://frappant.org/kontakt/"
+    a.innerText = "Imprint"
+    tr.appendChild(td)
+    th.appendChild(a)
+    tr.appendChild(th)
+    poiList.appendChild(tr)
+    for(let poi in poiInView){
+      let tr = document.createElement("tr")
+      let th = document.createElement("th")
+      let td = document.createElement("td")
+      let a = document.createElement("a")
+      a.href = poiInView[poi].state.link
+      a.innerText = poiInView[poi].name
+      for(let c in poiInView[poi].state.plan[1]){
+        let span = document.createElement("span")
+        span.classList.add("color")
+        span.style.background = poiInView[poi].state.plan[1][c]
+        td.appendChild(span)
+      }
+      tr.appendChild(td)
+      th.appendChild(a)
+      tr.appendChild(th)
+      poiList.appendChild(tr)
+    }
+  }
   if(avatars[avatar.id]){
     avatar.state = avatars[avatar.id].state
     avatar.shape.translate = {z: 4 + getZAt(scale * 0.5,scale * 0.5) * 0.5 * delta + size + avatar.d * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}

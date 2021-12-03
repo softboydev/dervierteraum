@@ -18,7 +18,7 @@
         height: 100%;
         z-index: 1;
         text-transform: uppercase;
-        font-size: 1vh;
+        font-size: 1.4vh;
         font-family: "SpaceMono"
       }
       body{
@@ -177,7 +177,7 @@
       }
       #info{
         position: fixed;
-        top: -50%;
+        top: -50vh;
         left: 50%;
         transform: translate(-50%,-50%) scale(50%) rotate3d(1,0,0,90deg);
         background: black;
@@ -195,11 +195,11 @@
         transform: translate(-50%,-50%) scale(100%) rotate3d(1,0,0,0deg);
       }
       #canvas{
-        transform: translateY(0%) scale(100%);
+        transform: translateY(0%);
         transition: all 0.5s ease-in-out;
       }
       .info-open #canvas{
-        transform: translateY(30%) scale(70%);
+        transform: translateY(50%);
       }
       .info-inner{
         position: absolute;
@@ -303,7 +303,8 @@
         top: 20%;
         left: 50%;
         transform: translate(-50%,-100vh);
-        width: 80vw;
+        max-width: 80vw;
+        width: auto;
         text-align: center;
         z-index: 1000;
         background: black;
@@ -338,8 +339,8 @@
       <p>Slide to the left and right to turn.</p>
       <button id="buttonJoin">Enter</button>
     </div> -->
-    <img id="logo" src="./logo_inverted.png" alt="Frappant Vierter Raum Logo">
-    <ul id="menu">
+    <img id="logo" src="./logo.png" alt="Frappant Vierter Raum Logo">
+    <!-- <ul id="menu">
       <li>
         <a href="/">Frappant</a>
       </li>
@@ -352,7 +353,7 @@
       <li>
         <a href="/">Contact</a>
       </li>
-    </ul>
+    </ul> -->
     <!-- <table id="outputPlayer">
       <tr>
         <th>X__</th>
