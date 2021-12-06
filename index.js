@@ -16,7 +16,7 @@ let infoCD = 10
 let hasMovedAfterClose = false
 let infoArea = 2
 let colors = ['#87CEFA','#483D8B','#9370DB','#8B0000','#F0FFFF','#2E8B57','#FFF8DC','#000080','#778899','#A9A9A9','#DA70D6','#FFF5EE','#A0522D','#B0E0E6','#B8860B','#6B8E23','#5F9EA0','#FFF0F5','#FFE4E1','#DC143C','#90EE90','#FFFF00','#FF1493','#556B2F','#E6E6FA','#D2B48C','#FF69B4','#E9967A','#708090','#DDA0DD','#EE82EE','#9400D3','#DCDCDC','#4682B4','#008B8B','#3CB371','#6A5ACD','#F5F5DC','#808000','#FFD700','#9ACD32','#FFDEAD','#DAA520','#696969','#9932CC','#FFE4B5','#800080','#F5DEB3','#E0FFFF','#FFFFE0','#191970','#00FFFF','#B0C4DE','#F5F5F5','#006400','#7FFFD4','#20B2AA','#7FFF00','#C0C0C0','#FFDAB9','#FFE4C4','#40E0D0','#D2691E','#BA55D3','#FFB6C1','#A52A2A','#D8BFD8','#FFFAFA','#FFFFFF','#AFEEEE','#7CFC00','#FF7F50','#32CD32','#F8F8FF','#6495ED','#F0FFF0','#00FF00','#4169E1','#BC8F8F','#00BFFF','#00008B','#00FF7F','#DB7093','#FF00FF','#808080','#00CED1','#ADFF2F','#FFA500','#FF00FF','#66CDAA','#800000','#2F4F4F','#00FFFF','#FFA07A','#F0F8FF','#DEB887','#FDF5E6','#FF0000','#CD853F','#0000FF','#7B68EE','#FFFAF0','#48D1CC','#FAEBD7','#F08080','#EEE8AA','#F0E68C','#FFEFD5','#9966CC','#FF6347','#1E90FF','#FF8C00','#CD5C5C','#00FA9A','#228B22','#8FBC8F','#FF4500','#7B68EE','#FFFFF0','#B22222','#000000','#FA8072','#ADD8E6','#8B008B','#D3D3D3','#FFA07A','#8A2BE2','#FFEBCD','#0000CD','#F4A460','#FFC0CB','#4B0082','#F5FFFA','#BDB76B','#87CEEB','#008080','#C71585','#FAF0E6','#008000','#8B4513','#FAFAD2','#FFFACD','#98FB98']
-let scale = 24
+let scale = 16
 let virtualSize = 24
 let size = 40
 let delta = 14
@@ -28,29 +28,25 @@ let grain = 0.5
 let render = new Zdog.Illustration({
   element: '.zdog-canvas',
   resize: true,
-  rotate: {x: Zdog.TAU * (0.2 + ((pointerRotation.x + deltaPointerRotation.x) * 0.2)),y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
+  rotate: {x: Zdog.TAU * (0.2 + ((pointerRotation.x + deltaPointerRotation.x) * 0.2)),y: pointerRotation.y,z: Zdog.TAU * 0.0625 +  Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
 });
-let ui = {
-  x:false,
-  y:false,
-  clock:false,
-  people:false,
-  colorA:false,
-  colorB:false
-}
-let info = {
-  title: false,
-  artists: false,
-  date: false,
-  desc: false,
-  link: false
-}
+// let ui = {
+//   x:false,
+//   y:false,
+//   clock:false,
+//   people:false,
+//   colorA:false,
+//   colorB:false
+// }
+let ui = {}
 let avatar = {
   joined: false,
   id: "",
   name: "",
-  x: -10 + Math.floor(Math.random() * 20),
-  y: -10 + Math.floor(Math.random() * 20),
+  // x: -10 + Math.floor(Math.random() * 20),
+  // y: -10 + Math.floor(Math.random() * 20),
+  x: 0,
+  y: 0,
   // dX: 0,
   // dY: 0,
   d: 40,
@@ -60,7 +56,7 @@ let avatar = {
   speed: 0.5,
   shape: new Zdog.Anchor({
     addTo: render,
-    translate: {x: size * scale * 0.5, y: size * scale * 0.5, z: 100}
+    translate: {x: 0, y: 0, z: 100}
   }),
   shapes: {},
   coloredShapes: {},
@@ -172,7 +168,8 @@ function handleRotate(x,y){
       deltaPointerRotation.x = (-0.5 < (pointerRotation.x + dY) && (pointerRotation.x + dY) < 0.5) ? dY : (pointerRotation.x + dY) > 0.5 ? 0.5 - pointerRotation.x : -0.5 - pointerRotation.x
     }
     render.zoom = 1 + pointerRotation.x + deltaPointerRotation.x
-    render.rotate = {x: Zdog.TAU * 0.2 + (pointerRotation.x + deltaPointerRotation.x) * 0.6,y: pointerRotation.y,z: Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
+    render.rotate = {x: Zdog.TAU * 0.2 + (pointerRotation.x + deltaPointerRotation.x) * 0.6,y: pointerRotation.y,z: Zdog.TAU * 0.0625 + Zdog.TAU * (pointerRotation.z + deltaPointerRotation.z)}
+    ui.compass.style.backgroundPositionX = (0.0625 +(pointerRotation.z + deltaPointerRotation.z)) * 200 + "%"
   }
 }
 
@@ -208,7 +205,7 @@ function join(){
   avatar.coloredShapes.ballA.color = avatar.state.colorA
   avatar.coloredShapes.ballB.color = avatar.state.invertA
   avatar.name = "unknown"
-  avatar.id = "" + performance.now() + Math.floor(Math.random() * 1000000)
+  avatar.id = "" + Math.floor(performance.now()) + Math.floor(Math.random() * 1000000)
   // avatar.shapes.ball.group.visible = true
   socket.emit('join', {name:avatar.name,id:avatar.id,state:avatar.state,position:position})
   avatar.joined = true
@@ -228,11 +225,13 @@ function init(){
   // ui.people = document.getElementById("peopleOnServer")
   // ui.colorA = document.getElementById("avatarFirstColor")
   // ui.colorB = document.getElementById("avatarSecondColor")
+  ui.container = document.getElementById("info")
   ui.title = document.getElementById("infoTitle")
   ui.artists = document.getElementById("infoArtists")
   ui.date = document.getElementById("infoDate")
   ui.desc = document.getElementById("infoDesc")
   ui.link = document.getElementById("infoOpen")
+  ui.compass = document.getElementById("compass")
   setInterval(function () {
     if(infoFlag == 0 && !moveInterval && hasMovedAfterClose){
       let pos = {
@@ -244,7 +243,7 @@ function init(){
         if(p.poi){
           let _x = Math.round((virtualSize + (p.x % virtualSize)) % virtualSize)
           let _y = Math.round((virtualSize + (p.y % virtualSize)) % virtualSize)
-          if(pos.x > (_x - infoArea)  && pos.x < (_x + infoArea) && pos.y > (_y - infoArea)  && pos.y < (_y + infoArea) ){
+          if(pos.x > (_x - infoArea) && pos.x < (_x + infoArea) && pos.y > (_y - infoArea)  && pos.y < (_y + infoArea) ){
             openInfo(p)
             return
           }
@@ -334,9 +333,13 @@ function init(){
       }
     }
     for(let a in avatars){ // for each avatar in the list of avatars
-      let relX = (scale * 0.5 + avatars[a].x - avatar.x) % virtualSize //determine the relative position
-      let relY = (scale * 0.5 + avatars[a].y - avatar.y) % virtualSize //relative to avatar position and virtual center, range 0 - scale
       if(a != avatar.id){ //when the current avatar is not the users avatar
+        let relX = (scale * 0.5 + virtualSize + (avatars[a].x - ((virtualSize + avatar.x) % virtualSize))) % virtualSize
+        let relY = (scale * 0.5 + virtualSize + (avatars[a].y - ((virtualSize + avatar.y) % virtualSize))) % virtualSize//relative to avatar position and virtual center, range 0 - scale
+        let _x = (-scale * 0.5 + relX) * size
+        let _y =  (-scale * 0.5 + relY) * size
+        let _z = getZAt(relX,relY)* delta + avatar.d + size
+        let _az = 4 + _z * Math.abs(-1 + ((performance.now() * 0.0005) % 2))
         if(relX >= 0 && relX <= scale && relY >= 0 && relY <= scale){ //when the relative position is within the view
           if(!avatarShapes[a]){ //when there is no shape for the avatar
             let group = new Zdog.Group({
@@ -345,26 +348,12 @@ function init(){
             })
             let anchor = new Zdog.Anchor({
               // translate: avatars[a].poi ? {x: (((scale * 0.5 + avatars[a].x - 0.5 - avatar.x) % virtualSize)) * size , y: (((scale * 0.5 + avatars[a].y - 0.5 - avatar.y) % virtualSize)) * size, z: getZAt(relX,relY) * delta + avatar.d + size} : {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: 4 + getZAt(relX,relY) * 0.5 * delta + avatar.d + size},
-                            translate: {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: 4 + getZAt(relX,relY) * 0.5 * delta + avatar.d + size},
+              translate: {x: _x, y: _y, z: 4 + _az},
               addTo: group
             })
             if(avatars[a].poi){
-              // let shape = new Zdog.Box({
-              //   addTo: anchor,
-              //   width: size,
-              //   height: size,
-              //   depth: size,
-              //   stroke: false,
-              //   color: avatars[a].state.colors[0],
-              //   leftFace: avatars[a].state.colors[1],
-              //   rightFace: avatars[a].state.colors[1],
-              //   rearFace: avatars[a].state.colors[0],
-              //   topFace: avatars[a].state.colors[2],
-              //   bottomFace: avatars[a].state.colors[2]
-              // });
-              let _z = getZAt(relX,relY) * delta + avatar.d + size
               anchor = new Zdog.Anchor({
-                translate: {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: _z},
+                translate: {x: _x, y: _y, z: _z},
                 addTo: render
               })
               let shapes = []
@@ -437,50 +426,6 @@ function init(){
                 }
                 shapes.push(shape)
               }
-              // let shape = new Zdog.Cylinder({
-              //   addTo: anchor,
-              //   diameter: size,
-              //   length: size,
-              //   stroke: false,
-              //   color: avatars[a].state.colors[0],
-              //   frontFace: avatars[a].state.colors[1],
-              //   backface: avatars[a].state.colors[2],
-              // });
-              // var tetrahedron = new Zdog.Anchor({
-              //   addTo: anchor,
-              //   translate: { x: 0, y: 0 },
-              //   scale: 60,
-              // });
-              // var TAU = Zdog.TAU;
-              // var radius = 0.5;
-              // var inradius = Math.cos( TAU/6 ) * radius;
-              // var height = radius + inradius;
-              // var triangle = new Zdog.Polygon({
-              //   sides: 3,
-              //   radius: radius,
-              //   addTo: tetrahedron,
-              //   translate: { y: height/2 },
-              //   fill: true,
-              //   stroke: false,
-              //   color: avatars[a].state.colors[3] || "#000000"
-              // });
-              // for ( var i=0; i < 3; i++ ) {
-              //   var rotor1 = new Zdog.Anchor({
-              //     addTo: tetrahedron,
-              //     rotate: { y: TAU/3 * -i },
-              //   });
-              //   var rotor2 = new Zdog.Anchor({
-              //     addTo: rotor1,
-              //     translate: { z: inradius, y: height/2 },
-              //     rotate: { x: Math.acos(1/3) * -1 + TAU/4  },
-              //   });
-              //   triangle.copy({
-              //     addTo: rotor2,
-              //     translate: { y: -inradius },
-              //     color: avatars[a].state.colors[i]
-              //   });
-              // }
-              // triangle.rotate.set({ x: -TAU/4, z: -TAU/2 });
               avatarShapes[a] = {
                 shape: shapes,
                 group: group,
@@ -511,17 +456,9 @@ function init(){
             }
           }
           else{ //when there is a shape
-            (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5)
-            if(avatars[a].poi){
-              avatarShapes[a].anchor.translate = {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: getZAt(relX,relY) * delta + avatar.d + size}
-              // for(let s in avatarShapes[a].shape){
-              //   let shape = avatarShapes[a].shape[s]
-              //   rotation = Zdog.TAU * (performance.now()) * 0.0001
-              //   shape.rotate = { x: 0, y: 0,z: rotation}
-              // }
-            }
-            else{
-              avatarShapes[a].anchor.translate = {x: (((scale * 0.5 + avatars[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + avatars[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: 4 + getZAt(relX,relY) * 0.5 * delta + avatar.d + size}
+            let z = avatars[a].poi ? _z : _az
+            avatarShapes[a].anchor.translate = {x: _x, y: _y, z: z}
+            if(!avatars[a].poi){
               rotation = Zdog.TAU * (performance.now()) * 0.0001
               avatarShapes[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
             }
@@ -543,6 +480,7 @@ function init(){
   });
   popup()
   update()
+  document.body.classList.add("curtain-open")
 }
 function getZAt(x,y,q){
   let n = 0
@@ -591,13 +529,45 @@ function openInfo(poi){
       ui.date.style.display = "none"
     }
     ui.desc.innerText = poi.state.description
-    ui.link.setAttribute("href",poi.state.link)
+    if(poi.state.link){
+      ui.link.setAttribute("data-href",poi.state.link)
+      if(poi.exhibit){
+        ui.link.setAttribute("data-target","exhibit")
+      }
+      else{
+        ui.link.setAttribute("data-target","external")
+      }
+      ui.container.classList.remove("no-link")
+    }
+    else{
+      ui.container.classList.add("no-link")
+    }
+    if(poi.state.linktitle){
+      ui.link.innerText = poi.state.linktitle
+    }
+    else{
+      ui.link.innerText = "Enter"
+    }
     document.body.classList.add("info-open")
   }
 }
 function closeInfo(){
   document.body.classList.remove("info-open")
   infoFlag = -infoCD
+}
+function openLink(e){
+  let link = document.getElementById("infoOpen")
+  let target = link.getAttribute("data-target")
+  let href = link.getAttribute("data-href")
+  if(target == "external"){
+    window.open(href, '_blank')
+  }
+  else if(target == "exhibit"){
+    document.body.classList.remove("curtain-open")
+    setTimeout(function () {
+      window.location.href = href + "?color=" + avatar.state.colorA + "&x=" + avatar.x  + "&y=" + avatar.x
+    }, 1500);
+  }
 }
 function update(){
   uiUpdateClock++
@@ -617,6 +587,7 @@ function update(){
     let a = document.createElement("a")
     a.href = "https://frappant.org/kontakt/"
     a.innerText = "Imprint"
+    a.target = "_blank"
     tr.appendChild(td)
     th.appendChild(a)
     tr.appendChild(th)
@@ -642,9 +613,10 @@ function update(){
   }
   if(avatars[avatar.id]){
     avatar.state = avatars[avatar.id].state
+  }
     avatar.shape.translate = {z: 4 + getZAt(scale * 0.5,scale * 0.5) * 0.5 * delta + size + avatar.d * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
     avatar.shape.rotate = { x: Zdog.TAU * performance.now() * 0.0001, y: Zdog.TAU * performance.now() * 0.0001,z: Zdog.TAU * performance.now() * 0.0001 }
-  }
+
   // if(avatar.state.flash > 0){
   //   avatar.coloredShapes.ballA.color = avatar.state.invertA
   //   avatar.coloredShapes.ballB.color = avatar.state.invertB
