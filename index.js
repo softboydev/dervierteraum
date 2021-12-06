@@ -565,7 +565,7 @@ function openLink(e){
   else if(target == "exhibit"){
     document.body.classList.remove("curtain-open")
     setTimeout(function () {
-      window.location.href = href + "?color=" + avatar.state.colorA + "&x=" + avatar.x  + "&y=" + avatar.x
+      window.location.href = href + "?color=" + avatar.state.colorA.replace("#","") + "&x=" + avatar.x  + "&y=" + avatar.x
     }, 1500);
   }
 }
