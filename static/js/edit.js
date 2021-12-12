@@ -10,7 +10,7 @@ let scale = 16
 let size = 40
 let shapes = []
 let options = [
-  "SPACE","CUBE","CONE","FUNNEL","BALL","DRUM"  
+  "SPACE","CUBE","CONE","FUNNEL","BALL","DRUM"
 ]
 let render = new Zdog.Illustration({
   element: '.zdog-canvas',
@@ -24,35 +24,35 @@ let anchor = new Zdog.Anchor({
   })
 let config = [
   {
-    type: 3,
+    type: 1,
     color: "#ffffff"
   },
   {
-    type: 0,
+    type: 1,
     color: "#ffffff"
   },
   {
-    type: 0,
+    type: 5,
     color: "#ffffff"
   },
   {
-    type: 0,
+    type: 5,
     color: "#ffffff"
   },
   {
-    type: 0,
+    type: 5,
     color: "#ffffff"
   },
   {
-    type: 0,
+    type: 5,
     color: "#ffffff"
   },
   {
-    type: 0,
+    type: 5,
     color: "#ffffff"
   },
   {
-    type: 0,
+    type: 1,
     color: "#ffffff"
   }
 ]
