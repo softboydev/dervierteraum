@@ -15,7 +15,214 @@ let infoFlag = 0
 let infoCD = 10
 let hasMovedAfterClose = false
 let infoArea = 2
-let colors = ['#87CEFA','#483D8B','#9370DB','#8B0000','#F0FFFF','#2E8B57','#FFF8DC','#000080','#778899','#A9A9A9','#DA70D6','#FFF5EE','#A0522D','#B0E0E6','#B8860B','#6B8E23','#5F9EA0','#FFF0F5','#FFE4E1','#DC143C','#90EE90','#FFFF00','#FF1493','#556B2F','#E6E6FA','#D2B48C','#FF69B4','#E9967A','#708090','#DDA0DD','#EE82EE','#9400D3','#DCDCDC','#4682B4','#008B8B','#3CB371','#6A5ACD','#F5F5DC','#808000','#FFD700','#9ACD32','#FFDEAD','#DAA520','#696969','#9932CC','#FFE4B5','#800080','#F5DEB3','#E0FFFF','#FFFFE0','#191970','#00FFFF','#B0C4DE','#F5F5F5','#006400','#7FFFD4','#20B2AA','#7FFF00','#C0C0C0','#FFDAB9','#FFE4C4','#40E0D0','#D2691E','#BA55D3','#FFB6C1','#A52A2A','#D8BFD8','#FFFAFA','#FFFFFF','#AFEEEE','#7CFC00','#FF7F50','#32CD32','#F8F8FF','#6495ED','#F0FFF0','#00FF00','#4169E1','#BC8F8F','#00BFFF','#00008B','#00FF7F','#DB7093','#FF00FF','#808080','#00CED1','#ADFF2F','#FFA500','#FF00FF','#66CDAA','#800000','#2F4F4F','#00FFFF','#FFA07A','#F0F8FF','#DEB887','#FDF5E6','#FF0000','#CD853F','#0000FF','#7B68EE','#FFFAF0','#48D1CC','#FAEBD7','#F08080','#EEE8AA','#F0E68C','#FFEFD5','#9966CC','#FF6347','#1E90FF','#FF8C00','#CD5C5C','#00FA9A','#228B22','#8FBC8F','#FF4500','#7B68EE','#FFFFF0','#B22222','#000000','#FA8072','#ADD8E6','#8B008B','#D3D3D3','#FFA07A','#8A2BE2','#FFEBCD','#0000CD','#F4A460','#FFC0CB','#4B0082','#F5FFFA','#BDB76B','#87CEEB','#008080','#C71585','#FAF0E6','#008000','#8B4513','#FAFAD2','#FFFACD','#98FB98']
+let colors = [
+  "rgb(135, 205, 237)",
+  "rgb(1, 101, 252)",
+  "rgb(65, 253, 254)",
+  "rgb(25, 116, 210)",
+  "rgb(36, 160, 237)",
+  "rgb(26, 193, 221)",
+  "rgb(196, 255, 247)",
+  "rgb(125, 249, 255)",
+  "rgb(63, 0, 255)",
+  "rgb(0, 253, 255)",
+  "rgb(17, 102, 255)",
+  "rgb(21, 242, 253)",
+  "rgb(4, 217, 255)",
+  "rgb(2, 3, 226)",
+  "rgb(0, 68, 255)",
+  "rgb(0, 191, 254)",
+  "rgb(1, 15, 204)",
+  "rgb(208, 255, 20)",
+  "rgb(140, 255, 158)",
+  "rgb(207, 255, 0)",
+  "rgb(102, 255, 0)",
+  "rgb(135, 253, 5)",
+  "rgb(157, 255, 0)",
+  "rgb(193, 248, 10)",
+  "rgb(33, 252, 13)",
+  "rgb(8, 255, 8)",
+  "rgb(0, 255, 0)",
+  "rgb(174, 255, 110)",
+  "rgb(83, 254, 92)",
+  "rgb(86, 252, 162)",
+  "rgb(78, 253, 84)",
+  "rgb(170, 255, 50)",
+  "rgb(122, 249, 171)",
+  "rgb(160, 212, 4)",
+  "rgb(0, 250, 154)",
+  "rgb(69, 206, 162)",
+  "rgb(57, 255, 20)",
+  "rgb(119, 221, 119)",
+  "rgb(25, 167, 0)",
+  "rgb(104, 229, 47)",
+  "rgb(125, 237, 23)",
+  "rgb(0, 249, 0)",
+  "rgb(0, 255, 124)",
+  "rgb(6, 194, 172)",
+  "rgb(10, 221, 8)",
+  "rgb(47, 239, 16)",
+  "rgb(254, 160, 81)",
+  "rgb(254, 103, 0)",
+  "rgb(255, 112, 52)",
+  "rgb(255, 200, 42)",
+  "rgb(255, 113, 36)",
+  "rgb(235, 80, 48)",
+  "rgb(237, 135, 45)",
+  "rgb(253, 111, 59)",
+  "rgb(255, 166, 0)",
+  "rgb(238, 136, 0)",
+  "rgb(255, 127, 80)",
+  "rgb(255, 168, 18)",
+  "rgb(252, 100, 45)",
+  "rgb(255, 53, 3)",
+  "rgb(255, 207, 0)",
+  "rgb(235, 97, 35)",
+  "rgb(255, 141, 40)",
+  "rgb(255, 166, 43)",
+  "rgb(240, 131, 0)",
+  "rgb(255, 163, 104)",
+  "rgb(255, 152, 137)",
+  "rgb(255, 153, 51)",
+  "rgb(255, 87, 33)",
+  "rgb(255, 165, 0)",
+  "rgb(255, 127, 0)",
+  "rgb(255, 160, 0)",
+  "rgb(255, 111, 82)",
+  "rgb(250, 91, 61)",
+  "rgb(252, 132, 93)",
+  "rgb(255, 117, 24)",
+  "rgb(252, 158, 33)",
+  "rgb(255, 102, 0)",
+  "rgb(255, 147, 0)",
+  "rgb(255, 116, 32)",
+  "rgb(255, 95, 0)",
+  "rgb(254, 1, 177)",
+  "rgb(255, 133, 255)",
+  "rgb(255, 127, 167)",
+  "rgb(217, 1, 102)",
+  "rgb(244, 191, 255)",
+  "rgb(255, 4, 144)",
+  "rgb(254, 20, 147)",
+  "rgb(253, 63, 146)",
+  "rgb(238, 109, 138)",
+  "rgb(255, 0, 204)",
+  "rgb(255, 2, 141)",
+  "rgb(255, 179, 222)",
+  "rgb(255, 0, 255)",
+  "rgb(255, 47, 235)",
+  "rgb(254, 65, 100)",
+  "rgb(254, 1, 154)",
+  "rgb(255, 102, 255)",
+  "rgb(255, 20, 118)",
+  "rgb(246, 38, 129)",
+  "rgb(214, 72, 215)",
+  "rgb(223, 78, 200)",
+  "rgb(226, 80, 152)",
+  "rgb(246, 104, 142)",
+  "rgb(202, 44, 146)",
+  "rgb(254, 2, 162)",
+  "rgb(255, 28, 174)",
+  "rgb(255, 111, 252)",
+  "rgb(255, 135, 141)",
+  "rgb(240, 111, 255)",
+  "rgb(251, 95, 252)",
+  "rgb(190, 3, 253)",
+  "rgb(173, 10, 253)",
+  "rgb(102, 0, 255)",
+  "rgb(191, 0, 255)",
+  "rgb(143, 0, 241)",
+  "rgb(203, 0, 245)",
+  "rgb(181, 110, 220)",
+  "rgb(188, 19, 254)",
+  "rgb(224, 176, 255)",
+  "rgb(101, 49, 142)",
+  "rgb(184, 12, 227)",
+  "rgb(159, 0, 255)",
+  "rgb(255, 0, 13)",
+  "rgb(227, 0, 34)",
+  "rgb(247, 2, 42)",
+  "rgb(242, 1, 63)",
+  "rgb(255, 64, 64)",
+  "rgb(230, 0, 0)",
+  "rgb(208, 28, 31)",
+  "rgb(254, 0, 2)",
+  "rgb(255, 85, 85)",
+  "rgb(235, 84, 6)",
+  "rgb(253, 89, 86)",
+  "rgb(241, 23, 47)",
+  "rgb(207, 16, 32)",
+  "rgb(188, 39, 49)",
+  "rgb(252, 40, 71)",
+  "rgb(255, 7, 58)",
+  "rgb(255, 27, 45)",
+  "rgb(254, 68, 1)",
+  "rgb(244, 54, 5)",
+  "rgb(241, 12, 69)",
+  "rgb(210, 45, 29)",
+  "rgb(176, 5, 75)",
+  "rgb(221, 17, 51)",
+  "rgb(176, 1, 73)",
+  "rgb(227, 11, 93)",
+  "rgb(255, 0, 0)",
+  "rgb(238, 32, 77)",
+  "rgb(255, 63, 52)",
+  "rgb(250, 42, 85)",
+  "rgb(228, 0, 120)",
+  "rgb(254, 39, 19)",
+  "rgb(248, 72, 28)",
+  "rgb(254, 44, 84)",
+  "rgb(202, 1, 71)",
+  "rgb(255, 36, 0)",
+  "rgb(187, 18, 55)",
+  "rgb(215, 60, 38)",
+  "rgb(255, 17, 17)",
+  "rgb(236, 45, 1)",
+  "rgb(178, 24, 7)",
+  "rgb(253, 13, 53)",
+  "rgb(191, 25, 50)",
+  "rgb(198, 23, 78)",
+  "rgb(239, 57, 57)",
+  "rgb(204, 0, 51)",
+  "rgb(255, 0, 108)",
+  "rgb(247, 13, 26)",
+  "rgb(229, 96, 36)",
+  "rgb(237, 221, 89)",
+  "rgb(255, 252, 121)",
+  "rgb(255, 253, 1)",
+  "rgb(255, 255, 129)",
+  "rgb(255, 246, 0)",
+  "rgb(252, 252, 93)",
+  "rgb(252, 209, 22)",
+  "rgb(255, 255, 49)",
+  "rgb(254, 223, 8)",
+  "rgb(255, 255, 51)",
+  "rgb(255, 252, 0)",
+  "rgb(255, 215, 0)",
+  "rgb(255, 247, 0)",
+  "rgb(241, 255, 98)",
+  "rgb(240, 230, 129)",
+  "rgb(207, 255, 4)",
+  "rgb(209, 226, 49)",
+  "rgb(255, 195, 36)",
+  "rgb(250, 218, 80)",
+  "rgb(238, 210, 2)",
+  "rgb(244, 196, 48)",
+  "rgb(255, 216, 0)",
+  "rgb(247, 183, 24)",
+  "rgb(232, 255, 42)",
+  "rgb(255, 220, 65)",
+  "rgb(223, 255, 79)",
+  "rgb(255, 227, 2)",
+  "rgb(247, 193, 20)",
+  "rgb(255, 255, 0)",
+  "rgb(255, 239, 0)",
+  "rgb(255, 255, 17)",
+  "rgb(255, 204, 58)",
+  "rgb(252, 253, 116)",
+  "rgb(255, 240, 0)",
+  "rgb(255, 255, 20)"
+]
 let scale = 16
 let virtualSize = 24
 let size = 40
@@ -43,10 +250,10 @@ let avatar = {
   joined: false,
   id: "",
   name: "",
-  // x: -10 + Math.floor(Math.random() * 20),
-  // y: -10 + Math.floor(Math.random() * 20),
-  x: 0,
-  y: 0,
+  x: -10 + Math.floor(Math.random() * 20),
+  y: -10 + Math.floor(Math.random() * 20),
+  // x: 0,
+  // y: 0,
   // dX: 0,
   // dY: 0,
   d: 40,
@@ -84,6 +291,7 @@ let avatar = {
 }
 let oldAvatars = false
 let avatars = false
+let poi = false
 let avatarShapes = {}
 let poiInView = {}
 let timestamp = performance.now()
@@ -199,8 +407,8 @@ function join(){
     // invertB: "#" + invertHex(document.getElementById("inputColorSecond").value.replace("#","")),
     colorA: colorA,
     colorB: colorA,
-    invertA: "#" + invertHex(colorA.replace("#","")),
-    invertB: "#" + invertHex(colorA.replace("#",""))
+    invertA: invertHex(colorA),
+    invertB: invertHex(colorA)
   }
   avatar.coloredShapes.ballA.color = avatar.state.colorA
   avatar.coloredShapes.ballB.color = avatar.state.invertA
@@ -209,6 +417,8 @@ function join(){
   // avatar.shapes.ball.group.visible = true
   socket.emit('join', {name:avatar.name,id:avatar.id,state:avatar.state,position:position})
   avatar.joined = true
+  ui.colorA.style.background = avatar.state.colorA
+  ui.colorB.style.background = avatar.state.invertA
 }
 
 function rainbow() {
@@ -219,12 +429,12 @@ function init(){
   // kd.SPACE.down(function () {
   //   avatar.flash()
   // })
-  // ui.x = document.getElementById("avatarX")
-  // ui.y = document.getElementById("avatarY")
-  // ui.clock = document.getElementById("timeOnServer")
-  // ui.people = document.getElementById("peopleOnServer")
-  // ui.colorA = document.getElementById("avatarFirstColor")
-  // ui.colorB = document.getElementById("avatarSecondColor")
+  ui.x = document.getElementById("avatarX")
+  ui.y = document.getElementById("avatarY")
+  ui.clock = document.getElementById("timeOnServer")
+  ui.people = document.getElementById("peopleOnServer")
+  ui.colorA = document.getElementById("avatarFirstColor")
+  ui.colorB = document.getElementById("avatarSecondColor")
   ui.container = document.getElementById("info")
   ui.title = document.getElementById("infoTitle")
   ui.artists = document.getElementById("infoArtists")
@@ -238,9 +448,9 @@ function init(){
         x: Math.round((virtualSize + (avatar.x % virtualSize)) % virtualSize),
         y: Math.round((virtualSize + (avatar.y % virtualSize)) % virtualSize)
       }
-      for(let a in avatars){
-        let p = avatars[a]
-        if(p.poi){
+      if(poi){
+        for(let _p in poi){
+          let p = poi[_p]
           let _x = Math.round((virtualSize + (p.x % virtualSize)) % virtualSize)
           let _y = Math.round((virtualSize + (p.y % virtualSize)) % virtualSize)
           if(pos.x > (_x - infoArea) && pos.x < (_x + infoArea) && pos.y > (_y - infoArea)  && pos.y < (_y + infoArea) ){
@@ -249,6 +459,7 @@ function init(){
           }
         }
       }
+
     }
     else if(infoFlag < 0){
       infoFlag += 1
@@ -303,6 +514,11 @@ function init(){
     }
     shapes.push(row)
   }
+  socket.on('poi',function(msg){
+    if(!poi){
+      poi = msg
+    }
+  })
   socket.on('update', function(msg) {
     timestamp = performance.now()
     kd.tick()
@@ -326,11 +542,121 @@ function init(){
       avatar.shapes.ball.group.visible = true
     }
     for(let s in avatarShapes){
-      if(!avatars[s] && avatarShapes[s]){
+      if(!avatars[s] && !poi[s] && avatarShapes[s]){
         avatarShapes[s].group.remove()
         delete avatarShapes[s]
         // delete poiInView[avatars[s].id]
       }
+    }
+    for(let a in poi){ // for each poi in the list of pois
+        let relX = (scale * 0.5 + virtualSize + (poi[a].x - ((virtualSize + avatar.x) % virtualSize))) % virtualSize
+        let relY = (scale * 0.5 + virtualSize + (poi[a].y - ((virtualSize + avatar.y) % virtualSize))) % virtualSize//relative to avatar position and virtual center, range 0 - scale
+        let _x = (-scale * 0.5 + relX) * size
+        let _y =  (-scale * 0.5 + relY) * size
+        let _z = getZAt(relX,relY)* delta + avatar.d + size
+        let _az = 4 + _z * Math.abs(-1 + ((performance.now() * 0.0005) % 2))
+        if(relX >= 0 && relX <= scale && relY >= 0 && relY <= scale){ //when the relative position is within the view
+          if(!avatarShapes[a]){ //when there is no shape for the avatar
+            let group = new Zdog.Group({
+              addTo:render,
+              visible:true
+            })
+            let anchor = new Zdog.Anchor({
+              // translate: poi[a].poi ? {x: (((scale * 0.5 + poi[a].x - 0.5 - avatar.x) % virtualSize)) * size , y: (((scale * 0.5 + poi[a].y - 0.5 - avatar.y) % virtualSize)) * size, z: getZAt(relX,relY) * delta + avatar.d + size} : {x: (((scale * 0.5 + poi[a].x - avatar.x) % virtualSize) - scale * 0.5) * size, y: (((scale * 0.5 + poi[a].y - avatar.y) % virtualSize) - scale * 0.5) * size, z: 4 + getZAt(relX,relY) * 0.5 * delta + avatar.d + size},
+              translate: {x: _x, y: _y, z: 4 + _az},
+              addTo: group
+            })
+              anchor = new Zdog.Anchor({
+                translate: {x: _x, y: _y, z: _z},
+                addTo: render
+              })
+              let shapes = []
+              for(let z = 0; z < 8; z++){
+                let block = poi[a].state.plan[0][z]
+                let color = poi[a].state.plan[1][z]
+                let shape
+                let translate = {
+                  x: 0,
+                  y: 0,
+                  z: _z + z * size,
+                }
+                switch(block){
+                  case 1:
+                  shape = new Zdog.Box({
+                    addTo: anchor,
+                    width: size,
+                    height: size,
+                    depth: size,
+                    stroke: false,
+                    color: color,
+                    translate: translate
+                  });
+                  break
+                  case 2:
+                  translate.z = translate.z - 0.5 * size
+                  shape = new Zdog.Cone({
+                    addTo: anchor,
+                    diameter: size,
+                    length: size,
+                    stroke: false,
+                    color: color,
+                    translate: translate
+                  });
+                  break
+                  case 3:
+                  translate.z = translate.z - 0.5 * size
+                  shape = new Zdog.Cone({
+                    addTo: anchor,
+                    diameter: size,
+                    length: size,
+                    stroke: false,
+                    color: color,
+                    translate: {
+                      x: 0,
+                      y: 0,
+                      z: translate.z + size,
+                    },
+                    rotate: {x:0,y:Zdog.TAU/2,z:0}
+                  });
+                  break
+                  case 4:
+                  shape = new Zdog.Shape({
+                    addTo: anchor,
+                    stroke: size,
+                    color: color,
+                    translate: translate
+                  });
+                  break
+                  case 5:
+                  shape = new Zdog.Cylinder({
+                    addTo: anchor,
+                    diameter: size,
+                    length: size,
+                    stroke: false,
+                    color: color,
+                    translate:translate
+                  });
+                  break
+                }
+                shapes.push(shape)
+              }
+              avatarShapes[a] = {
+                shape: shapes,
+                group: group,
+                anchor: anchor
+              }
+              poiInView[poi[a].id] = poi[a]
+          }
+          else{ //when there is a shape
+            let z = poi[a].poi ? _z : _az
+            avatarShapes[a].anchor.translate = {x: _x, y: _y, z: z}
+          }
+        }
+        else if(avatarShapes[a]){ //when it is not but there is still a shape representing it
+          delete poiInView[poi[a].id]
+          avatarShapes[a].anchor.remove()
+          delete avatarShapes[a]
+        }
     }
     for(let a in avatars){ // for each avatar in the list of avatars
       if(a != avatar.id){ //when the current avatar is not the users avatar
@@ -351,89 +677,6 @@ function init(){
               translate: {x: _x, y: _y, z: 4 + _az},
               addTo: group
             })
-            if(avatars[a].poi){
-              anchor = new Zdog.Anchor({
-                translate: {x: _x, y: _y, z: _z},
-                addTo: render
-              })
-              let shapes = []
-              for(let z = 0; z < 8; z++){
-                let block = avatars[a].state.plan[0][z]
-                let color = avatars[a].state.plan[1][z]
-                let shape
-                let translate = {
-                  x: 0,
-                  y: 0,
-                  z: _z + z * size,
-                }
-                switch(block){
-                  case "X":
-                  shape = new Zdog.Box({
-                    addTo: anchor,
-                    width: size,
-                    height: size,
-                    depth: size,
-                    stroke: false,
-                    color: color,
-                    translate: translate
-                  });
-                  break
-                  case "A":
-                  translate.z = translate.z - 0.5 * size
-                  shape = new Zdog.Cone({
-                    addTo: anchor,
-                    diameter: size,
-                    length: size,
-                    stroke: false,
-                    color: color,
-                    translate: translate
-                  });
-                  break
-                  case "V":
-                  translate.z = translate.z - 0.5 * size
-                  shape = new Zdog.Cone({
-                    addTo: anchor,
-                    diameter: size,
-                    length: size,
-                    stroke: false,
-                    color: color,
-                    translate: {
-                      x: 0,
-                      y: 0,
-                      z: translate.z + size,
-                    },
-                    rotate: {x:0,y:Zdog.TAU/2,z:0}
-                  });
-                  break
-                  case "O":
-                  shape = new Zdog.Shape({
-                    addTo: anchor,
-                    stroke: size,
-                    color: color,
-                    translate: translate
-                  });
-                  break
-                  case "I":
-                  shape = new Zdog.Cylinder({
-                    addTo: anchor,
-                    diameter: size,
-                    length: size,
-                    stroke: false,
-                    color: color,
-                    translate:translate
-                  });
-                  break
-                }
-                shapes.push(shape)
-              }
-              avatarShapes[a] = {
-                shape: shapes,
-                group: group,
-                anchor: anchor
-              }
-              poiInView[avatars[a].id] = avatars[a]
-            }
-            else{
               let sphereA = new Zdog.Hemisphere({
                 addTo: anchor,
                 diameter: size,
@@ -453,26 +696,16 @@ function init(){
                 sphereA: sphereA,
                 sphereB: sphereB
               }
-            }
           }
           else{ //when there is a shape
-            let z = avatars[a].poi ? _z : _az
+            let z = _az
             avatarShapes[a].anchor.translate = {x: _x, y: _y, z: z}
-            if(!avatars[a].poi){
-              rotation = Zdog.TAU * (performance.now()) * 0.0001
-              avatarShapes[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
-            }
+            rotation = Zdog.TAU * (performance.now()) * 0.0001
+            avatarShapes[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
           }
         }
         else if(avatarShapes[a]){ //when it is not but there is still a shape representing it
-          if(avatars[a].poi){
-            delete poiInView[avatars[a].id]
-            avatarShapes[a].anchor.remove()
-          }
-          else{
-            avatarShapes[a].group.remove()
-          }
-
+          avatarShapes[a].group.remove()
           delete avatarShapes[a]
         }
       }
@@ -483,31 +716,47 @@ function init(){
   document.body.classList.add("curtain-open")
 }
 function getZAt(x,y,q){
-  let n = 0
-  let _x = q ? Math.round(avatar.x) : avatar.x
-  let _y = q ? Math.round(avatar.y) : avatar.y
-  let d = (1 + noise.simplex3((1000 + x + _x) * 0.01,(1000 + y + _y) * 0.01,1000) * 10) * 0.5
-  let e = Math.round((0.5 + noise.simplex3((10000 + x + _x) * enviromentsGrain,(10000 + y + _y) * enviromentsGrain,1000) * 0.5) * 4) // 0 - 3
-  switch(e){
-    case 0: //water at sea level 0 - 1
-      n = (1 + Math.sin(y + performance.now() * 0.001) * 0.5)
-      break
-    case 1: //moving planes 2 - 3
-      n = 2 + ((1 + noise.simplex3(x + _x * grain,y + _y * grain,performance.now() * speed)) * 0.5)
-      break
-    case 2: //still planes
-      n = 3
-      break
-    case 3: //cityblocks 3 - 8
-      // n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * grain,((y + _y) + ((y + _y) % 2)) * grain,0)) * 0.5),4)
-      n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * grain,((y + _y) + ((y + _y) % 2)) * grain,0)) * 0.5),3)
-      break
-    case 3: // mountains 0 - 16
-      // n = 2 + Math.pow(((1 + noise.simplex3(x + _x * grain * 0.1,y + _y * grain * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 16
-      n = 2 + Math.pow(((1 + noise.simplex3(x + _x * grain * 0.1,y + _y * grain * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 8
-      break
+    let n = 0
+    let _x = q ? Math.round(avatar.x) : avatar.x
+    let _y = q ? Math.round(avatar.y) : avatar.y
+    // let px = (scale + virtualSize + ((Math.round(avatar.x) + x) % virtualSize)) % virtualSize
+    // let py = (scale + virtualSize + ((Math.round(avatar.y) + y) % virtualSize)) % virtualSize
+    // if(poi[px + ";" + py] || poi[(px+1) + ";" + py] || poi[px + ";" + (py+1)] || poi[(px+1) + ";" + (py+1)]){
+    //   return 0
+    // }
+    let d = (1 + noise.simplex3((1000 + x + _x) * 0.01,(1000 + y + _y) * 0.01,1000) * 10) * 0.5
+    let e = Math.round((0.5 + noise.simplex3((10000 + x + _x) * enviromentsGrain,(10000 + y + _y) * enviromentsGrain,1000) * 0.5) * 4) // 0 - 3
+    switch(e){ //// TODO: Add spike world, see screenshot
+      case 0: //water at sea level 0 - 1
+        n = (1 + Math.sin(y + performance.now() * 0.001) * 0.5)
+        break
+      case 1: //moving planes 2 - 3
+        n = 2 + ((1 + noise.simplex3(x + _x * grain,y + _y * grain,performance.now() * speed)) * 0.5)
+        break
+      case 2: //still planes
+        n = 3
+        break
+      case 3: //cityblocks 3 - 8
+        // n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * grain,((y + _y) + ((y + _y) % 2)) * grain,0)) * 0.5),4)
+        n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * grain,((y + _y) + ((y + _y) % 2)) * grain,0)) * 0.5),3)
+        break
+      case 3: // mountains 0 - 16
+        // n = 2 + Math.pow(((1 + noise.simplex3(x + _x * grain * 0.1,y + _y * grain * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 16
+        n = 2 + Math.pow(((1 + noise.simplex3(x + _x * grain * 0.1,y + _y * grain * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 8
+        break
+    }
+    return n - 12
+}
+function openInfoDirect(id){
+  for(let _p in poi){
+    let p = poi[_p]
+    if(p.id == id){
+      openInfo(p)
+      document.body.classList.remove("menu-open")
+      document.body.classList.remove("tutorial-open")
+      return
+    }
   }
-  return n - 12
 }
 function openInfo(poi){
   if(!infoFlag){
@@ -565,33 +814,25 @@ function openLink(e){
   else if(target == "exhibit"){
     document.body.classList.remove("curtain-open")
     setTimeout(function () {
-      window.location.href = href + "?color=" + avatar.state.colorA.replace("#","") + "&x=" + avatar.x  + "&y=" + avatar.x
+      socket.emit('kill', {id:avatar.id})
+      window.location.href = href + "?color=" + avatar.state.colorA.replace("#","") + "&x=" + Math.round(avatar.x)  + "&y=" + Math.round(avatar.x)
     }, 1500);
   }
+}
+function toggleMenu(){
+  document.body.classList.toggle("menu-open")
+  // infoFlag = document.body.classList.contains("menu-open") ? 1 : 0
 }
 function update(){
   uiUpdateClock++
   if((uiUpdateClock % updateUIAfter) == 0){
     let time = Math.floor(performance.now() / 1000)
-    // ui.x.innerText = Math.round(avatar.x % virtualSize)
-    // ui.y.innerText = Math.round(avatar.y % virtualSize)
-    // ui.clock.innerText = Math.floor(time / 60 / 60) + ":" + Math.floor(time / 60) % 60 + ":" + time % 60
-    // ui.people.innerText = Object.keys(avatars).length
-    // ui.colorA.style.background = avatar.state.colorA
-    // ui.colorB.style.background = avatar.state.invertA
+    ui.x.innerText = Math.round(avatar.x % virtualSize)
+    ui.y.innerText = Math.round(avatar.y % virtualSize)
+    ui.clock.innerText = ("" + Math.floor(time / 60 / 60)).padStart(2, '0') + ":" + ("" + (Math.floor(time / 60) % 60)).padStart(2, '0') + ":" + ("" + (time % 60)).padStart(2, '0')
+    ui.people.innerText = Object.keys(avatars).length
     let poiList = document.getElementById("outputPOI")
     poiList.innerHTML = ""
-    let tr = document.createElement("tr")
-    let th = document.createElement("th")
-    let td = document.createElement("td")
-    let a = document.createElement("a")
-    a.href = "https://frappant.org/kontakt/"
-    a.innerText = "Imprint"
-    a.target = "_blank"
-    tr.appendChild(td)
-    th.appendChild(a)
-    tr.appendChild(th)
-    poiList.appendChild(tr)
     for(let poi in poiInView){
       let tr = document.createElement("tr")
       let th = document.createElement("th")
@@ -679,6 +920,11 @@ function update(){
   render.updateRenderGraph();
   requestAnimationFrame(update);
 }
-function invertHex(hex) {
-  return (Number(`0x1${hex}`) ^ 0xFFFFFF).toString(16).substr(1).toUpperCase()
+// function invertHex(hex) {
+//   return (Number(`0x1${hex}`) ^ 0xFFFFFF).toString(16).substr(1).toUpperCase()
+// }
+function invertHex(rgb){
+  rgb = [].slice.call(arguments).join(",").replace(/rgb\(|\)|rgba\(|\)|\s/gi, '').split(',');
+  for (var i = 0; i < rgb.length; i++) rgb[i] = (i === 3 ? 1 : 255) - rgb[i];
+  return "rgb(" + rgb.join(", ") + ")";
 }

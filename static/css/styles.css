@@ -1,0 +1,454 @@
+@font-face {
+  font-family: 'SpaceMono';
+  src:  url('fonts/SpaceMono-Regular.ttf') format('truetype');
+}
+canvas,
+body{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  text-transform: uppercase;
+  font-size: 1.4vh;
+  font-family: "SpaceMono"
+}
+body{
+  background: black;
+  user-select: none;
+}
+*{
+  user-select: none;
+}
+
+#popupJoin{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  padding: 24px;
+  border-radius: 12px;
+  background: white;
+  color: black;
+  text-align: center;
+  transform: translate(-50%,-50%);
+  z-index: 2;
+  transition: all 0.2s ease-in-out;
+  opacity: 0;
+  pointer-events: none;
+  max-width: 90vw;
+  max-height: 80vh;
+}
+#popupJoin.is-active{
+  opacity: 1;
+  pointer-events: all;
+}
+#popupJoin p{
+  padding: 0;
+  margin: 0;
+}
+#popupJoin input{
+  margin: 0 0.5em 1em 0.5em;
+  background: transparent;
+  outline: none;
+  border: 2px solid black;
+  padding: 6px;
+  border-radius: 6px;
+  width: 3em;
+  height: 3em;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+#popupJoin input:hover{
+  background: black;
+}
+#popupJoin button{
+  padding: 1em 2em;
+  border-radius: 1.5em;
+  line-height: 1em;
+  background: white;
+  color: black;
+  text-transform: uppercase;
+  border: 2px solid black;
+  outline: none;
+  margin-top: 2em;
+  transition: all 0.2s ease-in-out;
+}
+#popupJoin button:hover{
+  background: black !important;
+  color: white !important;
+}
+#outputPlayer{
+  position: fixed;
+  bottom: 1em;
+  left: 1em;
+  color: white;
+  z-index: 2;
+}
+@media (max-aspect-ratio: 1/1){
+  #outputPlayer{
+    left: auto;
+    bottom: auto;
+    top: 1em;
+    right: 1em;
+    text-align: right;
+  }
+}
+#outputPOI{
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+  color: white;
+  z-index: 2;
+  list-style: none;
+  text-align: right;
+}
+#logo{
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 2;
+  width: auto;
+  height: 24px;
+  z-index: 100;
+}
+#menu{
+  position: fixed;
+  top: -100vh;
+  height: 100vh;
+  width: 100vw;
+  background: rgba(0,0,0,0.5);
+  transition: all 0.2s ease-in-out;
+  z-index: 100;
+  left: 0;
+}
+#menu #links{
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  text-align: center;
+  font-size: 1rem;
+  color: white;
+}
+.menu-open #menu{
+  top: 0;
+  background: rgba(0,0,0,0.8);
+}
+#menu a{
+  color: white;
+  text-decoration: none;
+}
+#menu li{
+  display: block;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+#title{
+  position: fixed;
+  top: 1em;
+  right: 1em;
+  z-index: 2;
+  font-size: 1em;
+  line-height: 1em;
+  height: auto;
+  color: white;
+  font-weight: normal;
+  text-align: right;
+}
+#outputPOI a{
+  color: white;
+}
+#outputPOI a{
+  text-decoration: none;
+}
+table{
+  border-spacing: 1em;
+}
+th,td{
+  min-width: 3em;
+  line-height: 1em;
+}
+.color{
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+}
+#info{
+  position: fixed;
+  /* top: -100vh; */
+  top: -50%;
+  left: 50%;
+
+  background: black;
+  width: 90vw;
+  height: 80vh;
+  max-width: 640px;
+  max-height: 640px;
+  z-index: 2;
+  border: 1px solid white;
+  transition: all 0.5s ease-in-out;
+  /* transform: translate(-50%,-50%) scale(50%) rotate3d(1,0,0,90deg); */
+  transform: translate(-50%,-50%);
+  transform-origin: 50% 50%;
+}
+
+.info-open #info{
+  top: 50%;
+  /* transform: translate(-50%,-50%) scale(100%) rotate3d(1,0,0,0deg); */
+}
+#canvas{
+  transform: translateY(5%);
+  transition: all 0.5s ease-in-out;
+}
+.info-open #canvas{
+  transform: translateY(50%);
+}
+.info-inner{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  overflow-y: hidden;
+  height: calc(100% - 3rem);
+  overflow-y: auto;
+}
+.info-body{
+  overflow: hidden;
+  overflow-y: auto;
+}
+.info-footer{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-top: 1px solid white;
+  height: 3rem;
+  background: black;
+}
+#infoTitle{
+  color: white;
+  font-size: 1rem;
+  line-height: 1.2em;
+  margin: 0;
+  padding: 0;
+  padding: 1rem;
+  border-bottom: 1px solid white;
+}
+#infoArtists{
+  color: white;
+  font-size: 1rem;
+  line-height: 1.2em;
+  margin: 0;
+  padding: 0;
+  padding: 1rem;
+  border-bottom: 1px solid white;
+}
+#infoDate{
+  color: white;
+  font-size: 1rem;
+  line-height: 1em;
+  padding: 1rem;
+  border-bottom: 1px solid white;
+}
+#infoDesc{
+  color: white;
+  font-size: 1rem;
+  line-height: 1.5em;
+  padding: 1rem;
+}
+#infoOpen{
+  width: calc(50% - 2rem);
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 1rem;
+  font-size: 1rem;
+  line-height: 1em;
+  text-decoration: none;
+  padding: 1rem;
+  text-align: center;
+  background: transparent;
+  border: 0;
+  outline: none;
+  font-family: "SpaceMono";
+  color: white;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-left: 1px solid white;
+}
+#info.no-link #infoOpen{
+  display: none;
+}
+#infoExit{
+  font-size: 1rem;
+  line-height: 1em;
+  text-decoration: none;
+  width: calc(50% - 2rem);
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1rem;
+  padding: 1rem;
+  text-align: center;
+  background: transparent;
+  border: 0;
+  outline: none;
+  font-family: "SpaceMono";
+  color: white;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+#info.no-link #infoExit{
+  width: calc(100% - 2rem);
+}
+#tutorial{
+  font-family: "SpaceMono";
+  color: white;
+  font-size: 1rem;
+  line-height: 1em;
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%,-100vh);
+  max-width: 80vw;
+  width: auto;
+  text-align: center;
+  z-index: 10;
+  background: black;
+  padding: 1em;
+  /* text-shadow: 1px 1px black, -1px 1px black, -1px -1px black, 1px -1px black; */
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s ease-in-out;
+}
+.tutorial-open #tutorial{
+  transform: translate(-50%,0);
+  opacity: 1;
+}
+#compass{
+  position: fixed;
+  top: 1rem;
+  left: 0;
+  width: 100vw;
+  height: 32px;
+  pointer-events: none;
+  z-index: 3;
+  background-image: url(/static/img/compass.png);
+  background-size: 2048px auto;
+  background-position: 0 0;
+  background-repeat: repeat-x;
+  image-rendering: optimizeSpeed;             /* STOP SMOOTHING, GIVE ME SPEED  */
+  image-rendering: -moz-crisp-edges;          /* Firefox                        */
+  image-rendering: -o-crisp-edges;            /* Opera                          */
+  image-rendering: -webkit-optimize-contrast; /* Chrome (and eventually Safari) */
+  image-rendering: pixelated; /* Chrome */
+  image-rendering: optimize-contrast;         /* CSS3 Proposed                  */
+  -ms-interpolation-mode: nearest-neighbor;   /* IE8+                           */
+}
+#compass:after{
+  position: fixed;
+  top: 1rem;
+  left: 0;
+  height: 32px;
+  width: 100vw;
+  content: "";
+  background: rgb(0,0,0);
+  background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 10%, rgba(255,255,255,0) 20%, rgba(255,255,255,0) 80%, rgba(0,0,0,1) 90%, rgba(0,0,0,1) 100%);
+}
+
+#logos{
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  width: calc(100% - 2rem);
+  height: 72px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-image: url(/static/img/banner_small.jpg);
+  background-size: auto 72px;
+  background-position: 0 0;
+  background-repeat: repeat-x;
+  animation: banner 60s linear infinite;
+}
+/* #logos:before{
+  content: "Funded by";
+  position: absolute;
+  top: -2rem;
+  font-size: 1rem;
+  color: white;
+  left: 50%;
+  transform: translateX(-50%);
+} */
+@keyframes banner{
+  0%{
+    background-position: 0 0;
+  }
+  100%{
+    background-position: -100% 0;
+  }
+}
+#vierterRaumCurtain{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 0%;
+  height: 0%;
+  outline: 10000px solid black;
+  z-index: 1000000;
+  transition: all 1s ease-in-out;
+  pointer-events: none;
+  user-select: none;
+}
+.curtain-open #vierterRaumCurtain{
+  width: 100%;
+  height: 100%;
+}
+#menubutton{
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  width: 24px;
+  height: 24px;
+  z-index: 100;
+  border: 0;
+  outline: none;
+  cursor: pointer;
+}
+#menubutton:before{
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 8px;
+  background: white;
+  transition: all 0.2s ease-in-out;
+}
+#menubutton:after{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 24px;
+  height: 8px;
+  background: white;
+  transition: all 0.2s ease-in-out;
+}
+.menu-open #menubutton:before{
+  transform: translateY(8px);
+}
+.menu-open #menubutton:after{
+  transform: translateY(-8px);
+}
+@media (max-aspect-ratio: 1/1){
+  #outputPlayer,
+  #outputPOI{
+    display: none;
+  }

@@ -4,17 +4,8 @@ const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 const express = require('express');
 const KILL_PLAYERS_AFTER = 2000
-
-const bots = 0
-function rainbow() {
-    return colors[Math.floor(colors.length * Math.random())]
-}
-function invertHex(hex) {
-  return (Number(`0x1${hex}`) ^ 0xFFFFFF).toString(16).substr(1).toUpperCase()
-}
-let colors = ['#87CEFA','#483D8B','#9370DB','#8B0000','#F0FFFF','#2E8B57','#FFF8DC','#000080','#778899','#A9A9A9','#DA70D6','#FFF5EE','#A0522D','#B0E0E6','#B8860B','#6B8E23','#5F9EA0','#FFF0F5','#FFE4E1','#DC143C','#90EE90','#FFFF00','#FF1493','#556B2F','#E6E6FA','#D2B48C','#FF69B4','#E9967A','#708090','#DDA0DD','#EE82EE','#9400D3','#DCDCDC','#4682B4','#008B8B','#3CB371','#6A5ACD','#F5F5DC','#808000','#FFD700','#9ACD32','#FFDEAD','#DAA520','#696969','#9932CC','#FFE4B5','#800080','#F5DEB3','#E0FFFF','#FFFFE0','#191970','#00FFFF','#B0C4DE','#F5F5F5','#006400','#7FFFD4','#20B2AA','#7FFF00','#C0C0C0','#FFDAB9','#FFE4C4','#40E0D0','#D2691E','#BA55D3','#FFB6C1','#A52A2A','#D8BFD8','#FFFAFA','#FFFFFF','#AFEEEE','#7CFC00','#FF7F50','#32CD32','#F8F8FF','#6495ED','#F0FFF0','#00FF00','#4169E1','#BC8F8F','#00BFFF','#00008B','#00FF7F','#DB7093','#FF00FF','#808080','#00CED1','#ADFF2F','#FFA500','#FF00FF','#66CDAA','#800000','#2F4F4F','#00FFFF','#FFA07A','#F0F8FF','#DEB887','#FDF5E6','#FF0000','#CD853F','#0000FF','#7B68EE','#FFFAF0','#48D1CC','#FAEBD7','#F08080','#EEE8AA','#F0E68C','#FFEFD5','#9966CC','#FF6347','#1E90FF','#FF8C00','#CD5C5C','#00FA9A','#228B22','#8FBC8F','#FF4500','#7B68EE','#FFFFF0','#B22222','#000000','#FA8072','#ADD8E6','#8B008B','#D3D3D3','#FFA07A','#8A2BE2','#FFEBCD','#0000CD','#F4A460','#FFC0CB','#4B0082','#F5FFFA','#BDB76B','#87CEEB','#008080','#C71585','#FAF0E6','#008000','#8B4513','#FAFAD2','#FFFACD','#98FB98']
-let players = {
-  frappant: {
+let poi = {
+  "0;0": {
     name: "Frappant",
     id: "frappant",
     x: 0,
@@ -22,7 +13,7 @@ let players = {
     poi: true,
     vip: true,
     state: {
-      plan: [["X","I","A","","X","","V","X"],["#fff","#fff","#fff","#000","#fff","#000","#fff","#fff"]],
+      plan: [[1,5,2,0,1,0,3,1],["#fff","#fff","#fff","#000","#fff","#000","#fff","#fff"]],
       artists:false,
       date:false,
       description:"Frappant is an art gallery and off-space in Hamburg, Germany. This virtual exhibition room was founded within it by members of it. Visit the Frappant website to learn more:",
@@ -30,7 +21,7 @@ let players = {
       linktitle: "Visit Website"
     }
   },
-  about: {
+  "8;8": {
     name: "About",
     id: "about",
     x: 8,
@@ -38,14 +29,29 @@ let players = {
     poi: true,
     vip: true,
     state: {
-      plan: [["X","I","I","I","I","X","","O"],["#fff","#fff","#fff","#fff","#fff","#fff","#000","#fff"]],
+      plan: [[1,5,5,5,5,1,0,4],["#fff","#fff","#fff","#fff","#fff","#fff","#000","#fff"]],
       artists:false,
       date:false,
-      description:"The 'Vierter Raum' is an exhibition space founded by Frappant e.V. to showcase digital and hybrid exhibitions. Go to the contact pillar to get in touch, follow us on Instagram or visit the Frappant website to learn more about our physical sibling.",
+      description:"Die Frappant Galerie ist ein nicht-kommerzieller white cube inmitten des größeren, genossenschaftlich verwalteten Zentrums für Kunst, alternative Kultur, Bildung, Kreativwirtschaft und Soziales in der ehemaligen Viktoria-Kaserne in Hamburg-Altona. In den drei Räumen der Galerie bieten wir auf 145 qm ein fortlaufendes Programm von jährlich etwa 20 Ausstellungen zeitgenössischer, experimenteller bildender Kunst. Ausgehend von den Beschränkungen der aktuellen Pandemie haben wir das Konzept eines zusätzlichen 4., web-basierten Galerieraums entwickelt, der ein kuratiertes Programm bietet und im Netz dauerhaft besucht werden kann. Wir möchten damit unser Ausstellungsprogramm dauerhaft um zusätzliche Kunst-Formate erweitern. Den 4. Raum stellen wir für digitale oder hybride Projekte von Künstler:innen zur Verfügung, die sich über ein Auswahlverfahren bei uns beworben haben und ausgewählt wurden. Mit Frappant 4. Raum wollen wir die Bandbreite der von uns präsentierten künstlerischen Formate und Medien erweitern, nationale und internationale Medienkünstlerinnen einladen, ihr künstlerisches Konzept bei uns zu realisieren, interaktive und hybride Kunstformate ermöglichen und kunstinteressierte Besucher:innen außerhalb von Hamburg erreichen.",
       link: false,
     }
   },
-  contact: {
+  "4;12": {
+    name: "Funders",
+    id: "funders",
+    x: 4,
+    y: 12,
+    poi: true,
+    vip: true,
+    state: {
+      plan: [[1,4,4,4,4,1,0,4],["#fff","#fff","#fff","#fff","#fff","#fff","#000","#fff"]],
+      artists:false,
+      date:false,
+      description:"Dieses Projekt wird aus Mitteln von KULTUR.GEMEINSCHAFTEN – Förderprogramm für digitale Content-Produktion von Kultureinrichtungen und NEUSTART KULTUR – Programm 2 gefördert. Für die freundliche Unterstützung durch die Beauftragte der Bundesregierung für Kultur und Medien, die Kulturstiftung der Länder, den Bundesverband Soziokultur e.V., die Behörde für Kultur und Medien Hamburg sowie den Frappant e.V. bedanken wir uns.",
+      link: false,
+    }
+  },
+  "0;8": {
     name: "Contact",
     id: "contact",
     x: 0,
@@ -53,7 +59,7 @@ let players = {
     poi: true,
     vip: true,
     state: {
-      plan: [["X","I","I","X","","X","","X"],["#fff","#fff","#fff","#fff","#000","#fff","#000","#fff"]],
+      plan: [[1,5,5,1,0,1,0,1],["#fff","#fff","#fff","#fff","#000","#fff","#000","#fff"]],
       artists:false,
       date:false,
       description:"Get in touch if you would like to exhibit here or become a part of the 'Vierter Raum' Team",
@@ -61,7 +67,7 @@ let players = {
       linktitle: "Send a mail"
     }
   },
-  instagram: {
+  "8;0": {
     name: "Instagram",
     id: "instagram",
     x: 8,
@@ -69,7 +75,7 @@ let players = {
     poi: true,
     vip: true,
     state: {
-      plan: [["I","X","","V","","O","","A"],["#fff","#fff","#000","#fff","#000","#fff","#000","#fff"]],
+      plan: [[5,1,0,3,0,4,0,2],["#fff","#fff","#000","#fff","#000","#fff","#000","#fff"]],
       artists:false,
       date:false,
       description:"Follow us on Instagram to stay up to date about upcoming exhibitions and more.",
@@ -77,7 +83,7 @@ let players = {
       linktitle: "Follow on Instagram"
     }
   },
-  rabbithole: {
+  "16;3": {
     name: "Rabbithole",
     id: "rabbithole",
     x: 16,
@@ -86,7 +92,7 @@ let players = {
     vip: false,
     exhibit: true,
     state: {
-      plan: [["X","V","O","A","V","O","A","X"],["#db2109","#1847f2","#e620e6","#db2109","#e620e6","#db2109","#1847f2","#59b020"]],
+      plan: [[1,2,4,2,3,4,2,1],["#db2109","#1847f2","#e620e6","#db2109","#e620e6","#db2109","#1847f2","#59b020"]],
       artists:"Michael, Alain, Various Artists",
       date:"15.12.21 - 15.09.22",
       description:"10 years after the first rabbithole we once again revisit this collection of pieces of pop culture.",
@@ -94,45 +100,14 @@ let players = {
     }
   }
 }
-// for(let i = 0; i < bots; i++){
-//   let colorA = rainbow()
-//   players["bot" + i] = {
-//     name: "bot" + i,
-//     id: "bot" + i,
-//     x: -10 + Math.floor(Math.random() * 20),
-//     y: -10 + Math.floor(Math.random() * 20),
-//     alive: KILL_PLAYERS_AFTER,
-//     poi: false,
-//     state: {
-//       colorA: colorA,
-//       colorB: colorA,
-//       invertA: "#" + invertHex(colorA.replace("#","")),
-//       invertB: "#" + invertHex(colorA.replace("#",""))
-//     }
-//   }
-// }
+let players = {}
 
 app.use('/static', express.static(__dirname + '/static'));
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
-app.get('/index.js',function(req,res){
-    res.sendFile(__dirname + '/index.js');
-});
-app.get('/scripts.js',function(req,res){
-    res.sendFile(__dirname + '/scripts.js');
-});
-app.get('/fonts/SpaceMono-Regular.ttf',function(req,res){
-    res.sendFile(__dirname + '/fonts/SpaceMono-Regular.ttf');
-});
-app.get('/logo.png',function(req,res){
-    res.sendFile(__dirname + '/logo.png');
-});
-app.get('/logo_inverted.png',function(req,res){
-    res.sendFile(__dirname + '/logo_inverted.png');
-});
-app.get('/compass.png',function(req,res){
-    res.sendFile(__dirname + '/compass.png');
+app.get('/edit', (req, res) => {
+  res.sendFile(__dirname + '/edit.html');
 });
 io.on("connection", (socket) => {
   socket.on("join", msg => {
@@ -145,6 +120,7 @@ io.on("connection", (socket) => {
       alive: KILL_PLAYERS_AFTER,
       poi: false
     }
+    io.emit('poi', poi);
   });
   socket.on("alive", msg => {
     if(players[msg.id]){
@@ -158,9 +134,13 @@ io.on("connection", (socket) => {
     //   io.emit('logout', msg);
     // }
   })
+  socket.on("kill", msg => {
+    if(players[msg.id]){
+      delete players[msg.id]
+    }
+  })
   setInterval(update, 100);
 });
-
 function update(){
   for(let p in players){
     if(players[p].alive <= 0){
