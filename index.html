@@ -50,10 +50,10 @@
         </div>
       </div>
       <div class="info-footer">
-        <a onClick="openLink()" id="infoOpen">
+        <a onclick="G.openLink()" id="infoOpen">
           Enter
         </a>
-        <a onclick="closeInfo()" id="infoExit">
+        <a onclick="G.closeInfo()" id="infoExit">
           Exit
         </a>
       </div>
@@ -75,10 +75,10 @@
           <a href="https://frappant.org" target="_blank">Frappant</a>
         </li>
         <li>
-          <a onclick="openInfoDirect('about')">About</a>
+          <a onclick="G.openInfoDirect('about')">About</a>
         </li>
         <li>
-          <a onclick="openInfoDirect('funders')">Funders</a>
+          <a onclick="G.openInfoDirect('funders')">Funders</a>
         </li>
         <li>
           <a href="mailto:https://frappant.org" target="_blank">Contact</a>
@@ -91,7 +91,7 @@
       <div id="logos"></div>
     </nav>
     <img id="logo" src="./static/img/logo.png" alt="III[]">
-    <button id="menubutton" onclick="toggleMenu()"></button>
+    <button id="menubutton" onclick="G.toggleMenu()"></button>
     <div id="vierterRaumCurtain"></div>
     <script src="./socket.io/socket.io.js"></script>
     <script src="./static/js/scripts.js"></script>

@@ -112,7 +112,6 @@ app.get('/edit', (req, res) => {
 io.on("connection", (socket) => {
   socket.on("join", msg => {
     players[msg.id] = {
-      name: msg.name,
       id: msg.id,
       x: msg.position && msg.position.x ? msg.position.x : -10 + Math.floor(Math.random() * 20),
       y: msg.position && msg.position.y ? msg.position.y : -10 + Math.floor(Math.random() * 20),
