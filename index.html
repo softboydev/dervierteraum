@@ -5,6 +5,7 @@
     <title>Frappant Vierter Raum</title>
     <meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=no">
     <link rel="stylesheet" href="./static/css/styles.css">
+    <link rel="shortcut icon" type="image/x-icon" href="./static/img/favicon.ico">
   </head>
   <body>
     <canvas id="canvas" class="zdog-canvas" width="240" height="240"></canvas>
@@ -65,7 +66,7 @@
       <!-- Tap to flash.<br><br> -->
       Stand close to a pillar.
     </div>
-    <div id="compass"></div>
+    <!-- <div id="compass"></div> -->
     <nav id="menu">
       <ul id="links">
         <li>
@@ -88,13 +89,14 @@
         </li>
 
       </ul>
-      <div id="logos"></div>
+      <div id="logos"  onclick="G.openInfoDirect('funders')"></div>
     </nav>
-    <img id="logo" src="./static/img/logo.png" alt="III[]">
-    <button id="menubutton" onclick="G.toggleMenu()"></button>
+    <img id="logo" src="./static/img/logo.png" alt="">
+    <button id="menubutton" onclick="G.toggleMenu()"><div class="menubutton-inner"></div></button>
     <div id="vierterRaumCurtain"></div>
     <script src="./socket.io/socket.io.js"></script>
     <script src="./static/js/scripts.js"></script>
     <script src="./static/js/index.js"></script>
+    <script src="./static/js/dervierteraum.js"></script>
   </body>
 </html>

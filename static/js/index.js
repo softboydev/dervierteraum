@@ -1,5 +1,13 @@
 //GLOBAL
+// if(location.protocol !== 'https:') {
+//     location.replace(`https:${location.href.substring(location.protocol.length)}`);
+// }
 const IO = io() //Socket connection
+const POS = function(x,y,z){
+  this.x = x || 0
+  this.y = y || 0
+  this.z = z || 0
+}
 const Z = Zdog //Writes into a single letter variable
 const TAU = Z.TAU //Stores into own variable
 const WORLD = new Z.Illustration({ //Main render object
@@ -19,6 +27,80 @@ const U = { //UTILS
     let x = -JOIN_SPREAD + Math.floor(Math.random() * JOIN_SPREAD * 2)
     let y = -JOIN_SPREAD + Math.floor(Math.random() * JOIN_SPREAD * 2)
     return {x:x,y:y}
+  },
+  getVPos: function(pos,q){
+    let vx,vy
+    if(q){
+      vx = (FOV * 0.5 + BOUNDS + (pos.x - ((BOUNDS + Math.round(AVATAR.x)) % BOUNDS))) % BOUNDS
+      vy = (FOV * 0.5 + BOUNDS + (pos.y - ((BOUNDS + Math.round(AVATAR.y)) % BOUNDS))) % BOUNDS
+    }
+    else{
+      vx = (FOV * 0.5 + BOUNDS + (pos.x - ((BOUNDS + AVATAR.x) % BOUNDS))) % BOUNDS
+      vy = (FOV * 0.5 + BOUNDS + (pos.y - ((BOUNDS + AVATAR.y) % BOUNDS))) % BOUNDS
+    }
+    return {x:vx,y:vy}
+  },
+  getZAt: function(x,y,q){
+      let n = 0
+      let _x = q ? Math.round(AVATAR.x) : AVATAR.x
+      let _y = q ? Math.round(AVATAR.y) : AVATAR.y
+      let d = (1 + noise.simplex3((1000 + x + _x) * 0.01,(1000 + y + _y) * 0.01,1000) * 10) * 0.5
+      let e = Math.floor((0.5 + noise.simplex3((10000 + x + _x) * VARIETY,(10000 + y + _y) * VARIETY,1000) * 0.5) * 18) // 0 - 3
+      switch(e){ //// TODO: Add spike world, see screenshot
+        case 0: //water at sea level 0 - 1
+        case 1:
+        case 2:
+        case 3:
+          n = (1 + Math.sin(y + performance.now() * 0.001) * 0.5)
+          break
+        case 4: //moving planes 2 - 3
+        case 5:
+          n = 2 + ((1 + noise.simplex3(x + _x * GRAIN,y + _y * GRAIN,performance.now() * ANIMATION_SPEED)) * 0.5)
+          break
+        case 6: //still planes
+          n = 3
+          break
+        case 7: //trees
+        case 8:
+          n = (noise.simplex3(((x + _x) + ((x + _x))) * GRAIN,((y + _y) + ((y + _y))) * GRAIN,0) > 0.8) ? 8 : 3
+          break
+        case 9: //rocky desert
+        case 10:
+          n = (noise.simplex3(((x + _x) + ((x + _x))) * GRAIN,((y + _y) + ((y + _y))) * GRAIN,0) > 0.5) ? 6 : 3
+          break
+        case 11: //suburb
+        case 12:
+          n = (noise.simplex3(((x + _x) + ((x + _x) % 2)) * GRAIN,((y + _y) + ((y + _y) % 2)) * GRAIN,0) > 0.5) ? 6 : 3
+          break
+        case 13: //cityblocks 3 - 8
+        case 14:
+        case 15:
+        case 16:
+          // n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * GRAIN,((y + _y) + ((y + _y) % 2)) * GRAIN,0)) * 0.5),4)
+          n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * GRAIN,((y + _y) + ((y + _y) % 2)) * GRAIN,0)) * 0.5),3)
+          break
+        case 17: // mountains 0 - 16
+        case 18:
+          // n = 2 + Math.pow(((1 + noise.simplex3(x + _x * GRAIN * 0.1,y + _y * GRAIN * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 16
+          n = 2 + Math.pow(((1 + noise.simplex3(x + _x * GRAIN * 0.1,y + _y * GRAIN * 0.1,performance.now() * ANIMATION_SPEED * 0.1)) * 0.5),2) * 8
+          break
+      }
+      return n - 10 - ELEVATION
+  },
+  calcDiagonal: function(){
+    return Math.min(((window.innerWidth + window.innerHeight) * 0.5) / LARGEST_DIAGONAL,1)
+  },
+  calcFov: function(){
+    // let fr = 1000 / FRAMETIME_AVG
+    // let d = 0
+    // if(fr < FRAME_LOWERGOAL){
+    //   d = -2
+    // }
+    // else if(fr > FRAME_UPPERGOAL){
+    //   d = 2
+    // }
+    //divided by two for average and divided by 500 for steps in one
+    return Math.min(Math.round((FOV_MIN + U.calcDiagonal() * (FOV_MAX - FOV_MIN)) * 0.5) * 2, FOV_MAX)
   }
 }
 const I = { //INPUTHANDLING
@@ -58,16 +140,58 @@ const I = { //INPUTHANDLING
       if(POINTER_FLAG){
         let dX =  (LAST_POINTER.x - x) / window.innerWidth
         let dY =  (LAST_POINTER.y - y) / window.innerHeight
-        POINTER_ROTATION_DELTA.z = dX
+        POINTER_ROTATION_DELTA.z = dX * DIAGONAL
         POINTER_ROTATION_DELTA.x = (-0.5 < (POINTER_ROTATION.x + dY) && (POINTER_ROTATION.x + dY) < 0.5) ? dY : (POINTER_ROTATION.x + dY) > 0.5 ? 0.5 - POINTER_ROTATION.x : -0.5 - POINTER_ROTATION.x
       }
       WORLD.zoom = 1 + POINTER_ROTATION.x + POINTER_ROTATION_DELTA.x
       WORLD.rotate = {x: TAU * 0.2 + (POINTER_ROTATION.x + POINTER_ROTATION_DELTA.x) * 0.6,y: POINTER_ROTATION.y,z: TAU * 0.0625 + TAU * (POINTER_ROTATION.z + POINTER_ROTATION_DELTA.z)}
-      UI.compass.style.backgroundPositionX = (0.0625 +(POINTER_ROTATION.z + POINTER_ROTATION_DELTA.z)) * 200 + "%"
+      // UI.compass.style.backgroundPositionX = Math.round((0.125 + (POINTER_ROTATION.z + POINTER_ROTATION_DELTA.z)) * 200) + "%"
     }
   }
 }
 const G = { //GLOBAL
+  openInfo: function(poi,force){
+    if(!INFO_FLAG || force){
+      USER_HAS_MOVED_AFTER_CLOSE = false
+      INFO_FLAG = 1
+      UI.title.innerText = poi.name
+      if(poi.state.artists){
+        UI.artists.innerText = poi.state.artists
+        UI.artists.style.display = "block"
+      }
+      else{
+        UI.artists.style.display = "none"
+      }
+      if(poi.state.date){
+        UI.date.innerText = poi.state.date
+        UI.date.style.display = "block"
+      }
+      else{
+        UI.date.style.display = "none"
+      }
+      UI.desc.innerHTML = poi.state.description
+      if(poi.state.link){
+        UI.link.setAttribute("data-href",poi.state.link)
+        if(poi.exhibit){
+          UI.link.setAttribute("data-target","exhibit")
+        }
+        else{
+          UI.link.setAttribute("data-target","external")
+        }
+        UI.container.classList.remove("no-link")
+      }
+      else{
+        UI.container.classList.add("no-link")
+      }
+      if(poi.state.linktitle){
+        UI.link.innerText = poi.state.linktitle
+      }
+      else{
+        UI.link.innerText = "Enter"
+      }
+      document.body.classList.add("info-open")
+    }
+  },
   closeInfo: function(){
     document.body.classList.remove("info-open")
     INFO_FLAG = -INFO_CD
@@ -83,22 +207,32 @@ const G = { //GLOBAL
       document.body.classList.remove("curtain-open")
       setTimeout(function () {
         IO.emit('kill', {id:AVATAR.id})
-        window.location.href = href + "?color=" + AVATAR.state.colorA.replace("#","") + "&x=" + Math.round(AVATAR.x)  + "&y=" + Math.round(AVATAR.x)
+        let x = Math.round((BOUNDS + (AVATAR.x % BOUNDS)) % BOUNDS)
+        let y = Math.round((BOUNDS + (AVATAR.y % BOUNDS)) % BOUNDS)
+        window.location.href = href + "?color=" + AVATAR.state.colorA.replace("#","") + "&x=" + x  + "&y=" + y
       }, 1500);
     }
   },
   toggleMenu: function(){
     document.body.classList.toggle("menu-open")
   },
-  openInfoDirect: function(id){
-    for(let _p in POIS){
-      let p = POIS[_p]
-      if(p.id == id){
-        openInfo(p)
-        document.body.classList.remove("menu-open")
-        document.body.classList.remove("tutorial-open")
-        return
+  openInfoDirect: function(target){
+    let poi = false
+    if(typeof target === "object"){
+      poi = target
+    }
+    else{
+      for(let _p in POIS){
+        let p = POIS[_p]
+        if(p.id == target){
+          poi = p
+        }
       }
+    }
+    if(poi){
+      G.openInfo(poi,true)
+      document.body.classList.remove("menu-open")
+      document.body.classList.remove("tutorial-open")
     }
   }
 }
@@ -106,8 +240,14 @@ const G = { //GLOBAL
 const INFO_CD = 10 //cooldown in frames before the info popup may be shown again
 const UPDATE_UI_AFTER = 10 //mod to update the UI after X frames
 const CLICK_TIME = 150 //Ms that have to pass before a touch/click is considered holded
-const INFO_AREA = 2 //radius around pillars that lead to the info being open. Radius is in virtual grid coordinates
-const FOV = 14 //amount of grid coordinates in view
+const INFO_AREA = 3 //radius around pillars that lead to the info being open. Radius is in virtual grid coordinates
+const FOV_MIN = 8 //minimum FOV with worst framerate and smallest device
+const FOV_MAX = 18 //maximum FOV with large device and very good framerate
+const FRAMETIME = 0 //stores timestamp of last rendered frame
+const FRAMETIME_AVG = 1 //average frametime storage
+const FRAMETIME_RECALC = 1000 //amount of ms after which frametime is averaged and FOV is calculated
+const FRAME_LOWERGOAL = 10 //if framerate fall below this treshold FOV will be adjusted
+const FRAME_UPPERGOAL = 24 //if framerate goes above this treshold FOV will be adjusted
 const BOUNDS = 24 //virtual bounds after which the dynamic elements are looped
 const SIZE = 40 //virtual size of all elements, no unit
 const AVATAR_HOVER = 40 //dynamic range of hover effects for avatars
@@ -122,6 +262,8 @@ const STROKE = 2 //strokesize for render
 const COLOR = "#ffffff" //color for render
 const BACKGROUND = "#000000" //background for render
 const ELEVATION = 12
+const LARGEST_DIAGONAL = 1500 //value to get highest FOV, in px, avg of width and height of device
+
 //FLAGS
 let POINTER_FLAG = false //Used to determine if the user is currently holding the mouse/finger down
 let INFO_FLAG = 0 //stores the state of the info popup. 1 = Popup open, 0 = Popup closed, -X = Popup closed, may not open. Will be reset to negative INFO_CD
@@ -136,6 +278,8 @@ let LAST_POINTER = {x:0,y:0} //Stores the coordinates of the last pointer that w
 let LAST_POINTER_TIMESTAMP = 0 //Stores the timestamp of the last touch/click
 let POINTER_ROTATION = {x:0,y:0,z:0} //Stores the basis for the 3d rotation based on the pointer
 let POINTER_ROTATION_DELTA = {x:0,y:0,z:0} //Stores a momentary difference in pointer position relative to POINTER_ROTATION as a base
+let FOV = 16 //amount of grid coordinates in view
+let DIAGONAL = 1
 let POINTS = [] //buffer array to store z values for a frame and position. Accessed as POINTS[X][Y]
 // let FILL_POLYGON //reference to filled polygon
 // let STROKE_POLYGON //reference to stroked polygon
@@ -185,6 +329,7 @@ function registerEvents(){
   })
   window.addEventListener("mouseup",I.pointerUp)
   window.addEventListener("touchend",I.pointerUp)
+  // window.addEventListener("resize",resize)
 }
 function conditionalTutorialDisplay(){
   const urlParams = new URLSearchParams(window.location.search) //gets any url parameters
@@ -206,7 +351,7 @@ function connectUI(){
   UI.date = document.getElementById("infoDate")
   UI.desc = document.getElementById("infoDesc")
   UI.link = document.getElementById("infoOpen")
-  UI.compass = document.getElementById("compass")
+  // UI.compass = document.getElementById("compass")
 }
 function setupIntervals(){
   INFO_INTERVAL = setInterval(function () {
@@ -221,7 +366,7 @@ function setupIntervals(){
           let _x = Math.round((BOUNDS + (p.x % BOUNDS)) % BOUNDS)
           let _y = Math.round((BOUNDS + (p.y % BOUNDS)) % BOUNDS)
           if(pos.x > (_x - INFO_AREA) && pos.x < (_x + INFO_AREA) && pos.y > (_y - INFO_AREA)  && pos.y < (_y + INFO_AREA) ){
-            openInfo(p)
+            G.openInfo(p)
             return
           }
         }
@@ -237,7 +382,7 @@ function setupIntervals(){
 function join(){
   const urlParams = new URLSearchParams(window.location.search) //gets any url parameters
   let color = urlParams.get('color') ? "#" + urlParams.get('color') : U.randomColor() //either stores the color given by url parameter or generates a random one when none is given
-  let position = urlParams.get('x') && urlParams.get('y') ? {x:Number(urlParams.get('x')),y:Number(urlParams.get('x'))} : U.randomJoinPos() //either stores the position given by url parameter or generates a random one when none is given
+  let position = urlParams.get('x') && urlParams.get('y') ? {x:Number(urlParams.get('x')),y:Number(urlParams.get('y'))} : U.randomJoinPos() //either stores the position given by url parameter or generates a random one when none is given
   AVATAR.x = position.x
   AVATAR.y = position.y
   AVATAR.shapes.ball = {
@@ -273,6 +418,7 @@ function join(){
   conditionalTutorialDisplay()
 }
 function initPoints(){
+  POINTS = []
   for(let y = 0; y < FOV + 1; y ++){ //for the whole grid in view
     let row = [] //create y rows
     for(let x = 0; x < FOV + 1; x ++){
@@ -282,6 +428,7 @@ function initPoints(){
   }
 }
 function initPolygons(){
+  POLYGONS = []
   for(let y = 0; y <= FOV; y++){ //for all points in grid
     let row = []
     for(let x = 0; x <= FOV; x++){
@@ -418,12 +565,12 @@ function updatePolygons(){
 // }
 function updatePoiRender(){
   for(let a in POIS){ // for each POIS in the list of POISs
-    let vPos = getVPos({x:POIS[a].x,y:POIS[a].y},true)
+    let vPos = U.getVPos({x:POIS[a].x,y:POIS[a].y},true)
     let relX = vPos.x
     let relY = vPos.y
       let _x = ((-FOV * 0.5 + relX + Math.abs(AVATAR.x % 1)) + (AVATAR.x % 1) - 0.5) * SIZE
       let _y =  ((-FOV * 0.5 + relY + Math.abs(AVATAR.y % 1)) + (AVATAR.y % 1) - 0.5) * SIZE
-      // let _z = getZAt(relX,relY)
+      // let _z = U.getZAt(relX,relY)
       let _z = 0
       if(relX >= 0 && relX < FOV && relY >= 0 && relY < FOV){ //when the relative position is within the view
         _z = (POINTS[relY][relX] + 1) * DELTA
@@ -522,21 +669,41 @@ function updatePoiRender(){
       }
   }
 }
+function resize(){
+  FOV = U.calcFov()
+  DIAGONAL = U.calcDiagonal()
+  initPoints()
+  initPolygons()
+}
 function init(){
-
   registerEvents()
   connectUI()
   setupIntervals()
-  initPoints()
-  initPolygons()
-
+  resize()
   IO.on('poi',function(msg){
     if(!POIS){
       POIS = msg
+      const urlParams = new URLSearchParams(window.location.search) //gets any url parameters TODO make this way more elegant
+      let poi = urlParams.get('poi') ? urlParams.get('poi') : false
+      let found = false
+      if(poi){
+        for(let p in POIS){
+          if(!found && (POIS[p].name == poi || POIS[p].id == poi)){
+            poi = POIS[p]
+            found = true
+          }
+        }
+      }
+      if(!found){
+        poi = false
+      }
+      if(poi){
+        AVATAR.x = poi.x
+        AVATAR.y = poi.y
+      }
     }
   })
   IO.on('update', function(msg) {
-
     if(JOINED){ //when the user has already joined upon recieval of message
       IO.emit('alive', {id:AVATAR.id,x:AVATAR.x,y:AVATAR.y,state:AVATAR.state}) //emit the keep alive message with needed info
     }
@@ -555,13 +722,13 @@ function init(){
     }
     for(let a in AVATARS){ // for each AVATAR in the list of AVATARS
       if(a != AVATAR.id){ //when the current AVATAR is not the users AVATAR
-        let vPos = getVPos({x:AVATARS[a].x,y:AVATARS[a].y})
+        let vPos = U.getVPos({x:AVATARS[a].x,y:AVATARS[a].y})
         let relX = vPos.x
         let relY = vPos.y
         let _x = (-FOV * 0.5 + relX) * SIZE
         let _y =  (-FOV * 0.5 + relY) * SIZE
-        let _z = getZAt(relX,relY) * DELTA + AVATAR_HOVER + SIZE
-        let _az = 4 + _z * Math.abs(-1 + ((performance.now() * 0.0005) % 2))
+        let _z = U.getZAt(relX,relY) * DELTA + AVATAR_HOVER + SIZE
+        let _az = 4 + U.getZAt(relX,relY) * 0.5 * DELTA + SIZE + AVATAR_HOVER * Math.abs(-1 + ((performance.now() * 0.0005) % 2))
         if(relX >= 0 && relX <= FOV && relY >= 0 && relY <= FOV){ //when the relative position is within the view
           if(!DYNAMIC_SHAPES[a]){ //when there is no shape for the AVATAR
             let group = new Z.Group({
@@ -569,7 +736,7 @@ function init(){
               visible:true
             })
             let anchor = new Z.Anchor({
-              // translate: AVATARS[a].POIS ? {x: (((FOV * 0.5 + AVATARS[a].x - 0.5 - AVATAR.x) % BOUNDS)) * SIZE , y: (((FOV * 0.5 + AVATARS[a].y - 0.5 - AVATAR.y) % BOUNDS)) * SIZE, z: getZAt(relX,relY) * DELTA + AVATAR.d + SIZE} : {x: (((FOV * 0.5 + AVATARS[a].x - AVATAR.x) % BOUNDS) - FOV * 0.5) * SIZE, y: (((FOV * 0.5 + AVATARS[a].y - AVATAR.y) % BOUNDS) - FOV * 0.5) * SIZE, z: 4 + getZAt(relX,relY) * 0.5 * DELTA + AVATAR.d + SIZE},
+              // translate: AVATARS[a].POIS ? {x: (((FOV * 0.5 + AVATARS[a].x - 0.5 - AVATAR.x) % BOUNDS)) * SIZE , y: (((FOV * 0.5 + AVATARS[a].y - 0.5 - AVATAR.y) % BOUNDS)) * SIZE, z: U.getZAt(relX,relY) * DELTA + AVATAR.d + SIZE} : {x: (((FOV * 0.5 + AVATARS[a].x - AVATAR.x) % BOUNDS) - FOV * 0.5) * SIZE, y: (((FOV * 0.5 + AVATARS[a].y - AVATAR.y) % BOUNDS) - FOV * 0.5) * SIZE, z: 4 + U.getZAt(relX,relY) * 0.5 * DELTA + AVATAR.d + SIZE},
               translate: {x: _x, y: _y, z: 4 + _az},
               addTo: group
             })
@@ -596,7 +763,7 @@ function init(){
           else{ //when there is a shape
             let z = _az
             DYNAMIC_SHAPES[a].anchor.translate = {x: _x, y: _y, z: z}
-            rotation = TAU * (performance.now()) * 0.0001
+            rotation = TAU * performance.now() * 0.0001
             DYNAMIC_SHAPES[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
           }
         }
@@ -606,112 +773,13 @@ function init(){
         }
       }
     }
-  });
+  })
   join()
   update()
   document.body.classList.add("curtain-open")
 }
-function getVPos(pos,q){
-  let vx,vy
-  if(q){
-    vx = (FOV * 0.5 + BOUNDS + (pos.x - ((BOUNDS + Math.round(AVATAR.x)) % BOUNDS))) % BOUNDS
-    vy = (FOV * 0.5 + BOUNDS + (pos.y - ((BOUNDS + Math.round(AVATAR.y)) % BOUNDS))) % BOUNDS
-  }
-  else{
-    vx = (FOV * 0.5 + BOUNDS + (pos.x - ((BOUNDS + AVATAR.x) % BOUNDS))) % BOUNDS
-    vy = (FOV * 0.5 + BOUNDS + (pos.y - ((BOUNDS + AVATAR.y) % BOUNDS))) % BOUNDS
-  }
-  return {x:vx,y:vy}
-}
-function getZAt(x,y,q){
-    let n = 0
-    let _x = q ? Math.round(AVATAR.x) : AVATAR.x
-    let _y = q ? Math.round(AVATAR.y) : AVATAR.y
-    let d = (1 + noise.simplex3((1000 + x + _x) * 0.01,(1000 + y + _y) * 0.01,1000) * 10) * 0.5
-    let e = Math.floor((0.5 + noise.simplex3((10000 + x + _x) * VARIETY,(10000 + y + _y) * VARIETY,1000) * 0.5) * 18) // 0 - 3
-    switch(e){ //// TODO: Add spike world, see screenshot
-      case 0: //water at sea level 0 - 1
-      case 1:
-      case 2:
-      case 3:
-        n = (1 + Math.sin(y + performance.now() * 0.001) * 0.5)
-        break
-      case 4: //moving planes 2 - 3
-      case 5:
-        n = 2 + ((1 + noise.simplex3(x + _x * GRAIN,y + _y * GRAIN,performance.now() * ANIMATION_SPEED)) * 0.5)
-        break
-      case 6: //still planes
-        n = 3
-        break
-      case 7: //trees
-      case 8:
-        n = (noise.simplex3(((x + _x) + ((x + _x))) * GRAIN,((y + _y) + ((y + _y))) * GRAIN,0) > 0.8) ? 8 : 3
-        break
-      case 9: //rocky desert
-      case 10:
-        n = (noise.simplex3(((x + _x) + ((x + _x))) * GRAIN,((y + _y) + ((y + _y))) * GRAIN,0) > 0.5) ? 6 : 3
-        break
-      case 11: //suburb
-      case 12:
-        n = (noise.simplex3(((x + _x) + ((x + _x) % 2)) * GRAIN,((y + _y) + ((y + _y) % 2)) * GRAIN,0) > 0.5) ? 6 : 3
-        break
-      case 13: //cityblocks 3 - 8
-      case 14:
-      case 15:
-      case 16:
-        // n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * GRAIN,((y + _y) + ((y + _y) % 2)) * GRAIN,0)) * 0.5),4)
-        n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * GRAIN,((y + _y) + ((y + _y) % 2)) * GRAIN,0)) * 0.5),3)
-        break
-      case 17: // mountains 0 - 16
-      case 18:
-        // n = 2 + Math.pow(((1 + noise.simplex3(x + _x * GRAIN * 0.1,y + _y * GRAIN * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 16
-        n = 2 + Math.pow(((1 + noise.simplex3(x + _x * GRAIN * 0.1,y + _y * GRAIN * 0.1,performance.now() * ANIMATION_SPEED * 0.1)) * 0.5),2) * 8
-        break
-    }
-    return n - 10 - ELEVATION
-}
-function openInfo(poi){
-  if(!INFO_FLAG){
-    USER_HAS_MOVED_AFTER_CLOSE = false
-    INFO_FLAG = 1
-    UI.title.innerText = poi.name
-    if(poi.state.artists){
-      UI.artists.innerText = poi.state.artists
-      UI.artists.style.display = "block"
-    }
-    else{
-      UI.artists.style.display = "none"
-    }
-    if(poi.state.date){
-      UI.date.innerText = poi.state.date
-      UI.date.style.display = "block"
-    }
-    else{
-      UI.date.style.display = "none"
-    }
-    UI.desc.innerText = poi.state.description
-    if(poi.state.link){
-      UI.link.setAttribute("data-href",poi.state.link)
-      if(poi.exhibit){
-        UI.link.setAttribute("data-target","exhibit")
-      }
-      else{
-        UI.link.setAttribute("data-target","external")
-      }
-      UI.container.classList.remove("no-link")
-    }
-    else{
-      UI.container.classList.add("no-link")
-    }
-    if(poi.state.linktitle){
-      UI.link.innerText = poi.state.linktitle
-    }
-    else{
-      UI.link.innerText = "Enter"
-    }
-    document.body.classList.add("info-open")
-  }
-}
+
+
 function update(){
   updatePoiRender()
   UI_UPDATE_CLOCK++
@@ -728,7 +796,7 @@ function update(){
       let th = document.createElement("th")
       let td = document.createElement("td")
       let a = document.createElement("a")
-      a.href = POI_IN_VIEW[POIS].state.link
+      a.addEventListener("mousedown",e => {G.openInfoDirect(POI_IN_VIEW[POIS])})
       a.innerText = POI_IN_VIEW[POIS].name
       for(let c in POI_IN_VIEW[POIS].state.plan[1]){
         let span = document.createElement("span")
@@ -745,11 +813,11 @@ function update(){
   if(AVATARS[AVATAR.id]){
     AVATAR.state = AVATARS[AVATAR.id].state
   }
-  AVATAR.shape.translate = {z: 4 + getZAt(FOV * 0.5,FOV * 0.5) * 0.5 * DELTA + SIZE + AVATAR_HOVER * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
+  AVATAR.shape.translate = {z: 4 + U.getZAt(FOV * 0.5,FOV * 0.5) * 0.5 * DELTA + SIZE + AVATAR_HOVER * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
   AVATAR.shape.rotate = { x: TAU * performance.now() * 0.0001, y: TAU * performance.now() * 0.0001,z: TAU * performance.now() * 0.0001 }
   for(let y = 0; y < FOV + 1; y++){ //updates the z values for the whole grid in the POINTS buffer
     for(let x = 0; x < FOV + 1; x++){
-      POINTS[y][x] = getZAt(x,y,true)
+      POINTS[y][x] = U.getZAt(x,y,true)
     }
   }
   updatePolygons()

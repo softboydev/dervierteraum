@@ -57,6 +57,7 @@ input,select{
   height: 24px;
   z-index: 100;
 }
+
 @media (max-aspect-ratio: 1/1){
   canvas{
     width: 100vw;
