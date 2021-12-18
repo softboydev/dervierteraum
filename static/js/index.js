@@ -700,6 +700,7 @@ function init(){
       if(poi){
         AVATAR.x = poi.x
         AVATAR.y = poi.y
+        G.openInfoDirect(poi)
       }
     }
   })
