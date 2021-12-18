@@ -18,7 +18,7 @@ const poi = {
       date:false,
       description:"The Frappant Gallery is a non-commercial white cube situated directly in the middle of the larger, cooperatively administrated center for art, alternative culture, education, creative industries and social policy located at the former Viktoria Barracks in Hamburg Altona.<br>Every year, in its three rooms, the 145 m2 gallery offers a continuous program of 20 exhibits of contemporary and experimental visual art.",
       link: "https://frappant.org",
-      linktitle: "Visit Website"
+      linktitle: "Open Website"
     }
   },
   "12;12": {
@@ -61,7 +61,7 @@ const poi = {
       date:false,
       description:"Get in touch if you would like to exhibit here or become a part of the 'Vierter Raum' Team",
       link: "mailto:ausstellung@frappant.org",
-      linktitle: "Send a mail"
+      linktitle: "Write Us"
     }
   },
   "8;0": {
@@ -76,7 +76,7 @@ const poi = {
       date:false,
       description:"Follow us on Instagram to stay up to date about upcoming exhibitions and more.",
       link: "https://instagram.com/dervierteraum",
-      linktitle: "Follow on Instagram"
+      linktitle: "Follow Us"
     }
   },
   "16;7": {
@@ -103,6 +103,12 @@ app.get('/', (req, res) => {
 });
 app.get('/edit', (req, res) => {
   res.sendFile(__dirname + '/edit.html');
+});
+app.get('/connect', (req, res) => {
+  res.sendFile(__dirname + '/dervierteraum.js');
+});
+app.get('/button', (req, res) => {
+  res.sendFile(__dirname + '/back.jpg');
 });
 io.on("connection", (socket) => {
   socket.on("join", msg => {
