@@ -31,12 +31,12 @@ const U = { //UTILS
   getVPos: function(pos,q){
     let vx,vy
     if(q){
-      vx = (FOV * 0.5 + BOUNDS + (pos.x - ((BOUNDS + Math.round(AVATAR.x)) % BOUNDS))) % BOUNDS
-      vy = (FOV * 0.5 + BOUNDS + (pos.y - ((BOUNDS + Math.round(AVATAR.y)) % BOUNDS))) % BOUNDS
+      vx = (FOV * 0.5 + BOUNDS + ((pos.x - Math.round(AVATAR.x)) % BOUNDS)) % BOUNDS
+      vy = (FOV * 0.5 + BOUNDS + ((pos.y - Math.round(AVATAR.y)) % BOUNDS)) % BOUNDS
     }
     else{
-      vx = (FOV * 0.5 + BOUNDS + (pos.x - ((BOUNDS + AVATAR.x) % BOUNDS))) % BOUNDS
-      vy = (FOV * 0.5 + BOUNDS + (pos.y - ((BOUNDS + AVATAR.y) % BOUNDS))) % BOUNDS
+      vx = (FOV * 0.5 + BOUNDS + ((pos.x - AVATAR.x) % BOUNDS)) % BOUNDS
+      vy = (FOV * 0.5 + BOUNDS + ((pos.y - AVATAR.y) % BOUNDS)) % BOUNDS
     }
     return {x:vx,y:vy}
   },
