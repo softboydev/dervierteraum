@@ -81,7 +81,7 @@ const poi = {
   },
   "16;7": {
     name: "Rapid Rabbit Reloaded",
-    id: "rapidrabbit",
+    id: "raprab",
     x: 12,
     y: 12,
     poi: true,
