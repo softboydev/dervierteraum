@@ -1,7 +1,7 @@
 {
-  "name": "socket-chat-example",
-  "version": "0.0.1",
-  "description": "my first socket.io app",
+  "name": "DerVierteRaum",
+  "version": "0.1.0",
+  "description": "virtual exhibition space of the Frappant gallery in Hamburg",
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^3.0.3"

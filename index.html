@@ -54,7 +54,7 @@
         <a onclick="G.openLink()" id="infoOpen">
           Enter
         </a>
-        <a onclick="G.closeInfo()" id="infoExit">
+        <a id="infoExit">
           Exit
         </a>
       </div>
@@ -81,10 +81,10 @@
           <a href="https://frappant.org" target="_blank">Frappant</a>
         </li>
         <li>
-          <a onclick="G.openInfoDirect('about')">About</a>
+          <a id="aboutLink">About</a>
         </li>
         <li>
-          <a onclick="G.openInfoDirect('funders')">Funders</a>
+          <a id="fundersLink">Funders</a>
         </li>
         <li>
           <a href="mailto:ausstellung@frappant.org" target="_blank">Contact</a>
@@ -94,13 +94,13 @@
         </li>
 
       </ul>
-      <div id="logos"  onclick="G.openInfoDirect('funders')"></div>
+      <div id="logos"></div>
     </nav>
     <img id="logo" src="./static/img/logo.png" alt="">
-    <button id="menubutton" onclick="G.toggleMenu()"><div class="menubutton-inner"></div></button>
+    <button id="menubutton" ><div class="menubutton-inner"></div></button>
     <div id="vierterRaumCurtain"></div>
     <script src="./socket.io/socket.io.js"></script>
-    <script src="./static/js/scripts.js"></script>
+    <script src="./static/js/libs.js"></script>
     <script src="./static/js/index.js"></script>
   </body>
 </html>

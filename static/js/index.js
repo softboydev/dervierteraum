@@ -1,12 +1,19 @@
-//GLOBAL
-// if(location.protocol !== 'https:') {
-//     location.replace(`https:${location.href.substring(location.protocol.length)}`);
-// }
+(function(){
+//GLOBAL CONSTANTS
 const IO = io() //Socket connection
-const POS = function(x,y,z){
-  this.x = x || 0
+const POS = function(x,y){ //Positional object
+  this.x = x || 0 //stores x and y coordinates, defaults to 0
   this.y = y || 0
-  this.z = z || 0
+  this.random = function(center,diviation){ //sets coordinates to random value around center with given diviation and returns self
+    this.x = center + (-diviation + Math.floor(Math.random() * diviation * 2))
+    this.y = center + (-diviation + Math.floor(Math.random() * diviation * 2))
+    return this
+  },
+  this.virtual = function(){ //returns an object contauning the virtualised coordinates
+    let vx = (FOV * 0.5 + BOUNDS + ((this.x - AVATAR.x) % BOUNDS)) % BOUNDS
+    let vy = (FOV * 0.5 + BOUNDS + ((this.y - AVATAR.y) % BOUNDS)) % BOUNDS
+    return {x:vx,y:vy}
+  }
 }
 const Z = Zdog //Writes into a single letter variable
 const TAU = Z.TAU //Stores into own variable
@@ -16,44 +23,27 @@ const WORLD = new Z.Illustration({ //Main render object
   rotate: {x: TAU * 0.2,y: 0,z: TAU * 0.0625}//sets base rotation for first render
 });
 const U = { //UTILS
-  invertHex: function(hex){
+  invertHex: function(hex){ //inverts given hex color
     hex = hex.replace("#","")
     return "#" + (Number(`0x1${hex}`) ^ 0xFFFFFF).toString(16).substr(1).toUpperCase()
   },
-  randomColor: function(){
+  randomColor: function(){ //returns a random color from color pool
       return COLOR_POOL[Math.floor(COLOR_POOL.length * Math.random())]
   },
-  randomJoinPos: function(){
-    let x = -JOIN_SPREAD + Math.floor(Math.random() * JOIN_SPREAD * 2)
-    let y = -JOIN_SPREAD + Math.floor(Math.random() * JOIN_SPREAD * 2)
-    return {x:x,y:y}
-  },
-  getVPos: function(pos,q){
-    let vx,vy
-    if(q){
-      vx = (FOV * 0.5 + BOUNDS + ((pos.x - Math.round(AVATAR.x)) % BOUNDS)) % BOUNDS
-      vy = (FOV * 0.5 + BOUNDS + ((pos.y - Math.round(AVATAR.y)) % BOUNDS)) % BOUNDS
-    }
-    else{
-      vx = (FOV * 0.5 + BOUNDS + ((pos.x - AVATAR.x) % BOUNDS)) % BOUNDS
-      vy = (FOV * 0.5 + BOUNDS + ((pos.y - AVATAR.y) % BOUNDS)) % BOUNDS
-    }
-    return {x:vx,y:vy}
-  },
-  getZAt: function(x,y,q){
-      let n = 0
-      let _x = q ? Math.round(AVATAR.x) : AVATAR.x
-      let _y = q ? Math.round(AVATAR.y) : AVATAR.y
-      let d = (1 + noise.simplex3((1000 + x + _x) * 0.01,(1000 + y + _y) * 0.01,1000) * 10) * 0.5
-      let e = Math.floor((0.5 + noise.simplex3((10000 + x + _x) * VARIETY,(10000 + y + _y) * VARIETY,1000) * 0.5) * 18) // 0 - 3
+  getZAt: function(x,y,q){ //gets the z value at the given coordinates, has a flag for rounded player position
+      let resolution = 18 //amount of different steps the noise function should return
+      let n = 0 //return value
+      let _x = q ? Math.round(AVATAR.x) : AVATAR.x //processed player x, might be rounded through flag
+      let _y = q ? Math.round(AVATAR.y) : AVATAR.y //processed player y, might be rounded through flag
+      let e = Math.floor((0.5 + noise.simplex3((10000 + x + _x) * VARIETY,(10000 + y + _y) * VARIETY,1000) * 0.5) * resolution) //generates a noise based value based on coordinates that is then mapped
       switch(e){ //// TODO: Add spike world, see screenshot
-        case 0: //water at sea level 0 - 1
+        case 0: //water at sea level
         case 1:
         case 2:
         case 3:
           n = (1 + Math.sin(y + performance.now() * 0.001) * 0.5)
           break
-        case 4: //moving planes 2 - 3
+        case 4: //moving planes
         case 5:
           n = 2 + ((1 + noise.simplex3(x + _x * GRAIN,y + _y * GRAIN,performance.now() * ANIMATION_SPEED)) * 0.5)
           break
@@ -72,38 +62,44 @@ const U = { //UTILS
         case 12:
           n = (noise.simplex3(((x + _x) + ((x + _x) % 2)) * GRAIN,((y + _y) + ((y + _y) % 2)) * GRAIN,0) > 0.5) ? 6 : 3
           break
-        case 13: //cityblocks 3 - 8
+        case 13: //cityblocks
         case 14:
         case 15:
         case 16:
-          // n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * GRAIN,((y + _y) + ((y + _y) % 2)) * GRAIN,0)) * 0.5),4)
           n = 2 + Math.pow(1 + ((1 + noise.simplex3(((x + _x) + ((x + _x) % 2)) * GRAIN,((y + _y) + ((y + _y) % 2)) * GRAIN,0)) * 0.5),3)
           break
-        case 17: // mountains 0 - 16
+        case 17: // mountains
         case 18:
-          // n = 2 + Math.pow(((1 + noise.simplex3(x + _x * GRAIN * 0.1,y + _y * GRAIN * 0.1,performance.now() * speed * 0.1)) * 0.5),2) * 16
           n = 2 + Math.pow(((1 + noise.simplex3(x + _x * GRAIN * 0.1,y + _y * GRAIN * 0.1,performance.now() * ANIMATION_SPEED * 0.1)) * 0.5),2) * 8
           break
       }
-      return n - 10 - ELEVATION
+      return n - 10 - ELEVATION //returns final value, substracting a fixed value for internal translation and a constant value for external translation
   },
-  calcDiagonal: function(){
+  calcDiagonal: function(){ //returns the relative screen diagonal up to 1, in relation to LARGEST_DIAGONAL
     return Math.min(((window.innerWidth + window.innerHeight) * 0.5) / LARGEST_DIAGONAL,1)
   },
-  calcFov: function(){
-    // let fr = 1000 / FRAMETIME_AVG
-    // let d = 0
-    // if(fr < FRAME_LOWERGOAL){
-    //   d = -2
-    // }
-    // else if(fr > FRAME_UPPERGOAL){
-    //   d = 2
-    // }
-    //divided by two for average and divided by 500 for steps in one
+  calcFov: function(){ //calculates and returns dynamic FOV based on diagonal and min max
     return Math.min(Math.round((FOV_MIN + U.calcDiagonal() * (FOV_MAX - FOV_MIN)) * 0.5) * 2, FOV_MAX)
   }
 }
-const I = { //INPUTHANDLING
+const I = { //INPUTS
+  init: function(){
+    window.addEventListener("mousemove",function(e){
+      I.handleRotate(e.clientX,e.clientY)
+    })
+    window.addEventListener("touchmove", function(e){
+      I.handleRotate(e.targetTouches[0].clientX,e.targetTouches[0].clientY)
+    })
+    window.addEventListener("mousedown",function(e){
+      I.pointerDown(e.clientX,e.clientY)
+    })
+    window.addEventListener("touchstart",function(e){
+      I.pointerDown(e.targetTouches[0].clientX,e.targetTouches[0].clientY)
+    })
+    window.addEventListener("mouseup",I.pointerUp)
+    window.addEventListener("touchend",I.pointerUp)
+    // window.addEventListener("resize",resize)
+  },
   pointerDown: function(x,y){
     LAST_POINTER_TIMESTAMP = performance.now()
     if(!POINTER_FLAG){
@@ -149,7 +145,7 @@ const I = { //INPUTHANDLING
     }
   }
 }
-const G = { //GLOBAL
+const G = { //GLOBALS
   openInfo: function(poi,force){
     if(!INFO_FLAG || force){
       USER_HAS_MOVED_AFTER_CLOSE = false
@@ -217,13 +213,14 @@ const G = { //GLOBAL
     document.body.classList.toggle("menu-open")
   },
   openInfoDirect: function(target){
+    console.log(POIS);
     let poi = false
     if(typeof target === "object"){
       poi = target
     }
     else{
-      for(let _p in POIS){
-        let p = POIS[_p]
+      for(let _p in POIS.grid){
+        let p = POIS.grid[_p]
         if(p.id == target){
           poi = p
         }
@@ -236,7 +233,7 @@ const G = { //GLOBAL
     }
   }
 }
-//ENV
+//ENV CONSTANTS
 const INFO_CD = 10 //cooldown in frames before the info popup may be shown again
 const UPDATE_UI_AFTER = 10 //mod to update the UI after X frames
 const CLICK_TIME = 150 //Ms that have to pass before a touch/click is considered holded
@@ -263,7 +260,6 @@ const COLOR = "#ffffff" //color for render
 const BACKGROUND = "#000000" //background for render
 const ELEVATION = 12
 const LARGEST_DIAGONAL = 1500 //value to get highest FOV, in px, avg of width and height of device
-
 //FLAGS
 let POINTER_FLAG = false //Used to determine if the user is currently holding the mouse/finger down
 let INFO_FLAG = 0 //stores the state of the info popup. 1 = Popup open, 0 = Popup closed, -X = Popup closed, may not open. Will be reset to negative INFO_CD
@@ -279,28 +275,419 @@ let LAST_POINTER_TIMESTAMP = 0 //Stores the timestamp of the last touch/click
 let POINTER_ROTATION = {x:0,y:0,z:0} //Stores the basis for the 3d rotation based on the pointer
 let POINTER_ROTATION_DELTA = {x:0,y:0,z:0} //Stores a momentary difference in pointer position relative to POINTER_ROTATION as a base
 let FOV = 16 //amount of grid coordinates in view
-let DIAGONAL = 1
-let POINTS = [] //buffer array to store z values for a frame and position. Accessed as POINTS[X][Y]
-// let FILL_POLYGON //reference to filled polygon
-// let STROKE_POLYGON //reference to stroked polygon
-let POLYGONS = []
+let DIAGONAL = 1 //display diagonal
 let DYNAMIC_SHAPES = {} //stores reference to all shapes that are rendered dynamically. Accessed by key/id
-// let DYNAMICS = WORLD //stores reference to group for all dynamic shapes
-let UI = {} //stores references to DOM elements for UI purposes. Accessed as keys
 let POI_IN_VIEW = {}  //stores list of all POI currently in the view. Accessed by key
 let OLD_AVATARS = {} //buffer array to compare newly sent buffers with
-let AVATARS = {} //stores local list of all avatars on the server
-let POIS = false //stores list of all POISs once
-let AVATAR = { //stores all properties and methods directly related to the users avatar
+//OBJECTS
+const UI = {  //stores references to DOM elements for UI purposes. Accessed as keys. also holds related functions
+  connect: function(){
+    this.x = document.getElementById("avatarX")
+    this.y = document.getElementById("avatarY")
+    this.clock = document.getElementById("timeOnServer")
+    this.people = document.getElementById("peopleOnServer")
+    this.colorA = document.getElementById("avatarFirstColor")
+    this.colorB = document.getElementById("avatarSecondColor")
+    this.container = document.getElementById("info")
+    this.title = document.getElementById("infoTitle")
+    this.artists = document.getElementById("infoArtists")
+    this.date = document.getElementById("infoDate")
+    this.desc = document.getElementById("infoDesc")
+    this.link = document.getElementById("infoOpen")
+    this.pois = document.getElementById("outputPOI")
+  },
+  events: function(){
+    document.getElementById("aboutLink").addEventListener("click",() => G.openInfoDirect('about'))
+    document.getElementById("fundersLink").addEventListener("click",() => G.openInfoDirect('funders'))
+    document.getElementById("logos").addEventListener("click",() => G.openInfoDirect('funders'))
+    document.getElementById("menubutton").addEventListener("click",() => G.toggleMenu())
+    document.getElementById("infoOpen").addEventListener("click",() => G.openLink())
+    document.getElementById("infoExit").addEventListener("click",() => G.closeInfo())
+  },
+  init: function(){
+    this.connect()
+    this.events()
+  },
+  update: function(){
+    let time = Math.floor(performance.now() / 1000) //gets the time since join
+    let timestamp = ("" + Math.floor(time / 60 / 60)).padStart(2, '0') + ":" + ("" + (Math.floor(time / 60) % 60)).padStart(2, '0') + ":" + ("" + (time % 60)).padStart(2, '0') //converts to a hh:mm:ss timestamp
+    this.x.innerText = Math.round(AVATAR.x % BOUNDS) //updates x position
+    this.y.innerText = Math.round(AVATAR.y % BOUNDS) //updates y position
+    this.clock.innerText = timestamp //updates the clock
+    this.people.innerText = Object.keys(AVATARS).length //updates the number of people on server
+    this.pois.innerHTML = "" //resets the poilist
+    for(let POIS in POI_IN_VIEW){ //for every POI in view
+
+      let tr = document.createElement("tr") //creates a tr wrapper
+      let th = document.createElement("th") //creates a th for title
+      let td = document.createElement("td") //creates a td for colorcode
+      let a = document.createElement("a") //creates a link
+      a.addEventListener("mousedown",e => {G.openInfoDirect(POI_IN_VIEW[POIS])}) //attaches event handler to wrapper
+      a.innerText = POI_IN_VIEW[POIS].name //sets linktitle to poi title
+      for(let c in POI_IN_VIEW[POIS].state.plan[1]){ //iterates over all colors in plan
+        let span = document.createElement("span") //creates a span to hold show the color value
+        span.classList.add("color") //adds class to span for css
+        span.style.background = POI_IN_VIEW[POIS].state.plan[1][c] //sets background inline
+        td.appendChild(span) //appends to data
+      }
+      tr.appendChild(td) //appends data before th to row so its is displayed on the left
+      th.appendChild(a) //appends link to th
+      tr.appendChild(th) //appends th
+      this.pois.appendChild(tr) //appends row to list
+    }
+  }
+}
+const POINTS = {
+  grid: [],
+  update: function(){
+    if(this.grid){ //to prevent errors
+      for(let y = 0; y < FOV + 1; y++){ //updates the z values for the whole grid in the POINTS buffer
+        for(let x = 0; x < FOV + 1; x++){
+          this.grid[y][x] = U.getZAt(x,y,true)
+        }
+      }
+    }
+  },
+  init: function(){
+    this.grid = []
+    for(let y = 0; y < FOV + 1; y ++){ //for the whole grid in view
+      let row = [] //create y rows
+      for(let x = 0; x < FOV + 1; x ++){
+        row.push(0) //push an int for each x
+      }
+      this.grid.push(row)
+    }
+  }
+}
+const POLYGONS = {
+  grid: [],
+  update: function(){
+    let stroke = STROKE / WORLD.zoom
+    for(let y = 0; y <= FOV; y++){ //for all points in grid
+      for(let x = 0; x <= FOV; x++){
+        let X = x + (AVATAR.x % 1) //add the modded avatar position to get smooth scrolling effect
+        let Y = y + (AVATAR.y % 1)
+        if(x == FOV && y == FOV){ //on the outermost corner
+        //           //no need to add a path, no need to move
+        }
+        else if(x == FOV){ //on the left side add a vertial line but no tile
+          this.grid[x][y][0].path = [
+            { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS.grid[y][x] * DELTA },
+            { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + (Y+1)*SIZE,z:POINTS.grid[y+1][x] * DELTA }
+          ]
+          this.grid[x][y][0].stroke = stroke
+          this.grid[x][y][0].updatePath();
+        }
+        else if(y == FOV){ //on the topside add a horizontal line but no tile
+          this.grid[x][y][0].path = [
+            { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS.grid[y][x] * DELTA },
+            { x: (-0.5 * SIZE * FOV) + (X+1) * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS.grid[y][x+1] * DELTA }
+          ]
+          this.grid[x][y][0].stroke = stroke
+          this.grid[x][y][0].updatePath();
+        }
+        else{ //anywhere else add a vertival and a horizontal line and a filled tile
+          this.grid[x][y][0].path = [
+            { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS.grid[y][x] * DELTA },
+            { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + (Y+1)*SIZE,z:POINTS.grid[y+1][x] * DELTA }
+          ]
+          this.grid[x][y][1].path = [
+            { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS.grid[y][x] * DELTA },
+            { x: (-0.5 * SIZE * FOV) + (X+1) * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS.grid[y][x+1] * DELTA }
+          ]
+          this.grid[x][y][2].path = [
+            { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS.grid[y][x] * DELTA},
+            { x: (-0.5 * SIZE * FOV) + (X + 1) * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS.grid[y][x + 1] * DELTA},
+            { x: (-0.5 * SIZE * FOV) + (X + 1) * SIZE,y:(-0.5 * SIZE * FOV) + (Y + 1) *SIZE,z:POINTS.grid[y + 1][x + 1] * DELTA},
+            { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + (Y + 1)*SIZE,z:POINTS.grid[y + 1][x] * DELTA}
+          ]
+          this.grid[x][y][0].stroke = stroke
+          this.grid[x][y][1].stroke = stroke
+          this.grid[x][y][0].updatePath()
+          this.grid[x][y][1].updatePath()
+          this.grid[x][y][2].updatePath()
+        }
+      }
+    }
+    WORLD.updateRenderGraph();
+  },
+  init: function(){
+    this.grid = []
+    for(let y = 0; y <= FOV; y++){ //for all points in grid
+      let row = []
+      for(let x = 0; x <= FOV; x++){
+        if(x == FOV && y == FOV){ //on the outermost corner
+          //no need to add a path, no need to move
+        }
+        else if(x == FOV || y == FOV){
+          row.push([new Z.Shape({addTo: WORLD,path: [{x: 0, y: 0, z: 0}],stroke: 1,color: COLOR})])
+        }
+        else{
+          row.push([
+            new Z.Shape({addTo: WORLD,path: [{x: 0, y: 0, z: 0}],stroke: 1,color: COLOR}),
+            new Z.Shape({addTo: WORLD,path: [{x: 0, y: 0, z: 0}],stroke: 1,color: COLOR}),
+            new Z.Shape({addTo: WORLD,path: [{x: 0, y: 0, z: 0},{x: 1, y: 0, z: 0},{x: 0, y: 1, z: 0},{x: 1, y: 1, z: 0}],stroke: 0,fill: true,color: BACKGROUND})
+          ])
+        }
+      }
+      this.grid.push(row)
+    }
+  }
+}
+const AVATARS = {
+  grid: {},
+  update: function(msg){
+    OLD_AVATARS = this.grid || msg //copy over current this.grid into buffer. If there are none us the new ones
+    this.grid = msg //overwrite this.grid with the new ones
+    if(this.grid[AVATAR.id]){ //when the user avatar could be found
+      this.grid[AVATAR.id].x = AVATAR.x //sync with server information
+      this.grid[AVATAR.id].y = AVATAR.y
+      AVATAR.shapes.ball.group.visible = true //enables the render of the user avatar
+    }
+    for(let s in DYNAMIC_SHAPES){ //for all dynamic shapes
+      if(!this.grid[s] && !POIS.grid[s]){ //when there is no avatar or poi connected to the shape
+        DYNAMIC_SHAPES[s].group.remove() //remove the shape
+        delete DYNAMIC_SHAPES[s]
+      }
+    }
+    for(let a in this.grid){ // for each AVATAR in the list of this.grid
+      if(a != AVATAR.id){ //when the current AVATAR is not the users AVATAR
+        let p = (new POS(this.grid[a].x,this.grid[a].y)).virtual()
+        if(p.x >= 0 && p.x <= FOV && p.y >= 0 && p.y <= FOV){ //when the relative position is within the view
+          let x = (-FOV * 0.5 + p.x) * SIZE
+          let y =  (-FOV * 0.5 + p.y) * SIZE
+          let z = 4 + U.getZAt(p.x,p.y) * 0.5 * DELTA + SIZE + AVATAR_HOVER * Math.abs(-1 + ((performance.now() * 0.0005) % 2))
+          if(!DYNAMIC_SHAPES[a]){ //when there is no shape for the AVATAR
+            let group = new Z.Group({
+              addTo:WORLD,
+              visible:true
+            })
+            let anchor = new Z.Anchor({
+              // translate: this.grid[a].POIS ? {x: (((FOV * 0.5 + this.grid[a].x - 0.5 - AVATAR.x) % BOUNDS)) * SIZE , y: (((FOV * 0.5 + this.grid[a].y - 0.5 - AVATAR.y) % BOUNDS)) * SIZE, z: U.getZAt(relX,relY) * DELTA + AVATAR.d + SIZE} : {x: (((FOV * 0.5 + this.grid[a].x - AVATAR.x) % BOUNDS) - FOV * 0.5) * SIZE, y: (((FOV * 0.5 + this.grid[a].y - AVATAR.y) % BOUNDS) - FOV * 0.5) * SIZE, z: 4 + U.getZAt(relX,relY) * 0.5 * DELTA + AVATAR.d + SIZE},
+              translate: {x: x, y: y, z: 4 + z},
+              addTo: group
+            })
+              let sphereA = new Z.Hemisphere({
+                addTo: anchor,
+                diameter: SIZE,
+                stroke: false,
+                color: this.grid[a].state.colorA
+              });
+              let sphereB = new Z.Hemisphere({
+                addTo: anchor,
+                diameter: SIZE,
+                stroke: false,
+                color: this.grid[a].state.colorB,
+                rotate: { x: TAU/2 }
+              });
+              DYNAMIC_SHAPES[a] = {
+                group: group,
+                anchor: anchor,
+                sphereA: sphereA,
+                sphereB: sphereB
+              }
+          }
+          else{ //when there is a shape
+            DYNAMIC_SHAPES[a].anchor.translate = {x: x, y: y, z: z}
+            rotation = TAU * performance.now() * 0.0001
+            DYNAMIC_SHAPES[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
+          }
+        }
+        else if(DYNAMIC_SHAPES[a]){ //when it is not but there is still a shape representing it
+          DYNAMIC_SHAPES[a].group.remove()
+          delete DYNAMIC_SHAPES[a]
+        }
+      }
+    }
+  }
+}
+const POIS = {
+  grid: false,
+  init: function(msg){
+    POIS.grid = msg //store msg as poi
+    const urlParams = new URLSearchParams(window.location.search) //gets any url parameters TODO make this way more elegant
+    let poi = urlParams.get('poi') ? urlParams.get('poi').toLowerCase() : false //gets poi param or false
+    let found = false //search result flag
+    if(poi){ //when a param was present
+      for(let p in POIS){ //for every poi
+        if(!found && (POIS.grid[p].name.toLowerCase() == poi || POIS.grid[p].id.toLowerCase() == poi)){ //if none was found yet and the poi matches with id or name
+          poi = POIS.grid[p] //stores reference
+          found = true //sets flag
+        }
+      }
+    }
+    if(!found){ //when none was found
+      poi = false //reset poi to false, param was present but no poi could be identified
+    }
+    if(poi){ //when a poi was found
+      AVATAR.x = poi.x //set avatar pos
+      AVATAR.y = poi.y
+      G.openInfoDirect(poi) //open the pois info
+    }
+  },
+  update: function(){
+    for(let a in this.grid){ // for each POIS in the list of POISs
+      let p = (new POS(POIS.grid[a].x,POIS.grid[a].y)).virtual()
+      let relX = Math.round(p.x)
+      let relY = Math.round(p.y)
+        let _x = ((-FOV * 0.5 + relX + Math.abs(AVATAR.x % 1)) + (AVATAR.x % 1) - 0.5) * SIZE
+        let _y =  ((-FOV * 0.5 + relY + Math.abs(AVATAR.y % 1)) + (AVATAR.y % 1) - 0.5) * SIZE
+        // let _z = U.getZAt(relX,relY)
+        let _z = 0
+        if(relX >= 0 && relX < FOV && relY >= 0 && relY < FOV){ //when the relative position is within the view
+          _z = (POINTS.grid[relY][relX] + 1) * DELTA
+          if(!DYNAMIC_SHAPES[a]){ //when there is no shape for the AVATAR
+              let anchor = new Z.Group({
+                translate: {x: _x, y: _y, z: _z},
+                addTo:WORLD
+              })
+              let SHAPES = []
+              for(let z = 0; z < 8; z++){ //TODO central building template
+                let block = POIS.grid[a].state.plan[0][z]
+                let color = POIS.grid[a].state.plan[1][z]
+                let shape = false
+                let translate = {
+                  x: 0,
+                  y: 0,
+                  z: z * SIZE,
+                }
+                switch(block){
+                  case 1:
+                  shape = new Z.Box({
+                    addTo: anchor,
+                    width: SIZE,
+                    height: SIZE,
+                    depth: SIZE,
+                    stroke: false,
+                    color: color,
+                    translate: translate
+                  });
+                  break
+                  case 2:
+                  translate.z = translate.z - 0.5 * SIZE
+                  shape = new Z.Cone({
+                    addTo: anchor,
+                    diameter: SIZE,
+                    length: SIZE,
+                    stroke: false,
+                    color: color,
+                    translate: translate
+                  });
+                  break
+                  case 3:
+                  translate.z = translate.z - 0.5 * SIZE
+                  shape = new Z.Cone({
+                    addTo: anchor,
+                    diameter: SIZE,
+                    length: SIZE,
+                    stroke: false,
+                    color: color,
+                    translate: {
+                      x: 0,
+                      y: 0,
+                      z: translate.z + SIZE,
+                    },
+                    rotate: {x:0,y:TAU/2,z:0}
+                  });
+                  break
+                  case 4:
+                  shape = new Z.Shape({
+                    addTo: anchor,
+                    stroke: SIZE,
+                    color: color,
+                    translate: translate
+                  });
+                  break
+                  case 5:
+                  shape = new Z.Cylinder({
+                    addTo: anchor,
+                    diameter: SIZE,
+                    length: SIZE,
+                    stroke: false,
+                    color: color,
+                    translate:translate
+                  });
+                  break
+                }
+                if(shape){
+                  SHAPES.push(shape)
+                }
+              }
+              DYNAMIC_SHAPES[a] = {
+                shape: SHAPES,
+                // group: group,
+                anchor: anchor
+              }
+              POI_IN_VIEW[POIS.grid[a].id] = POIS.grid[a]
+          }
+          else{ //when there is a shape
+            DYNAMIC_SHAPES[a].anchor.translate = {x: _x, y: _y, z: _z}
+          }
+        }
+        else if(DYNAMIC_SHAPES[a]){ //when it is not but there is still a shape representing it
+          delete POI_IN_VIEW[POIS.grid[a].id]
+          DYNAMIC_SHAPES[a].anchor.remove()
+          delete DYNAMIC_SHAPES[a]
+        }
+    }
+  }
+}
+const AVATAR = { //stores all properties and methods directly related to the users avatar
   id: "", //unique id
   x: 0, //x position
   y: 0, //y position
   state: {}, //object based general purpose data storage that is exposed to other users
   speed: 0.5, //speed multiplier
+  join: function(){
+    const urlParams = new URLSearchParams(window.location.search) //gets any url parameters
+    let color = urlParams.get('color') ? "#" + urlParams.get('color') : U.randomColor() //either stores the color given by url parameter or generates a random one when none is given
+    let position = urlParams.get('x') && urlParams.get('y') ? {x:Number(urlParams.get('x')),y:Number(urlParams.get('y'))} : (new POS).random(0,JOIN_SPREAD) //either stores the position given by url parameter or generates a random one when none is given
+    const flag = urlParams.get("color") && urlParams.get("x") && urlParams.get("y") //if all params are present
+    if(!flag){ //when not all parameters are present
+      document.body.classList.add("tutorial-open") //show the tutorial
+    }
+    this.x = position.x
+    this.y = position.y
+    this.shapes.ball = {
+      group: new Z.Group({addTo:this.shape,visible:false})
+    }
+    this.shapes.anchor = new Z.Anchor({
+      addTo: this.shapes.ball.group
+    })
+    this.shapes.shellA = new Z.Hemisphere({
+      addTo: this.shapes.anchor,
+      diameter: SIZE,
+      stroke: false,
+      color: "#ffffff"
+    });
+    this.shapes.shellB = new Z.Hemisphere({
+      addTo: this.shapes.anchor,
+      diameter: SIZE,
+      stroke: false,
+      color: "#0000ff",
+      rotate: { x: TAU/2 }
+    });
+    this.state = {
+      colorA: color,
+      colorB: U.invertHex(color),
+    }
+    this.shapes.shellA.color = this.state.colorA
+    this.shapes.shellB.color = this.state.colorB
+    UI.colorA.style.background = this.state.colorA
+    UI.colorB.style.background = this.state.colorB
+    this.id = "" + Math.floor(performance.now()) + Math.floor(Math.random() * 1000000)
+    IO.emit('join', {name:this.name,id:this.id,state:this.state,position:position})
+    JOINED = true
+
+  },
   shape: new Z.Anchor({ //main anchor that all other shapes are added to
     addTo: WORLD,
     translate: {x: 0, y: 0, z: 0}
   }),
+  update: function(){ //updating render function
+    this.shape.translate = {z: 4 + U.getZAt(FOV * 0.5,FOV * 0.5) * 0.5 * DELTA + SIZE + AVATAR_HOVER * Math.abs(-1 + ((performance.now() * 0.0005) % 2))} //sets z translatiom based on z and hover animation clock
+    this.shape.rotate = { x: TAU * performance.now() * 0.0001, y: TAU * performance.now() * 0.0001,z: TAU * performance.now() * 0.0001 } //sets rotation based on elapsed time
+  },
   shapes: {}, //stores reference to rendered shapes
   move: function(v){ //moving function, takes a 2d vector object with delta for both axis
     if(INFO_FLAG != 1){ //only allow movement while info popup is closed
@@ -309,60 +696,23 @@ let AVATAR = { //stores all properties and methods directly related to the users
     }
   }
 }
-
-window.addEventListener("load",init)
-
-
-//FUNCTIONS
-function registerEvents(){
-  window.addEventListener("mousemove",function(e){
-    I.handleRotate(e.clientX,e.clientY)
-  })
-  window.addEventListener("touchmove", function(e){
-    I.handleRotate(e.targetTouches[0].clientX,e.targetTouches[0].clientY)
-  })
-  window.addEventListener("mousedown",function(e){
-    I.pointerDown(e.clientX,e.clientY)
-  })
-  window.addEventListener("touchstart",function(e){
-    I.pointerDown(e.targetTouches[0].clientX,e.targetTouches[0].clientY)
-  })
-  window.addEventListener("mouseup",I.pointerUp)
-  window.addEventListener("touchend",I.pointerUp)
-  // window.addEventListener("resize",resize)
+//LIFECYCLE
+function resize(){
+  FOV = U.calcFov()
+  DIAGONAL = U.calcDiagonal()
+  // POINTS.init() //only needed when resize events are used
+  // POLYGONS.init() //only needed when resize events are used
 }
-function conditionalTutorialDisplay(){
-  const urlParams = new URLSearchParams(window.location.search) //gets any url parameters
-  const flag = urlParams.get("color") && urlParams.get("x") && urlParams.get("y") //if all params are present
-  if(!flag){ //when not all parameters are present
-    document.body.classList.add("tutorial-open") //show the tutorial
-  }
-}
-function connectUI(){
-  UI.x = document.getElementById("avatarX")
-  UI.y = document.getElementById("avatarY")
-  UI.clock = document.getElementById("timeOnServer")
-  UI.people = document.getElementById("peopleOnServer")
-  UI.colorA = document.getElementById("avatarFirstColor")
-  UI.colorB = document.getElementById("avatarSecondColor")
-  UI.container = document.getElementById("info")
-  UI.title = document.getElementById("infoTitle")
-  UI.artists = document.getElementById("infoArtists")
-  UI.date = document.getElementById("infoDate")
-  UI.desc = document.getElementById("infoDesc")
-  UI.link = document.getElementById("infoOpen")
-  // UI.compass = document.getElementById("compass")
-}
-function setupIntervals(){
+function setup(){
   INFO_INTERVAL = setInterval(function () {
     if(INFO_FLAG == 0 && !MOVE_INTERVAL && USER_HAS_MOVED_AFTER_CLOSE){
       let pos = {
         x: Math.round((BOUNDS + (AVATAR.x % BOUNDS)) % BOUNDS),
         y: Math.round((BOUNDS + (AVATAR.y % BOUNDS)) % BOUNDS)
       }
-      if(POIS){
-        for(let _p in POIS){
-          let p = POIS[_p]
+      if(POIS.grid){
+        for(let _p in POIS.grid){
+          let p = POIS.grid[_p]
           let _x = Math.round((BOUNDS + (p.x % BOUNDS)) % BOUNDS)
           let _y = Math.round((BOUNDS + (p.y % BOUNDS)) % BOUNDS)
           if(pos.x > (_x - INFO_AREA) && pos.x < (_x + INFO_AREA) && pos.y > (_y - INFO_AREA)  && pos.y < (_y + INFO_AREA) ){
@@ -378,450 +728,43 @@ function setupIntervals(){
     }
   }, 250);
 }
-
-function join(){
-  const urlParams = new URLSearchParams(window.location.search) //gets any url parameters
-  let color = urlParams.get('color') ? "#" + urlParams.get('color') : U.randomColor() //either stores the color given by url parameter or generates a random one when none is given
-  let position = urlParams.get('x') && urlParams.get('y') ? {x:Number(urlParams.get('x')),y:Number(urlParams.get('y'))} : U.randomJoinPos() //either stores the position given by url parameter or generates a random one when none is given
-  AVATAR.x = position.x
-  AVATAR.y = position.y
-  AVATAR.shapes.ball = {
-    group: new Z.Group({addTo:AVATAR.shape,visible:false})
-  }
-  AVATAR.shapes.anchor = new Z.Anchor({
-    addTo: AVATAR.shapes.ball.group
-  })
-  AVATAR.shapes.shellA = new Z.Hemisphere({
-    addTo: AVATAR.shapes.anchor,
-    diameter: SIZE,
-    stroke: false,
-    color: "#ffffff"
-  });
-  AVATAR.shapes.shellB = new Z.Hemisphere({
-    addTo: AVATAR.shapes.anchor,
-    diameter: SIZE,
-    stroke: false,
-    color: "#0000ff",
-    rotate: { x: TAU/2 }
-  });
-  AVATAR.state = {
-    colorA: color,
-    colorB: U.invertHex(color),
-  }
-  AVATAR.shapes.shellA.color = AVATAR.state.colorA
-  AVATAR.shapes.shellB.color = AVATAR.state.colorB
-  UI.colorA.style.background = AVATAR.state.colorA
-  UI.colorB.style.background = AVATAR.state.colorB
-  AVATAR.id = "" + Math.floor(performance.now()) + Math.floor(Math.random() * 1000000)
-  IO.emit('join', {name:AVATAR.name,id:AVATAR.id,state:AVATAR.state,position:position})
-  JOINED = true
-  conditionalTutorialDisplay()
-}
-function initPoints(){
-  POINTS = []
-  for(let y = 0; y < FOV + 1; y ++){ //for the whole grid in view
-    let row = [] //create y rows
-    for(let x = 0; x < FOV + 1; x ++){
-      row.push(0) //push an int for each x
-    }
-    POINTS.push(row)
-  }
-}
-function initPolygons(){
-  POLYGONS = []
-  for(let y = 0; y <= FOV; y++){ //for all points in grid
-    let row = []
-    for(let x = 0; x <= FOV; x++){
-      if(x == FOV && y == FOV){ //on the outermost corner
-        //no need to add a path, no need to move
-      }
-      else if(x == FOV || y == FOV){
-        row.push([new Z.Shape({addTo: WORLD,path: [{x: 0, y: 0, z: 0}],stroke: 1,color: COLOR})])
-      }
-      else{
-        row.push([
-          new Z.Shape({addTo: WORLD,path: [{x: 0, y: 0, z: 0}],stroke: 1,color: COLOR}),
-          new Z.Shape({addTo: WORLD,path: [{x: 0, y: 0, z: 0}],stroke: 1,color: COLOR}),
-          new Z.Shape({addTo: WORLD,path: [{x: 0, y: 0, z: 0},{x: 1, y: 0, z: 0},{x: 0, y: 1, z: 0},{x: 1, y: 1, z: 0}],stroke: 0,fill: true,color: BACKGROUND})
-        ])
-      }
-    }
-    POLYGONS.push(row)
-  }
-}
-// function initPolygons(){
-//   let group = new Z.Group({ //added to a unreferened to group to stop z fighting
-//     addTo:WORLD,
-//     visible:true
-//   })
-//   FILL_POLYGON = new Z.Shape({
-//     addTo: group,
-//     path: [],
-//     closed: false,
-//     stroke: false,
-//     fill: true,
-//     color: BACKGROUND
-//   })
-//   STROKE_POLYGON = new Z.Shape({
-//     addTo: group,
-//     path: [],
-//     closed: false,
-//     stroke: STROKE,
-//     color: COLOR,
-//   })
-// }
-function updatePolygons(){
-  let stroke = STROKE / WORLD.zoom
-  for(let y = 0; y <= FOV; y++){ //for all points in grid
-    for(let x = 0; x <= FOV; x++){
-      let X = x + (AVATAR.x % 1) //add the modded avatar position to get smooth scrolling effect
-      let Y = y + (AVATAR.y % 1)
-      if(x == FOV && y == FOV){ //on the outermost corner
-      //           //no need to add a path, no need to move
-      }
-      else if(x == FOV){ //on the left side add a vertial line but no tile
-        POLYGONS[x][y][0].path = [
-          { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA },
-          { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + (Y+1)*SIZE,z:POINTS[y+1][x] * DELTA }
-        ]
-        POLYGONS[x][y][0].stroke = stroke
-        POLYGONS[x][y][0].updatePath();
-      }
-      else if(y == FOV){ //on the topside add a horizontal line but no tile
-        POLYGONS[x][y][0].path = [
-          { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA },
-          { x: (-0.5 * SIZE * FOV) + (X+1) * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x+1] * DELTA }
-        ]
-        POLYGONS[x][y][0].stroke = stroke
-        POLYGONS[x][y][0].updatePath();
-      }
-      else{ //anywhere else add a vertival and a horizontal line and a filled tile
-        POLYGONS[x][y][0].path = [
-          { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA },
-          { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + (Y+1)*SIZE,z:POINTS[y+1][x] * DELTA }
-        ]
-        POLYGONS[x][y][1].path = [
-          { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA },
-          { x: (-0.5 * SIZE * FOV) + (X+1) * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x+1] * DELTA }
-        ]
-        POLYGONS[x][y][2].path = [
-          { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA},
-          { x: (-0.5 * SIZE * FOV) + (X + 1) * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x + 1] * DELTA},
-          { x: (-0.5 * SIZE * FOV) + (X + 1) * SIZE,y:(-0.5 * SIZE * FOV) + (Y + 1) *SIZE,z:POINTS[y + 1][x + 1] * DELTA},
-          { x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + (Y + 1)*SIZE,z:POINTS[y + 1][x] * DELTA}
-        ]
-        POLYGONS[x][y][0].stroke = stroke
-        POLYGONS[x][y][1].stroke = stroke
-        POLYGONS[x][y][0].updatePath()
-        POLYGONS[x][y][1].updatePath()
-        POLYGONS[x][y][2].updatePath()
-      }
-    }
-  }
-  WORLD.updateRenderGraph();
-}
-// function updatePolygons(){
-//   let strokePath = [] //stores the path for the stroke polygon
-//   let fillPath = [] //stores the path for the fill polygon
-//   let stroke = e => strokePath.push(e) //utility assignemt
-//   let fill = e => fillPath.push(e) //utility assignemt
-//   for(let y = 0; y <= FOV; y++){ //for all points in grid
-//       for(let x = 0; x <= FOV; x++){
-//         let X = x + (AVATAR.x % 1)
-//         let Y = y + (AVATAR.y % 1)
-//         if(x == FOV && y == FOV){ //on the outermost corner
-//           //no need to add a path, no need to move
-//         }
-//         else if(x == FOV){ //on the left side add a vertial line but no tile
-//           stroke({move:{ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA }}) //move to start
-//           stroke({ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA }) //start
-//           stroke({ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + (Y + 1)*SIZE,z:POINTS[y + 1][x] * DELTA }) //end
-//         }
-//         else if(y == FOV){ //on the topside add a horizontal line but no tile
-//           stroke({move:{ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA }}) //move to start
-//           stroke({ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA }) //start
-//           stroke({ x: (-0.5 * SIZE * FOV) + (X + 1) * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x + 1] * DELTA }) //end
-//         }
-//         else{ //anywhere else add a vertival and a horizontal line and a filled tile
-//           stroke({move:{ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA }})  //move to h start
-//           stroke({ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA }) //h start
-//           stroke({ x: (-0.5 * SIZE * FOV) + (X + 1) * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x + 1] * DELTA }) //h end
-//           stroke({move:{ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA }}) //move to v start
-//           stroke({ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA }) //v start
-//           stroke({ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + (Y + 1)*SIZE,z:POINTS[y + 1][x] * DELTA }) //v end
-//           fill({move:{ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA}})
-//           fill({ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x] * DELTA})
-//           fill({ x: (-0.5 * SIZE * FOV) + (X + 1) * SIZE,y:(-0.5 * SIZE * FOV) + Y*SIZE,z:POINTS[y][x + 1] * DELTA})
-//           fill({ x: (-0.5 * SIZE * FOV) + (X + 1) * SIZE,y:(-0.5 * SIZE * FOV) + (Y + 1) *SIZE,z:POINTS[y + 1][x + 1] * DELTA})
-//           fill({ x: (-0.5 * SIZE * FOV) + X * SIZE,y:(-0.5 * SIZE * FOV) + (Y + 1)*SIZE,z:POINTS[y + 1][x] * DELTA})
-//         }
-//       }
-//     }
-//     STROKE_POLYGON.stroke = STROKE / WORLD.zoom //sets stroke based on base and zoom
-//     STROKE_POLYGON.path = strokePath //sets new path
-//     FILL_POLYGON.path = fillPath //sets new path
-//     STROKE_POLYGON.updatePath() //updates the path
-//     FILL_POLYGON.updatePath() //updates the path
-// }
-function updatePoiRender(){
-  for(let a in POIS){ // for each POIS in the list of POISs
-    let vPos = U.getVPos({x:POIS[a].x,y:POIS[a].y},true)
-    let relX = vPos.x
-    let relY = vPos.y
-      let _x = ((-FOV * 0.5 + relX + Math.abs(AVATAR.x % 1)) + (AVATAR.x % 1) - 0.5) * SIZE
-      let _y =  ((-FOV * 0.5 + relY + Math.abs(AVATAR.y % 1)) + (AVATAR.y % 1) - 0.5) * SIZE
-      // let _z = U.getZAt(relX,relY)
-      let _z = 0
-      if(relX >= 0 && relX < FOV && relY >= 0 && relY < FOV){ //when the relative position is within the view
-        _z = (POINTS[relY][relX] + 1) * DELTA
-        if(!DYNAMIC_SHAPES[a]){ //when there is no shape for the AVATAR
-            let anchor = new Z.Group({
-              translate: {x: _x, y: _y, z: _z},
-              addTo:WORLD
-            })
-            let SHAPES = []
-            for(let z = 0; z < 8; z++){
-              let block = POIS[a].state.plan[0][z]
-              let color = POIS[a].state.plan[1][z]
-              let shape = false
-              let translate = {
-                x: 0,
-                y: 0,
-                z: z * SIZE,
-              }
-              switch(block){
-                case 1:
-                shape = new Z.Box({
-                  addTo: anchor,
-                  width: SIZE,
-                  height: SIZE,
-                  depth: SIZE,
-                  stroke: false,
-                  color: color,
-                  translate: translate
-                });
-                break
-                case 2:
-                translate.z = translate.z - 0.5 * SIZE
-                shape = new Z.Cone({
-                  addTo: anchor,
-                  diameter: SIZE,
-                  length: SIZE,
-                  stroke: false,
-                  color: color,
-                  translate: translate
-                });
-                break
-                case 3:
-                translate.z = translate.z - 0.5 * SIZE
-                shape = new Z.Cone({
-                  addTo: anchor,
-                  diameter: SIZE,
-                  length: SIZE,
-                  stroke: false,
-                  color: color,
-                  translate: {
-                    x: 0,
-                    y: 0,
-                    z: translate.z + SIZE,
-                  },
-                  rotate: {x:0,y:TAU/2,z:0}
-                });
-                break
-                case 4:
-                shape = new Z.Shape({
-                  addTo: anchor,
-                  stroke: SIZE,
-                  color: color,
-                  translate: translate
-                });
-                break
-                case 5:
-                shape = new Z.Cylinder({
-                  addTo: anchor,
-                  diameter: SIZE,
-                  length: SIZE,
-                  stroke: false,
-                  color: color,
-                  translate:translate
-                });
-                break
-              }
-              if(shape){
-                SHAPES.push(shape)
-              }
-            }
-            DYNAMIC_SHAPES[a] = {
-              shape: SHAPES,
-              // group: group,
-              anchor: anchor
-            }
-            POI_IN_VIEW[POIS[a].id] = POIS[a]
-        }
-        else{ //when there is a shape
-          DYNAMIC_SHAPES[a].anchor.translate = {x: _x, y: _y, z: _z}
-        }
-      }
-      else if(DYNAMIC_SHAPES[a]){ //when it is not but there is still a shape representing it
-        delete POI_IN_VIEW[POIS[a].id]
-        DYNAMIC_SHAPES[a].anchor.remove()
-        delete DYNAMIC_SHAPES[a]
-      }
-  }
-}
-function resize(){
-  FOV = U.calcFov()
-  DIAGONAL = U.calcDiagonal()
-  initPoints()
-  initPolygons()
-}
 function init(){
-  registerEvents()
-  connectUI()
-  setupIntervals()
-  resize()
+  setup()
+  I.init() //inits Inputs with own initializer
+  UI.init() //inits the ui with its own function
+  POINTS.init() //disable when resize() listens to event
+  POLYGONS.init() //disable when resize() listens to event
+  resize() //call resize once, put into own function to handle resize events one day
   IO.on('poi',function(msg){
-    if(!POIS){
-      POIS = msg
-      const urlParams = new URLSearchParams(window.location.search) //gets any url parameters TODO make this way more elegant
-      let poi = urlParams.get('poi') ? urlParams.get('poi') : false
-      let found = false
-      if(poi){
-        for(let p in POIS){
-          if(!found && (POIS[p].name == poi || POIS[p].id == poi)){
-            poi = POIS[p]
-            found = true
-          }
-        }
-      }
-      if(!found){
-        poi = false
-      }
-      if(poi){
-        AVATAR.x = poi.x
-        AVATAR.y = poi.y
-        G.openInfoDirect(poi)
-      }
+    if(!POIS.grid){ //when pois havent been downloaded yet
+      POIS.init(msg) //init pois with message
     }
   })
   IO.on('update', function(msg) {
     if(JOINED){ //when the user has already joined upon recieval of message
       IO.emit('alive', {id:AVATAR.id,x:AVATAR.x,y:AVATAR.y,state:AVATAR.state}) //emit the keep alive message with needed info
     }
-    OLD_AVATARS = AVATARS || msg //copy over current avatars into buffer. If there are none us the new ones
-    AVATARS = msg //overwrite avatars with the new ones
-    if(AVATARS[AVATAR.id]){ //when the user avatar could be found
-      AVATARS[AVATAR.id].x = AVATAR.x //sync with server information
-      AVATARS[AVATAR.id].y = AVATAR.y
-      AVATAR.shapes.ball.group.visible = true //enables the render of the user avatar
-    }
-    for(let s in DYNAMIC_SHAPES){ //for all dynamic shapes
-      if(!AVATARS[s] && !POIS[s]){ //when there is no avatar or poi connected to the shape
-        DYNAMIC_SHAPES[s].group.remove() //remove the shape
-        delete DYNAMIC_SHAPES[s]
-      }
-    }
-    for(let a in AVATARS){ // for each AVATAR in the list of AVATARS
-      if(a != AVATAR.id){ //when the current AVATAR is not the users AVATAR
-        let vPos = U.getVPos({x:AVATARS[a].x,y:AVATARS[a].y})
-        let relX = vPos.x
-        let relY = vPos.y
-        let _x = (-FOV * 0.5 + relX) * SIZE
-        let _y =  (-FOV * 0.5 + relY) * SIZE
-        let _z = U.getZAt(relX,relY) * DELTA + AVATAR_HOVER + SIZE
-        let _az = 4 + U.getZAt(relX,relY) * 0.5 * DELTA + SIZE + AVATAR_HOVER * Math.abs(-1 + ((performance.now() * 0.0005) % 2))
-        if(relX >= 0 && relX <= FOV && relY >= 0 && relY <= FOV){ //when the relative position is within the view
-          if(!DYNAMIC_SHAPES[a]){ //when there is no shape for the AVATAR
-            let group = new Z.Group({
-              addTo:WORLD,
-              visible:true
-            })
-            let anchor = new Z.Anchor({
-              // translate: AVATARS[a].POIS ? {x: (((FOV * 0.5 + AVATARS[a].x - 0.5 - AVATAR.x) % BOUNDS)) * SIZE , y: (((FOV * 0.5 + AVATARS[a].y - 0.5 - AVATAR.y) % BOUNDS)) * SIZE, z: U.getZAt(relX,relY) * DELTA + AVATAR.d + SIZE} : {x: (((FOV * 0.5 + AVATARS[a].x - AVATAR.x) % BOUNDS) - FOV * 0.5) * SIZE, y: (((FOV * 0.5 + AVATARS[a].y - AVATAR.y) % BOUNDS) - FOV * 0.5) * SIZE, z: 4 + U.getZAt(relX,relY) * 0.5 * DELTA + AVATAR.d + SIZE},
-              translate: {x: _x, y: _y, z: 4 + _az},
-              addTo: group
-            })
-              let sphereA = new Z.Hemisphere({
-                addTo: anchor,
-                diameter: SIZE,
-                stroke: false,
-                color: AVATARS[a].state.colorA
-              });
-              let sphereB = new Z.Hemisphere({
-                addTo: anchor,
-                diameter: SIZE,
-                stroke: false,
-                color: AVATARS[a].state.colorB,
-                rotate: { x: TAU/2 }
-              });
-              DYNAMIC_SHAPES[a] = {
-                group: group,
-                anchor: anchor,
-                sphereA: sphereA,
-                sphereB: sphereB
-              }
-          }
-          else{ //when there is a shape
-            let z = _az
-            DYNAMIC_SHAPES[a].anchor.translate = {x: _x, y: _y, z: z}
-            rotation = TAU * performance.now() * 0.0001
-            DYNAMIC_SHAPES[a].anchor.rotate = { x: rotation, y: rotation,z:rotation}
-          }
-        }
-        else if(DYNAMIC_SHAPES[a]){ //when it is not but there is still a shape representing it
-          DYNAMIC_SHAPES[a].group.remove()
-          delete DYNAMIC_SHAPES[a]
-        }
-      }
-    }
+    AVATARS.update(msg)
   })
-  join()
-  update()
-  document.body.classList.add("curtain-open")
+  AVATAR.join() //joins to server
+  update() //initial call to update function
+  document.body.classList.add("curtain-open") //opens the curtain via css animation
 }
-
-
 function update(){
-  updatePoiRender()
-  UI_UPDATE_CLOCK++
-  if((UI_UPDATE_CLOCK % UPDATE_UI_AFTER) == 0){
-    let time = Math.floor(performance.now() / 1000)
-    UI.x.innerText = Math.round(AVATAR.x % BOUNDS)
-    UI.y.innerText = Math.round(AVATAR.y % BOUNDS)
-    UI.clock.innerText = ("" + Math.floor(time / 60 / 60)).padStart(2, '0') + ":" + ("" + (Math.floor(time / 60) % 60)).padStart(2, '0') + ":" + ("" + (time % 60)).padStart(2, '0')
-    UI.people.innerText = Object.keys(AVATARS).length
-    let POISList = document.getElementById("outputPOI")
-    POISList.innerHTML = ""
-    for(let POIS in POI_IN_VIEW){
-      let tr = document.createElement("tr")
-      let th = document.createElement("th")
-      let td = document.createElement("td")
-      let a = document.createElement("a")
-      a.addEventListener("mousedown",e => {G.openInfoDirect(POI_IN_VIEW[POIS])})
-      a.innerText = POI_IN_VIEW[POIS].name
-      for(let c in POI_IN_VIEW[POIS].state.plan[1]){
-        let span = document.createElement("span")
-        span.classList.add("color")
-        span.style.background = POI_IN_VIEW[POIS].state.plan[1][c]
-        td.appendChild(span)
-      }
-      tr.appendChild(td)
-      th.appendChild(a)
-      tr.appendChild(th)
-      POISList.appendChild(tr)
-    }
+  POINTS.update()
+  UI_UPDATE_CLOCK++ //ups the UI update clock
+  POLYGONS.update() //updates the rendering of all polygons
+  POIS.update() //updates the rendering of all POI
+  AVATAR.update()
+  if(UI_UPDATE_CLOCK == UPDATE_UI_AFTER ){ //when the clock is to be reset
+    UI_UPDATE_CLOCK = 0 //resets the clock
+    UI.update() //calls update on the UI
   }
-  if(AVATARS[AVATAR.id]){
-    AVATAR.state = AVATARS[AVATAR.id].state
-  }
-  AVATAR.shape.translate = {z: 4 + U.getZAt(FOV * 0.5,FOV * 0.5) * 0.5 * DELTA + SIZE + AVATAR_HOVER * Math.abs(-1 + ((performance.now() * 0.0005) % 2))}
-  AVATAR.shape.rotate = { x: TAU * performance.now() * 0.0001, y: TAU * performance.now() * 0.0001,z: TAU * performance.now() * 0.0001 }
-  for(let y = 0; y < FOV + 1; y++){ //updates the z values for the whole grid in the POINTS buffer
-    for(let x = 0; x < FOV + 1; x++){
-      POINTS[y][x] = U.getZAt(x,y,true)
-    }
-  }
-  updatePolygons()
-  WORLD.updateRenderGraph()
-  requestAnimationFrame(update)
+  // if(AVATARS[AVATAR.id]){ //only needed when state is being manipulated by server
+  //   AVATAR.state = AVATARS[AVATAR.id].state
+  // }
+  WORLD.updateRenderGraph() //updates the render graph on the Z World object so virtual changes are being displayed
+  requestAnimationFrame(update) //enqueues next update call
 }
+window.addEventListener("load",init)
+})()
