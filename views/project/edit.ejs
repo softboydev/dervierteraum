@@ -1,0 +1,85 @@
+<h1>Edit Project</h1>
+<%- include ('../partials/messages') %>
+<h2> <%= project.projectname %></h2>
+<form action="/project/update" method="POST">
+  <fieldset>
+    <legend>Administration</legend>
+    <div>
+        <label for="enabled">Enabled</label>
+        <input type="checkbox" name="enabled"
+        value="<%= typeof project.administration.enabled != 'undefined' ? project.administration.enabled : '' %>"/>
+    </div>
+    <div>
+        <label for="x">X Position</label>
+        <input type="number" name="x"
+        value="<%= typeof project.administration.x != 'undefined' ? project.administration.x : '' %>"/>
+    </div>
+    <div>
+        <label for="y">Y Position</label>
+        <input type="number" name="y"
+        value="<%= typeof project.administration.y != 'undefined' ? project.administration.y : '' %>"/>
+    </div>
+    <div>
+      <div>Users: INSERT</div>
+      <div>
+          <label for="assign">Assign New Username</label>
+          <input type="text" name="assign"
+          value="<%= typeof assign != 'undefined' ? assign : '' %>"/>
+      </div>
+  </fieldset>
+  <fieldset>
+    <legend>Settings</legend>
+    <div>
+        <label for="visible">Visible</label>
+        <input type="checkbox" name="visible"
+        value="<%= typeof project.visible != 'undefined' ? project.visible : '' %>"/>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Metadata</legend>
+    <div>
+        <label for="title">Title</label>
+        <input type="text" name="title"
+        value="<%= typeof project.metadata.title != 'undefined' ? project.metadata.title : '' %>"/>
+    </div>
+    <div>
+        <label for="path">Path</label>
+        <input type="text" name="path"
+        value="<%= typeof project.metadata.path != 'undefined' ? project.metadata.path : '' %>"/>
+    </div>
+    <div>
+        <label for="description">Description</label>
+        <input type="text" name="description"
+        value="<%= typeof project.metadata.description != 'undefined' ? project.metadata.description : '' %>"/>
+    </div>
+    <div>
+        <label for="artists">Artists</label>
+        <input type="text" name="artists"
+        value="<%= typeof project.metadata.artists != 'undefined' ? project.metadata.artists : '' %>"/>
+    </div>
+    <div>
+        <label for="data">Date</label>
+        <input type="text" name="date"
+        value="<%= typeof project.metadata.date != 'undefined' ? project.metadata.date : '' %>"/>
+    </div>
+    <div>
+        <label for="link">Link</label>
+        <input type="text" name="link"
+        value="<%= typeof project.metadata.link != 'undefined' ? project.metadata.link : '' %>"/>
+    </div>
+    <div>
+        <label for="linktitle">Linktitle</label>
+        <input type="text" name="linktitle"
+        value="<%= typeof project.metadata.linktitle != 'undefined' ? project.metadata.linktitle : '' %>"/>
+    </div>
+    <input style="display:none;pointer-events:none;width:0;height:0;visible:false;" id="config" type="text" name="config" value="<%= typeof project.metadata.linktitle != 'undefined' ? project.metadata.linktitle : '' %>"/>
+  </fieldset>
+  <button type="submit">Update</button>
+</form>
+<%# <canvas id="canvas" class="zdog-canvas" width="240" height="240"></canvas>
+<div id="editor">
+  <div>Edit your pillar below. Copy the URL in the adress bar above to save and share your pillar.</div>
+</div>
+<img id="logo" src="./static/img/logo.png" alt="III[]">
+<script src="./static/js/scripts.js"></script>
+<script src="./static/js/edit.js"></script> %>

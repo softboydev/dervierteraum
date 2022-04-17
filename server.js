@@ -1,9 +1,57 @@
 const APP = require('EXPRESS')();
+const EXPRESS = require('EXPRESS')
 const HTTP = require('http').Server(APP);
 const IO = require('socket.io')(HTTP);
 const PORT = process.env.PORT || 3000;
-const EXPRESS = require('EXPRESS')
 const KILL_PLAYERS_AFTER = 2000
+const MONGOOSE = require('mongoose');
+const expressEjsLayout = require('express-ejs-layouts')
+const flash = require('connect-flash');
+const session = require('express-session');
+const passport = require("passport");
+const bcrypt = require('bcrypt');
+const User = require("./models/user");
+MONGOOSE.connect('mongodb://localhost/test',{useNewUrlParser: true, useUnifiedTopology : true})
+.then(() => {
+  init()
+}).catch((err)=> console.log(err));
+
+function listen(){
+  HTTP.listen(PORT, () => {
+    console.log(`Socket.IO server running at http://localhost:${PORT}/`);
+  });
+}
+async function init() {
+  console.log("creating admin...");
+  let username = "admin"
+  let password = "admin"
+  User.findOne({username: username}).exec((err,admin)=>{
+   if(admin) {
+     console.log("...admin already exists")
+     listen()
+   }
+   else{
+      const admin = new User({
+        username: "admin",
+        password: "admin",
+        admin: true
+      })
+      bcrypt.genSalt(10,(err,salt)=>
+      bcrypt.hash(admin.password,salt,
+          (err,hash)=> {
+              if(err) throw err;
+                  admin.password = hash;
+                  admin.save()
+                  .then((value)=>{
+                      console.log("...admin created");
+                      listen()
+                  })
+                  .catch(value=> console.log(value));
+      }));
+    }
+  })
+}
+
 const poi = {
   "6;8": {
     name: "Frappant",
@@ -95,13 +143,30 @@ const poi = {
   }
 }
 let PLAYERS = {}
-
+APP.set('view engine','ejs');
+APP.use(expressEjsLayout);
+//BodyParser
+APP.use(EXPRESS.urlencoded({extended : false}));
+//express session
+APP.use(session({
+    secret : 'secret',
+    resave : true,
+    saveUninitialized : true
+}));
+APP.use(passport.initialize());
+APP.use(passport.session());
+APP.use(flash());
+APP.use((req,res,next)=> {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.error  = req.flash('error');
+    next();
+    })
 APP.use('/static', EXPRESS.static(__dirname + '/static'));
+APP.use('/project',require('./project'));
+APP.use('/admin',require('./admin'));
 APP.get('/', (req, res) => { //index page
-  res.sendFile(__dirname + '/index.html');
-});
-APP.get('/edit', (req, res) => { //editor
-  res.sendFile(__dirname + '/edit.html');
+  res.sendFile(__dirname + '/views/index.html');
 });
 APP.get('/connect', (req, res) => { //connection script
   res.sendFile(__dirname + '/static/js/dervierteraum.js');
@@ -152,7 +217,3 @@ function update(){
   }
   IO.emit('update', PLAYERS) //send an update with new player object
 }
-
-HTTP.listen(PORT, () => {
-  console.log(`Socket.IO server running at http://localhost:${PORT}/`);
-});

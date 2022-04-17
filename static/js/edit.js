@@ -98,18 +98,12 @@ function handleRotate(x,y){
     render.updateRenderGraph();
 }
 function init(){
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  for(let c in config){
-    let type = urlParams.get("type" + c)
-    let color = urlParams.get("color" + c)
-    console.log(type,color);
-    if(type){
-      config[c].type = Number(type)
-    }
-    if(color){
-      config[c].color = "#" + color
-    }
+  let _config = document.getElementById("config").value
+  try {
+      config = JSON.parse(_config);
+  }
+  catch(e) {
+    console.log(e)
   }
   let editor = document.getElementById("editor")
   for(let c = config.length - 1; c >= 0; c--){
@@ -220,5 +214,5 @@ function update(){
 
   }
   render.updateRenderGraph();
-  history.pushState({}, "", "/edit" + urlString)
+  document.getElementById("config").value = JSON.stringify(config)
 }
