@@ -2,7 +2,7 @@ const APP = require('express')();
 const HTTP = require('http').Server(APP);
 const IO = require('socket.io')(HTTP);
 const PORT = process.env.PORT || 3000;
-const EXPRESS = require('EXPRESS')
+const EXPRESS = require('express')
 const KILL_PLAYERS_AFTER = 2000
 const poi = {
   "17;19": {
