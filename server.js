@@ -1,4 +1,4 @@
-const APP = require('EXPRESS')();
+const APP = require('express')();
 const HTTP = require('http').Server(APP);
 const IO = require('socket.io')(HTTP);
 const PORT = process.env.PORT || 3000;
