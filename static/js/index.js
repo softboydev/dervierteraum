@@ -79,7 +79,6 @@ const U = { //UTILS
     return Math.min(((window.innerWidth + window.innerHeight) * 0.5) / LARGEST_DIAGONAL,1)
   },
   calcFov: function(){ //calculates and returns dynamic FOV based on diagonal and min max
-    console.log(Math.min(Math.round((FOV_MIN + U.calcDiagonal() * (FOV_MAX - FOV_MIN)) * 0.5) * 2, FOV_MAX))
     return Math.min(Math.round((FOV_MIN + U.calcDiagonal() * (FOV_MAX - FOV_MIN)) * 0.5) * 2, FOV_MAX)
   }
 }
@@ -505,6 +504,7 @@ const POIS = {
     POIS.grid = msg //store msg as poi
     const urlParams = new URLSearchParams(window.location.search) //gets any url parameters TODO make this way more elegant
     let anchor = window.location.href.split('#').pop()
+    console.log(anchor);
     let poi = urlParams.get('poi') ? urlParams.get('poi').toLowerCase() : anchor ? anchor.toLowerCase() : false //gets poi param or false
     let found = false //search result flag
     if(poi){ //when a param was present

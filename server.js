@@ -5,11 +5,11 @@ const PORT = process.env.PORT || 3000;
 const EXPRESS = require('EXPRESS')
 const KILL_PLAYERS_AFTER = 2000
 const poi = {
-  "18;18": {
+  "17;19": {
     name: "Frappant",
     id: "frappant",
-    x: 18,
-    y: 18,
+    x: 17,
+    y: 19,
     poi: true,
     state: {
       plan: [[1,5,2,0,1,0,3,1],["#fff","#fff","#fff","#000","#fff","#000","#fff","#fff"]],
@@ -23,8 +23,8 @@ const poi = {
   "6;18": {
     name: "About",
     id: "about",
-    x: 6,
-    y: 18,
+    x: 7,
+    y: 17,
     poi: true,
     state: {
       plan: [[1,5,5,5,5,1,0,4],["#fff","#fff","#fff","#fff","#fff","#fff","#000","#fff"]],
@@ -66,8 +66,8 @@ const poi = {
   "6;12": {
     name: "Instagram",
     id: "instagram",
-    x: 6,
-    y: 12,
+    x: 8,
+    y: 11,
     poi: true,
     state: {
       plan: [[5,1,0,3,0,4,0,2],["#fff","#fff","#000","#fff","#000","#fff","#000","#fff"]],
@@ -81,8 +81,8 @@ const poi = {
   "12;12": {
     name: "Rapid Rabbit Reloaded",
     id: "raprab",
-    x: 12,
-    y: 12,
+    x: 14,
+    y: 13,
     poi: true,
     exhibit: true,
     state: {
@@ -96,7 +96,7 @@ const poi = {
   "24;24": {
     name: "Simulacrum 24/7",
     id: "simulacrum247",
-    x: 24,
+    x: 22,
     y: 24,
     poi: true,
     exhibit: true,
