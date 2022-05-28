@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3000;
 const EXPRESS = require('EXPRESS')
 const KILL_PLAYERS_AFTER = 2000
 const poi = {
-  "6;8": {
+  "18;18": {
     name: "Frappant",
     id: "frappant",
     x: 18,
@@ -20,7 +20,7 @@ const poi = {
       linktitle: "Open Website"
     }
   },
-  "12;12": {
+  "6;18": {
     name: "About",
     id: "about",
     x: 6,
@@ -34,7 +34,7 @@ const poi = {
       link: false,
     }
   },
-  "4;12": {
+  "6;6": {
     name: "Funders",
     id: "funders",
     x: 6,
@@ -48,7 +48,7 @@ const poi = {
       link: false,
     }
   },
-  "18;12": {
+  "0;11": {
     name: "Contact",
     id: "contact",
     x: 0,
@@ -63,7 +63,7 @@ const poi = {
       linktitle: "Write Us"
     }
   },
-  "8;0": {
+  "6;12": {
     name: "Instagram",
     id: "instagram",
     x: 6,
@@ -78,7 +78,7 @@ const poi = {
       linktitle: "Follow Us"
     }
   },
-  "16;7": {
+  "12;12": {
     name: "Rapid Rabbit Reloaded",
     id: "raprab",
     x: 12,
@@ -91,6 +91,21 @@ const poi = {
       date:"19.12.21 – 15.09.22",
       description:"Exhibition, Talks, Sound, Chat, Archive<br>Observations of the works of artists, scientists, musicians, people, and internet findings from the digital age.<br><br>Sonntag, 9. Januar 2022, 15h: Kathrin Wildner & Michael Maierhof<br><br>Sonntag, 6. Februar 2022, 15h, Nina Lucia Groß & Magdalena Grüner<br><br>Sonntag, 6. März 2022, 15h Martin Zellerhoff<br><br>Sonntag, 10. April 2022, 15h Petra Bopp<br><br>Sonntag, 24. April 2022, 15h, Franziska Beyer<br><br>Sonntag, 15. Mai 2022, 15h, HFBK-Klassen Jeanne Faust, Michaela Melián<br><br>Sonntag, 5. Juni 2022, 15h, Ansgar Wilken (Konzert)<br><br>Sonntag, 12. Juni 2022, 15h, Claudia Reiche",
       link: "https://raprab.net/22"
+    }
+  },
+  "24;24": {
+    name: "Simulacrum 24/7",
+    id: "simulacrum247",
+    x: 24,
+    y: 24,
+    poi: true,
+    exhibit: true,
+    state: {
+      plan: [[1,1,5,4,5,5,0,3],["#ff40ff","#ff40ff","#00f900","#b18cfe","#00f900","#00f900","#000000","#ff40ff"]],
+      artists:"Gina Bartzok, Lukas Besenfelder, Stefano Dealessandri, Charlotte Hafke, Lucia Köhn, Julia Löffler, Godje Loof, Chiara Mizaikoff, Vito Schöneberger, Laurin Schuh, Rebecca Söhlke",
+      date:"25.06.—10.07.22",
+      description:"Kunstrasen, 3D-gedruckte Wearables, Fake Lashes und projizierte Texturen erwarten die Besuchenden von Simulacrum24/7 — einem interdisziplinären, medien- und raumübergreifenden Gruppenprojekt, das eine symbiotische Interaktion des neu entstandenen digitalen »4. Raums« der Frappant Galerie mit ihren bereits bestehenden haptischen Räumlichkeiten erforscht und hinterfragt.<br>Sowohl für den analogen als auch für den digitalen Raum eigens geschaffene Arbeiten treten in einen Dialog, der die Grenzen und Möglichkeiten der unterschiedlichen Welten erkennt und mit ihnen arbeitet.<br>Die Verbindung von digitalem und haptischem Raum äußert sich in der Idee des Mockups als ultimative IRL-URL-Verschmelzung.<br>Mockups sind auf einen Teilaspekt ausgestaltete Anschauungsobjekte, die eine Idee oder einen Prozess visuell erfahrbar machen. Der Akt des skizzenhaften Vorstellens eines in der Zukunft liegenden Umstands oder einer Verdinglichung macht das Mockup zu einer halb gewissen Prophezeiung und treibt spekulative Gedanken voran.<br>Als spekulatives Objekt mit klarer, aber erst noch herauszufindender Funktion wird es in dieser Ausstellung selbst zum autonomen Kunstwerk, das keinen Start- und keinen Endpunkt kennt und in seiner fluidität die Grenzen von Zeit und Raum neu verhandelt. Das Mockup als Fiktion ersetzt das eigentliche Produkt, während es sich als gleichzeitige Zukunftsfantasie und Realitätsnachahmung stets zwischen Realität und Fiktion, Funktion und Spekulation bewegt.<br>Die vier Räume werden in einem gegenseitigen Wechselspiel gestaltet und ergänzt. So werden sowohl die drei analogen als auch der vierte, digitale Raum zu interaktiven Oberflächen, die den Grundriss für eine online und AFK (Away From Keyboard) Interaktion zwischen den Besucher:innen, User:innen und künstlerischen Positionen bilden.<br>Die Transformation durch den Raumwechsel und new/old Possibilities stellt die Darstellung von Werk und Wirkung auf die Probe. Auf der Suche nach real Reality und im Aufspüren leerer Hüllen wird eine Fusion und Diffusion der Räume gewagt.<br>Simulacrum24/7 versucht eine Vorbildfunktion für zukünftige synergetische Ausstellungsformen einzunehmen. Die Ausstellung selbst wird zum Mockup.<br>Dieses Projekt wird aus Mitteln von der »ZEIT-Stiftung Ebelin und Gerd Bucerius« sowie KULTUR.GEMEINSCHAFTEN – Förderprogramm für digitale Content-Produktion von Kultureinrichtungen und NEUSTART KULTUR – Programm 2 gefördert. Für die freundliche Unterstützung durch die Beauftragte der Bundesregierung für Kultur und Medien, die Kulturstiftung der Länder, den Bundesverband Soziokultur e.V., die Behörde für Kultur und Medien Hamburg sowie den Frappant e.V. bedanken wir uns.",
+      link: false
     }
   }
 }

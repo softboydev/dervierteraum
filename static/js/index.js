@@ -79,6 +79,7 @@ const U = { //UTILS
     return Math.min(((window.innerWidth + window.innerHeight) * 0.5) / LARGEST_DIAGONAL,1)
   },
   calcFov: function(){ //calculates and returns dynamic FOV based on diagonal and min max
+    console.log(Math.min(Math.round((FOV_MIN + U.calcDiagonal() * (FOV_MAX - FOV_MIN)) * 0.5) * 2, FOV_MAX))
     return Math.min(Math.round((FOV_MIN + U.calcDiagonal() * (FOV_MAX - FOV_MIN)) * 0.5) * 2, FOV_MAX)
   }
 }
@@ -213,7 +214,6 @@ const G = { //GLOBALS
     document.body.classList.toggle("menu-open")
   },
   openInfoDirect: function(target){
-    console.log(POIS);
     let poi = false
     if(typeof target === "object"){
       poi = target
@@ -239,7 +239,7 @@ const UPDATE_UI_AFTER = 10 //mod to update the UI after X frames
 const CLICK_TIME = 150 //Ms that have to pass before a touch/click is considered holded
 const INFO_AREA = 3 //radius around pillars that lead to the info being open. Radius is in virtual grid coordinates
 const FOV_MIN = 8 //minimum FOV with worst framerate and smallest device
-const FOV_MAX = 18 //maximum FOV with large device and very good framerate
+const FOV_MAX = 16 //maximum FOV with large device and very good framerate
 const FRAMETIME = 0 //stores timestamp of last rendered frame
 const FRAMETIME_AVG = 1 //average frametime storage
 const FRAMETIME_RECALC = 1000 //amount of ms after which frametime is averaged and FOV is calculated
@@ -274,7 +274,7 @@ let LAST_POINTER = {x:0,y:0} //Stores the coordinates of the last pointer that w
 let LAST_POINTER_TIMESTAMP = 0 //Stores the timestamp of the last touch/click
 let POINTER_ROTATION = {x:0,y:0,z:0} //Stores the basis for the 3d rotation based on the pointer
 let POINTER_ROTATION_DELTA = {x:0,y:0,z:0} //Stores a momentary difference in pointer position relative to POINTER_ROTATION as a base
-let FOV = 16 //amount of grid coordinates in view
+let FOV = FOV_MAX //amount of grid coordinates in view
 let DIAGONAL = 1 //display diagonal
 let DYNAMIC_SHAPES = {} //stores reference to all shapes that are rendered dynamically. Accessed by key/id
 let POI_IN_VIEW = {}  //stores list of all POI currently in the view. Accessed by key
@@ -317,7 +317,6 @@ const UI = {  //stores references to DOM elements for UI purposes. Accessed as k
     this.people.innerText = Object.keys(AVATARS).length //updates the number of people on server
     this.pois.innerHTML = "" //resets the poilist
     for(let POIS in POI_IN_VIEW){ //for every POI in view
-
       let tr = document.createElement("tr") //creates a tr wrapper
       let th = document.createElement("th") //creates a th for title
       let td = document.createElement("td") //creates a td for colorcode
@@ -409,7 +408,6 @@ const POLYGONS = {
         }
       }
     }
-    WORLD.updateRenderGraph();
   },
   init: function(){
     this.grid = []
@@ -506,12 +504,14 @@ const POIS = {
   init: function(msg){
     POIS.grid = msg //store msg as poi
     const urlParams = new URLSearchParams(window.location.search) //gets any url parameters TODO make this way more elegant
-    let poi = urlParams.get('poi') ? urlParams.get('poi').toLowerCase() : false //gets poi param or false
+    let anchor = window.location.href.split('#').pop()
+    let poi = urlParams.get('poi') ? urlParams.get('poi').toLowerCase() : anchor ? anchor.toLowerCase() : false //gets poi param or false
     let found = false //search result flag
     if(poi){ //when a param was present
-      for(let p in POIS){ //for every poi
-        if(!found && (POIS.grid[p].name.toLowerCase() == poi || POIS.grid[p].id.toLowerCase() == poi)){ //if none was found yet and the poi matches with id or name
-          poi = POIS.grid[p] //stores reference
+      for(let _p in POIS.grid){ //for every poi
+        let p = POIS.grid[_p]
+        if(!found && (p.name.toLowerCase() == poi || p.id.toLowerCase() == poi)){ //if none was found yet and the poi matches with id or name
+          poi = p //stores reference
           found = true //sets flag
         }
       }
@@ -766,5 +766,5 @@ function update(){
   WORLD.updateRenderGraph() //updates the render graph on the Z World object so virtual changes are being displayed
   requestAnimationFrame(update) //enqueues next update call
 }
-window.addEventListener("load",init)
+window.addEventListener("DOMContentLoaded",init)
 })()
