@@ -1,4 +1,4 @@
-window.addEventListener("load",function(){
+window.addEventListener("DOMContentLoaded",function(){
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   let color = urlParams.get('color')
@@ -14,6 +14,7 @@ window.addEventListener("load",function(){
     localStorage.setItem('rrrr', "?color=" + color + "&x=" + x  + "&y=" + y)
   }
   let b = document.createElement("div")
+  b.title = "return to Der Vierte Raum"
   b.id = "derVierteRaumButton"
   b.addEventListener("click",function(){
     let p = localStorage.getItem("rrrr")
