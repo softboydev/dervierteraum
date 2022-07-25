@@ -56,6 +56,14 @@ let config = [
     color: "#ffffff"
   }
 ]
+function plan(){
+  let plan = [[],[]]
+  for(let c of config){
+    plan[0].push(c.type)
+    plan[1].push(c.color)
+  }
+  return plan
+}
 window.addEventListener("load",init)
 window.addEventListener("mousemove",function(e){
   handleRotate(e.clientX,e.clientY)
@@ -103,7 +111,6 @@ function init(){
   for(let c in config){
     let type = urlParams.get("type" + c)
     let color = urlParams.get("color" + c)
-    console.log(type,color);
     if(type){
       config[c].type = Number(type)
     }
