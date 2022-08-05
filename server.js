@@ -93,6 +93,42 @@ const poi = {
       link: "https://raprab.net/22"
     }
   },
+  "16;7": {
+    name: "Gute Gerätschaft",
+    id: "gutegeraetschaft",
+    x: 16,
+    y: 7,
+    poi: true,
+    exhibit: true,
+    state: {
+      plan: [
+        [
+          0,
+          4,
+          0,
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        [
+          "#000000",
+          "#ffee3d",
+          "#000000",
+          "#ffee3d",
+          "#ffee3d",
+          "#ffee3d",
+          "#ffee3d",
+          "#ffee3d"
+        ]
+      ],
+      artists:"Nick Guse, Sanna Leone, Hye-Eun Kim, Helene Kummer, Saray Purto Hoffmann, Julian Slagman, Sophia Tartler, Prateek Vijan, Kastania Waldmüller",
+      date:"6.8.22 - 14.8.22",
+      description:"Bedürfnisse wollen gestillt werden. Vor allem jene, die weiteres Überleben sichern. Der Magen knurrt seit Stunden und mir ist etwas auf den Kopf gefallen, das ich letztens jemanden habe essen sehen. Wie das vonstatten ging, ist mir jedoch schleierhaft. Meine Zähne sind zu weich und die Faust zu schwach. Durch eine geschickte Körperverlängerung wird die Vision von der geknackten Nuss wahr — und ein unscheinbarer Stein zum ersten Gerät. Mittlerweile umgeben mich mehr Geräte als ich Zähne habe und ich möchte nicht ohne sie leben. Sie fühlen sich bereits an wie Zähne, nur dass sie nicht in mir wachsen. Viele meiner gewohnten Bewegungen habe ich so präzise an sie angepasst, dass ich mich frage, was ich ohne sie eigentlich kann. Was also ist ein Gerät? Aus der Frage nach dem Wesen, den Eigenschaften oder überhaupt der Definition des Begriffes Gerät ergaben sich eine Bandbreite an weiteren Gedanken und möglichen Antworten; je konkreter wir als Gruppe versuchten das Gerät zu umranden, desto grenzenloser schien es zu sein. Anfangs kreisten wir noch um tatsächliche Gebrauchsgegenstände: Hilfsvorrichtungen, durch die sich ein Körper temporär erweitern lässt, um eine bestimmte Tätigkeit auf eine bestimmte Weise auszuführen. Doch bereits bei diesem sehr naheliegenden Beispiel wird offensichtlich, dass sich die Beziehung zwischen Gerät und Körper nicht so scharf definieren lässt, wie zunächst angenommen. Die Grenzen der aufeinander treffenden Entitäten sind nicht klar umrissen. Jede noch so kurzlebige Interaktion mit oder durch Geräte bedeutet mehr als rein materielle Umwälzungen. Denn indem wir unseren Körper um einen Fortsatz erweitern mit dem wir umzugehen lernen, verändert sich auch der gedankliche Zugang zum eigenen Handlungsspielraum. Für uns stellt diese Beziehung, die die nutzende Person mit dem Gerät eingeht, eine Schlüsselstelle dar. Ein neues Gerät kennenzulernen ist gleichbedeutend mit einer Art kulturellem Update. Auf rationaler Ebene haben wir die nötigen Informationen erhalten, um mit diesem Gerät ein Vorhaben zu planen. Auch kann es genutzt werden um weitere Informationen zu generieren. In Kombination mit anderen Geräten kann eine neue Methode entwickelt werden. Sie prägen also die Art wie wir uns Wissen aneignen und sind selbst Teil des Prozesses. Mit der Konditionierung des Körpers, die gleichermaßen das intuitive Denken und körperliches Wissen umfasst, hinterlässt das Gerät physiologische Schnittstellen. Auch in Abwesenheit ist es Teil des Körpergefüges. Die bei der Nutzung eines Geräts häufig wiederholten Bewegungen prägen sich nachhaltig in das Muskelgedächtnis ein. Es wird also anschaulich, dass Geräte mit unseren Vorstellungen von der Welt und von uns selbst fest verflochten sind und, dass sie sich als Teil unserer Welt auch in unsere Körper eingefleischt haben. Dazu konstituieren sie die Weise wie wir Wissen produzieren. Anders herum werden Geräte ausgehend von bereits gesammeltem Wissen entwickelt. Das in den Geräten materialisierte Wissen ist uns als Nutzende nicht immer bekannt, und so werden manche Funktionsweisen einfach hingenommen. Es sind menschliche Interessen, ein forschendes oder planendes Streben, das in Geräten eine Form findet. Die Kontexte der Entstehung eines Geräts, beeinflussen somit auch alle anderen Bereiche in die es mit seinen Folgegeräten Einzug findet. Für eine kritische Auseinandersetzung mit „Technologie“ halten wir es für produktiv die Genealogie eines Geräts oder Geräte- systems zu verstehen, anstatt in den Kategorien „befreiend“ oder „einschränkend“ zu denken. Wir betrachten Geräte als Infrastruktur, die zwischen selbst und nicht-selbst verschiedene Aktivitäten ausrichtet, und intensiviert oder abschwächt. Nachdem wir uns im Diskurs einen thematischem Überblick verschafft haben, möchten wir diese Auseinandersetzung nun in Material übertragen und auf eine körperlich erfahrbare Weise zugänglich machen. Sanna Leone und Nick Guse konzipieren einen Roboter, der sich unter eigener Agenda durch die Ausstellung bewegt und dabei die vorgefundene Infrastruktur, den Boden, die Wände und die Besuchenden auch Teil des Geräts werden lässt. Wie sehr die menschliche Perspektive in Geräte eingeschrieben ist, untersucht Helene Kummer am Beispiel des 'Riggings' bei 3D Animation, wo selbst in der Simulation nicht-menschlicher Körper ein am Menschen orientiertes Skelett eingesetzt wird, um Bewegung zu erzeugen. Ob ein Gerät eine ganz und gar immaterielle Form annehmen kann, untersucht Prateek Vijan in seiner Auseinadersetzung mit dem Aberglauben, einer mythologischen und gedanklichen Rahmenstruktur, welche die Handlungsmöglichkeiten bedingt. Im Bereich des Gegenständlichen bleibt wiederum das Ornament, ein scheinbar bedeutungsloser Überfluss an Formsprache, dem sich Kastania Waldmüller mit ihrer Paragerätschaft widmet. Hye-Eun Kim zeigt keramische Cyborgs, die die gesellschaftliche Fixierung auf- und Bewertung aufgrund von messbaren Einheiten thematisieren. Sophia Tartler untersucht in Form von balzenden Broschen, wie sexuelle Attraktivität vom Körper ausgelagert, das Werben um Aufmerksamkeit und Zuwendung von einem Gerät übernommen wird. Die immerwährende Verlagerung von Körpern und das Gefühl von Zuhause thematisiert Saray Purto mit dem Gefährt, das als Entwurfszeichnung aus ihrer Kindheit die Jahre überdauert hat. Julian Slagman erschließt das Thema auf visuelle Weise mit einer Kamera, dem Gerät das seinen Beruf erst hervorbrachte.",
+      link: "https://gutegeraetschaft.dervierteraum.org"
+    }
+  },
   "24;24": {
     name: "Simulacrum 24/7",
     id: "simulacrum247",
