@@ -275,9 +275,9 @@ let POINTER_ROTATION = {x:0,y:0,z:0} //Stores the basis for the 3d rotation base
 let POINTER_ROTATION_DELTA = {x:0,y:0,z:0} //Stores a momentary difference in pointer position relative to POINTER_ROTATION as a base
 let FOV = FOV_MAX //amount of grid coordinates in view
 let DIAGONAL = 1 //display diagonal
-let DYNAMIC_SHAPES = {} //stores reference to all shapes that are rendered dynamically. Accessed by key/id
-let POI_IN_VIEW = {}  //stores list of all POI currently in the view. Accessed by key
-let OLD_AVATARS = {} //buffer array to compare newly sent buffers with
+let DYNAMIC_SHAPES = new WeakMap() //stores reference to all shapes that are rendered dynamically. Accessed by key/id
+let POI_IN_VIEW = new WeakMap()  //stores list of all POI currently in the view. Accessed by key
+let OLD_AVATARS = new WeakMap() //buffer array to compare newly sent buffers with
 //OBJECTS
 const UI = {  //stores references to DOM elements for UI purposes. Accessed as keys. also holds related functions
   connect: function(){
@@ -432,7 +432,7 @@ const POLYGONS = {
   }
 }
 const AVATARS = {
-  grid: {},
+  grid: new WeakMap(),
   update: function(msg){
     OLD_AVATARS = this.grid || msg //copy over current this.grid into buffer. If there are none us the new ones
     this.grid = msg //overwrite this.grid with the new ones
@@ -477,12 +477,17 @@ const AVATARS = {
                 color: this.grid[a].state.colorB,
                 rotate: { x: TAU/2 }
               });
-              DYNAMIC_SHAPES[a] = {
-                group: group,
-                anchor: anchor,
-                sphereA: sphereA,
-                sphereB: sphereB
-              }
+              // DYNAMIC_SHAPES[a] = {
+              //   group: group,
+              //   anchor: anchor,
+              //   sphereA: sphereA,
+              //   sphereB: sphereB
+              // }
+              DYNAMIC_SHAPES[a] = new WeakMap()
+              DYNAMIC_SHAPES[a].group = group
+              DYNAMIC_SHAPES[a].anchor = anchor
+              DYNAMIC_SHAPES[a].sphereA = sphereA
+              DYNAMIC_SHAPES[a].sphereB = sphereB
           }
           else{ //when there is a shape
             DYNAMIC_SHAPES[a].anchor.translate = {x: x, y: y, z: z}
@@ -688,7 +693,7 @@ const AVATAR = { //stores all properties and methods directly related to the use
     this.shape.translate = {z: 4 + U.getZAt(FOV * 0.5,FOV * 0.5) * 0.5 * DELTA + SIZE + AVATAR_HOVER * Math.abs(-1 + ((performance.now() * 0.0005) % 2))} //sets z translatiom based on z and hover animation clock
     this.shape.rotate = { x: TAU * performance.now() * 0.0001, y: TAU * performance.now() * 0.0001,z: TAU * performance.now() * 0.0001 } //sets rotation based on elapsed time
   },
-  shapes: {}, //stores reference to rendered shapes
+  shapes: new WeakMap(), //stores reference to rendered shapes
   move: function(v){ //moving function, takes a 2d vector object with delta for both axis
     if(INFO_FLAG != 1){ //only allow movement while info popup is closed
       this.x += v.x * this.speed //adds delta multiplied by speed to position
