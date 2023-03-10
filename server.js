@@ -94,7 +94,7 @@ const poi = {
     }
   },
   "11;20": {
-    name: "TV Phase",
+    name: "TV-Phase Online",
     id: "tvphase",
     x: 11,
     y: 20,
@@ -104,7 +104,7 @@ const poi = {
       plan: [[1,0,0,4,0,4,0,4],["#ffffff","#000000","#000000","#ff0000","#000000","#00ff00","#000000","#0000ff"]],
       artists:"Heiko Wommelsdorf",
       date:"10.03.23 – 31.12.23",
-      description:"",
+      description:"Video players are shown on Frappant's Der Vierte Raum. The players can each play a 60 second clip. Depending on the point in time at which the visitor switches a player on or off from the exhibition, a small composition is played. With this sound and video installation, every visitor can put together their own piece of music.<br><br>'Hier werden Röhrenfernseher älterer Generation zu Tonerzeugern (Instrumenten) einer Partitur, eines eigens erstellten Notensystems. In schneller Folge wurden schwarze Flächen auf weißen Grund gebracht. Bilder entstanden durch Magnetfelder der Röhren der Fernseher. Die Magnetfelder beeinflussen ihrerseits die Verstärker der Fernseher und so entstanden elektromagnetische Störfelder. Dieses Phänomen macht die Frequenz des Rauschens künstlerisch deutlich. Fernseher als Rauschgeneratoren. Je nach Hersteller, Größe, Nutzungsdauer und Art ihrer Verstärker variieren Tonhöhen und Intensität. Es entstehen Bild- und Tonfolgen, die aneinandergesetzt als Melodie erscheinen. Komponierte mediale Werke des Zufalls. Aus dem Geiste Steve Reichs‘ Tonbandkomposition It‘s Gonna Rain. Die Verschiebung akustisch/visueller Phasen erzeugt Muster und melodische Fragmente deren Anfang und Ende beliebig ist.'<br>- Dr. phil. Dr. Ing. habil. Christoph Metzger (Musikwissenschaftler und Kurator)<br><br>Heiko Wommelsdorf (born in 1982 in Bremen) studied Media Art at the Muthesius University of Fine Arts and Design and sound sculpture / sound installation at the Braunschweig University of Art. With minimal settings Wommelsdorf examined the nature and resonance spaces and thus made attention to noise, which we have learned by conditioning the brain to hide. His work has been exhibited internationally and rewarded with sponsorship awards.",
       link: "http://heikowommelsdorf.de/tv-phase-im-4ten-raum"
     }
   },
