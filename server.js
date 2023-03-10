@@ -93,6 +93,21 @@ const poi = {
       link: "https://raprab.net/22"
     }
   },
+  "11;20": {
+    name: "TV Phase",
+    id: "tvphase",
+    x: 11,
+    y: 20,
+    poi: true,
+    exhibit: true,
+    state: {
+      plan: [[1,0,0,4,0,4,0,4],["#ffffff","#000000","#000000","#ff0000","#000000","#00ff00","#000000","#0000ff"]],
+      artists:"Heiko Wommelsdorf",
+      date:"10.03.23 – 31.12.23",
+      description:"",
+      link: "http://heikowommelsdorf.de/tv-phase-im-4ten-raum"
+    }
+  },
   "16;7": {
     name: "Gute Gerätschaft",
     id: "gutegeraetschaft",
