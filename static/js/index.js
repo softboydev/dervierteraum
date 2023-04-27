@@ -212,24 +212,32 @@ const G = { //GLOBALS
   toggleMenu: function(){
     document.body.classList.toggle("menu-open")
   },
-  openInfoDirect: function(target){
-    let poi = false
-    if(typeof target === "object"){
-      poi = target
-    }
-    else{
-      for(let _p in POIS.grid){
-        let p = POIS.grid[_p]
-        if(p.id == target){
-          poi = p
-        }
-      }
-    }
-    if(poi){
-      G.openInfo(poi,true)
+  openInfoDirect: function(target,forcePoi){
+    if(forcePoi){
+      G.openInfo(forcePoi,true)
       document.body.classList.remove("menu-open")
       document.body.classList.remove("tutorial-open")
     }
+    else{
+      let poi = false
+      if(typeof target === "object"){
+        poi = target
+      }
+      else{
+        for(let _p in POIS.grid){
+          let p = POIS.grid[_p]
+          if(p.id == target){
+            poi = p
+          }
+        }
+      }
+      if(poi){
+        G.openInfo(poi,true)
+        document.body.classList.remove("menu-open")
+        document.body.classList.remove("tutorial-open")
+      }
+    }
+
   }
 }
 //ENV CONSTANTS
@@ -278,6 +286,31 @@ let DIAGONAL = 1 //display diagonal
 let DYNAMIC_SHAPES = {} //stores reference to all shapes that are rendered dynamically. Accessed by key/id
 let POI_IN_VIEW = {}  //stores list of all POI currently in the view. Accessed by key
 let OLD_AVATARS = {} //buffer array to compare newly sent buffers with
+//DATA
+const PROGRAM_POI = {
+  name: "Program 2023",
+  id: "program",
+  poi: true,
+  state:{
+    exhibit: false,
+    artists:false,
+    date:false,
+    description:"TV—PHASE ONLINE<br>Heiko Wommelsdorf<br>10.03.23<br><br>SWORDS AND KISSES<br>Yifan He, Nuka Nayu, Axe Binondo, Chaney Diao, Zhuyang Liu, Nitesh Tailor, Nikki C<br>18.04.23<br><br>IDENTITY CRISIS<br>Noa Brosh<br>05.05.23<br><br>GINESTRA<br>Ava rasti<br>12.05.23<br><br>MAPS AND MARKS<br>Lily McCraith and Pheobe Riley Law<br>09.09.23<br><br>RICONOSCERSI IN ATTIMI SOSPESI DI FRAGILITA' IN DIVENIRE DISTURBA<br>Riccardo Androni<br>17.11.23<br><br>",
+    link: false
+  }
+}
+const ARCHIVE_POI = {
+  name: "Archive",
+  id: "archive",
+  poi: true,
+  state:{
+    exhibit: false,
+    artists:false,
+    date:false,
+    description:"RAPID RABBIT RELOADED<br>Stefan Moos & Allan Door<br>19.12.21<br><br>SIMULACRUM 24/7<br>Stefano Dealessandri Gina Bartzok, Lukas Besenfelder, Lucia Girardet, Charlotte Hafke, Julia Löffler, Godje Loof, Chiara Mizaikoff, Laurin Schuh, Rebecca Söhlke & Vito Schöneberger<br>24.06.22<br><br>GUTE GERÄTSCHAFT<br>Nick Guse, Sanna Leone, Hye-Eun Kim, Helene Kummer, Saray Purto Hoffmann, Julian Slagman, Sophia Tartler, Prateek Vijan & Kastania Waldmüller<br>06.08.22<br><br",
+    link: false
+  }
+}
 //OBJECTS
 const UI = {  //stores references to DOM elements for UI purposes. Accessed as keys. also holds related functions
   connect: function(){
@@ -298,6 +331,8 @@ const UI = {  //stores references to DOM elements for UI purposes. Accessed as k
   events: function(){
     document.getElementById("aboutLink").addEventListener("click",() => G.openInfoDirect('about'))
     document.getElementById("fundersLink").addEventListener("click",() => G.openInfoDirect('funders'))
+    document.getElementById("programLink").addEventListener("click",() => G.openInfoDirect('program',PROGRAM_POI))
+    document.getElementById("archiveLink").addEventListener("click",() => G.openInfoDirect('archive',ARCHIVE_POI))
     document.getElementById("logos").addEventListener("click",() => G.openInfoDirect('funders'))
     document.getElementById("menubutton").addEventListener("click",() => G.toggleMenu())
     document.getElementById("infoOpen").addEventListener("click",() => G.openLink())

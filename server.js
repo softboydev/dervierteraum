@@ -30,7 +30,7 @@ const poi = {
       plan: [[1,5,5,5,5,1,0,4],["#fff","#fff","#fff","#fff","#fff","#fff","#000","#fff"]],
       artists:false,
       date:false,
-      description:"Arising out of the constraints of the current pandemic, we developed the concept of an additional 4th, web-based gallery room, which offers a curated program and can be visited in perpetuity. We would like to permanently expand our exhibition program by adding additional art formats.<br>We are making the 4th room available for digital or hybrid projects by artists who have gone through our APPlication and selection process.<br>We would like to utilize Frappant’s 4th Room in order to expand the range of artistic formats and media we present, to invite national and international media artists to realize their artistic concepts with us, to enable interactive and hybrid art formats and reach art-interested visitors in and beyond Hamburg.<br>In December 2021, Frappant 4th Room will be kicking off with the following pilot projects:<br><br>RAPID RABBIT RELOADED<br>by Stefan Moos & Allan Dorr<br>Project start: December 19, 2021<br><br>GECLOUDTE SPUREN<br>Digital art project by students in Prof. Aram Bartholl’s Digital Media Art class, University of Applied Sciences, Hamburg.<br>Project start: June 24, 2022",
+      description:"Der Vierte Raum is a dynamic platform for conceptual, time based and performative exhibition formats. It happens outside the realm of the white cube and is meant to function as an extension of the Hamburg project space Frappant Galerie to create new contextual meaning.<br><br>Der Vierte Raum calls on all digital artists, designers, architects, coders and activists to collaborate and together create projects that observe, critique, question, queer, redesign and deconstruct.<br><br>We give preference to digital formats of collaboration including algorithms, bots, discussions, films, online projects, performances, sounds, mapping, experiments and essays.<br><br>Next Open Call: September 2023",
       link: false,
     }
   },
@@ -108,6 +108,42 @@ const poi = {
       link: "http://heikowommelsdorf.de/tv-phase-im-4ten-raum"
     }
   },
+  "20;6": {
+    name: "Swords and Kisses",
+    id: "swords-and-kisses",
+    x: 20,
+    y: 6,
+    poi: true,
+    exhibit: true,
+    state: {
+      plan: [
+        [
+          5,
+          5,
+          0,
+          3,
+          2,
+          0,
+          5,
+          5
+        ],
+        [
+          "#ffeb85",
+          "#ffffff",
+          "#ffffff",
+          "#d0a7ec",
+          "#a68bbb",
+          "#ffffff",
+          "#ffffff",
+          "#a8ffca"
+        ]
+      ],
+      artists:"Yifan He, Nuka Nayu, Axe Binondo, Chaney Diao, Zhuyang Liu, Nitesh Tailor, Nikki C",
+      date:"28.04.23",
+      description:"portals, props, and the false promises of (other) worlds<br><br>a fabulated open-doc/ html/ possible live stream performances or game play (expression of interest: Zhuyang)<br><br>Swords and kisses is an exhibition that prioritises transvisions of the non-linear time space wraps around queer skins and hairs. Interested in the portals, props, and the false promises of (the other) worlds, queer digital artists, sound artists, writers who write about games, and performers will be weaving their works together in the simple format of a website. We lay trusts in unimpressive tech as the fabric to communities of fantasy. And we attempt to use the queer technology of fantasy– world building, body (avatars) building, and storytelling– to suggest fabulous ways to be with each other (with care, nightmares, and fan-fictions).",
+      link: "https://he-yifan.com/swordsnkisses.html"
+    }
+  },
   "16;7": {
     name: "Gute Gerätschaft",
     id: "gutegeraetschaft",
@@ -174,6 +210,9 @@ APP.get('/connect', (req, res) => { //connection script
 });
 APP.get('/button', (req, res) => { //externally available graphics
   res.sendFile(__dirname + '/static/img/back.jpg');
+});
+APP.get('/funders', (req, res) => { //externally available graphics
+  res.sendFile(__dirname + '/static/img/funders.jpg');
 });
 IO.on("connection", (socket) => {
   socket.on("join", msg => { //when a players joins
