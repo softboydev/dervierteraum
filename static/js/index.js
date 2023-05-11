@@ -168,6 +168,12 @@ const G = { //GLOBALS
       UI.desc.innerHTML = poi.state.description
       if(poi.state.link){
         UI.link.setAttribute("data-href",poi.state.link)
+        if(poi.noconnect){
+          UI.link.setAttribute("data-noconnect",true)
+        }
+        else{
+          UI.link.setAttribute("data-noconnect",false)
+        }
         if(poi.exhibit){
           UI.link.setAttribute("data-target","exhibit")
         }
@@ -196,6 +202,7 @@ const G = { //GLOBALS
     let link = document.getElementById("infoOpen")
     let target = link.getAttribute("data-target")
     let href = link.getAttribute("data-href")
+    let noconnect = link.getAttribute("data-noconnect") == "true"
     if(target == "external"){
       window.open(href, '_blank')
     }
@@ -205,7 +212,7 @@ const G = { //GLOBALS
         IO.emit('kill', {id:AVATAR.id})
         let x = Math.round((BOUNDS + (AVATAR.x % BOUNDS)) % BOUNDS)
         let y = Math.round((BOUNDS + (AVATAR.y % BOUNDS)) % BOUNDS)
-        window.location.href = href + "?color=" + AVATAR.state.colorA.replace("#","") + "&x=" + x  + "&y=" + y
+        window.location.href = noconnect ? href : href + "?color=" + AVATAR.state.colorA.replace("#","") + "&x=" + x  + "&y=" + y
       }, 1500);
     }
   },
@@ -539,7 +546,6 @@ const POIS = {
     POIS.grid = msg //store msg as poi
     const urlParams = new URLSearchParams(window.location.search) //gets any url parameters TODO make this way more elegant
     let anchor = window.location.href.split('#').pop()
-    console.log(anchor);
     let poi = urlParams.get('poi') ? urlParams.get('poi').toLowerCase() : anchor ? anchor.toLowerCase() : false //gets poi param or false
     let found = false //search result flag
     if(poi){ //when a param was present

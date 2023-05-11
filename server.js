@@ -216,7 +216,7 @@ const poi = {
       link: "https://gutegeraetschaft.dervierteraum.org"
     }
   },
-  "24;24": {
+  "22;24": {
     name: "Simulacrum 24/7",
     id: "simulacrum247",
     x: 22,
@@ -229,6 +229,43 @@ const poi = {
       date:"25.06.—10.07.22",
       description:"Kunstrasen, 3D-gedruckte Wearables, Fake Lashes und projizierte Texturen erwarten die Besuchenden von Simulacrum24/7 — einem interdisziplinären, medien- und raumübergreifenden Gruppenprojekt, das eine symbiotische Interaktion des neu entstandenen digitalen »4. Raums« der Frappant Galerie mit ihren bereits bestehenden haptischen Räumlichkeiten erforscht und hinterfragt.<br>Sowohl für den analogen als auch für den digitalen Raum eigens geschaffene Arbeiten treten in einen Dialog, der die Grenzen und Möglichkeiten der unterschiedlichen Welten erkennt und mit ihnen arbeitet.<br>Die Verbindung von digitalem und haptischem Raum äußert sich in der Idee des Mockups als ultimative IRL-URL-Verschmelzung.<br>Mockups sind auf einen Teilaspekt ausgestaltete Anschauungsobjekte, die eine Idee oder einen Prozess visuell erfahrbar machen. Der Akt des skizzenhaften Vorstellens eines in der Zukunft liegenden Umstands oder einer Verdinglichung macht das Mockup zu einer halb gewissen Prophezeiung und treibt spekulative Gedanken voran.<br>Als spekulatives Objekt mit klarer, aber erst noch herauszufindender Funktion wird es in dieser Ausstellung selbst zum autonomen Kunstwerk, das keinen Start- und keinen Endpunkt kennt und in seiner fluidität die Grenzen von Zeit und Raum neu verhandelt. Das Mockup als Fiktion ersetzt das eigentliche Produkt, während es sich als gleichzeitige Zukunftsfantasie und Realitätsnachahmung stets zwischen Realität und Fiktion, Funktion und Spekulation bewegt.<br>Die vier Räume werden in einem gegenseitigen Wechselspiel gestaltet und ergänzt. So werden sowohl die drei analogen als auch der vierte, digitale Raum zu interaktiven Oberflächen, die den Grundriss für eine online und AFK (Away From Keyboard) Interaktion zwischen den Besucher:innen, User:innen und künstlerischen Positionen bilden.<br>Die Transformation durch den Raumwechsel und new/old Possibilities stellt die Darstellung von Werk und Wirkung auf die Probe. Auf der Suche nach real Reality und im Aufspüren leerer Hüllen wird eine Fusion und Diffusion der Räume gewagt.<br>Simulacrum24/7 versucht eine Vorbildfunktion für zukünftige synergetische Ausstellungsformen einzunehmen. Die Ausstellung selbst wird zum Mockup.<br>Dieses Projekt wird aus Mitteln von der »ZEIT-Stiftung Ebelin und Gerd Bucerius« sowie KULTUR.GEMEINSCHAFTEN – Förderprogramm für digitale Content-Produktion von Kultureinrichtungen und NEUSTART KULTUR – Programm 2 gefördert. Für die freundliche Unterstützung durch die Beauftragte der Bundesregierung für Kultur und Medien, die Kulturstiftung der Länder, den Bundesverband Soziokultur e.V., die Behörde für Kultur und Medien Hamburg sowie den Frappant e.V. bedanken wir uns.",
       link: "https://simulacrum247.dervierteraum.org"
+    }
+  },
+  "12;12": {
+    name: "Holy Shit",
+    id: "holyshit",
+    x: 12,
+    y: 12,
+    poi: true,
+    exhibit: true,
+    noconnect: true,
+    state: {
+      plan: [
+        [
+          1,
+          1,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        [
+          "#ffdad8",
+          "#caf0fe",
+          "#a8c6fe",
+          "#f1c9fe",
+          "#e392fe",
+          "#00c7fc",
+          "#7b219f",
+          "#00a3d7"
+        ]
+      ],
+      artists:"Ava Rasti",
+      date:"05.05.23",
+      description:"Holy Shit is a collection of digital paintings developing from the idea of escapism.<br><br>They are set in the bathroom, a place where we can disappear, collect our thoughts, take a breath from the chaotic madness of our surroundings.<br><br>The bathroom has a unique power, a transformative space in which we shed parts of ourselves — literally and metaphorically.<br><br>It is a sacred place where we can live out our violent, sad, happy and imagined fantasies releasing our most inner thoughts.",
+      link: "https://cms.common.garden/?holyshit"
     }
   }
 }
