@@ -238,7 +238,6 @@ const poi = {
     y: 12,
     poi: true,
     exhibit: true,
-    noconnect: true,
     state: {
       plan: [
         [
@@ -265,7 +264,7 @@ const poi = {
       artists:"Ava Rasti",
       date:"05.05.23",
       description:"Holy Shit is a collection of digital paintings developing from the idea of escapism.<br><br>They are set in the bathroom, a place where we can disappear, collect our thoughts, take a breath from the chaotic madness of our surroundings.<br><br>The bathroom has a unique power, a transformative space in which we shed parts of ourselves — literally and metaphorically.<br><br>It is a sacred place where we can live out our violent, sad, happy and imagined fantasies releasing our most inner thoughts.",
-      link: "https://cms.common.garden/?holyshit"
+      link: "https://holyshit.common.garden/"
     }
   }
 }
