@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3000;
 const EXPRESS = require('express')
 const KILL_PLAYERS_AFTER = 2000
 const poi = {
-  "frappant": {
+  "17;19": {
     name: "Frappant",
     id: "frappant",
     x: 17,
@@ -20,7 +20,7 @@ const poi = {
       linktitle: "Open Website"
     }
   },
-  "about": {
+  "6;18": {
     name: "About",
     id: "about",
     x: 7,
@@ -34,7 +34,7 @@ const poi = {
       link: false,
     }
   },
-  "funders": {
+  "6;6": {
     name: "Funders",
     id: "funders",
     x: 6,
@@ -48,7 +48,7 @@ const poi = {
       link: false,
     }
   },
-  "contact": {
+  "0;11": {
     name: "Contact",
     id: "contact",
     x: 0,
@@ -63,7 +63,7 @@ const poi = {
       linktitle: "Write Us"
     }
   },
-  "instagram": {
+  "6;12": {
     name: "Instagram",
     id: "instagram",
     x: 8,
@@ -78,7 +78,7 @@ const poi = {
       linktitle: "Follow Us"
     }
   },
-  "raprab": {
+  "12;12": {
     name: "Rapid Rabbit Reloaded",
     id: "raprab",
     x: 14,
@@ -93,7 +93,7 @@ const poi = {
       link: "https://raprab.net/22"
     }
   },
-  "tvphase": {
+  "11;20": {
     name: "TV-Phase Online",
     id: "tvphase",
     x: 11,
@@ -108,7 +108,7 @@ const poi = {
       link: "http://heikowommelsdorf.de/tv-phase-im-4ten-raum"
     }
   },
-  "identity-crisis": {
+  "6;24": {
     name: "Identity Crisis",
     id: "identity-crisis",
     x: 6,
@@ -144,7 +144,7 @@ const poi = {
       link: "https://identitycrisis.dervierteraum.org"
     }
   },
-  "swords-and-kisses": {
+  "20;6": {
     name: "Swords and Kisses",
     id: "swords-and-kisses",
     x: 20,
@@ -180,7 +180,7 @@ const poi = {
       link: "https://he-yifan.com/swordsnkisses.html"
     }
   },
-  "gutegeraetschaft": {
+  "16;7": {
     name: "Gute Gerätschaft",
     id: "gutegeraetschaft",
     x: 16,
@@ -216,7 +216,7 @@ const poi = {
       link: "https://gutegeraetschaft.dervierteraum.org"
     }
   },
-  "simulacrum247": {
+  "22;24": {
     name: "Simulacrum 24/7",
     id: "simulacrum247",
     x: 22,
@@ -231,11 +231,11 @@ const poi = {
       link: "https://simulacrum247.dervierteraum.org"
     }
   },
-  "holyshit": {
+  "12;12": {
     name: "Holy Shit",
     id: "holyshit",
     x: 12,
-    y: 32,
+    y: 12,
     poi: true,
     exhibit: true,
     state: {
@@ -265,42 +265,6 @@ const poi = {
       date:"05.05.23",
       description:"Holy Shit is a collection of digital paintings developing from the idea of escapism.<br><br>They are set in the bathroom, a place where we can disappear, collect our thoughts, take a breath from the chaotic madness of our surroundings.<br><br>The bathroom has a unique power, a transformative space in which we shed parts of ourselves — literally and metaphorically.<br><br>It is a sacred place where we can live out our violent, sad, happy and imagined fantasies releasing our most inner thoughts.",
       link: "https://holyshit.common.garden/"
-    }
-  },
-  "traumbericht": {
-    name: "Traumbericht: Sigrid Bernstein",
-    id: "traumbericht",
-    x: 30,
-    y: 30,
-    poi: true,
-    exhibit: true,
-    state: {
-      plan: [
-        [
-          1,
-          1,
-          5,
-          5,
-          5,
-          5,
-          5,
-          1
-        ],
-        [
-          "#99b1c9",
-          "#59738c",
-          "#6e6757",
-          "#c0c0dc",
-          "#c0c0c0",
-          "#c2c0b3",
-          "#e6e6c0",
-          "#c0c0c0"
-        ]
-      ],
-      artists:"Uta Röttgers, Jendrik Helle",
-      date:"25.8.23 - 27.8.23",
-      description:"General singt vom Frühling - Eine VR-Traum-Installation<br><br>'Der befehlende General der russischen Armee sagte zu den aufgestellten Schülern: Bis hierher müßt ihr euch aufstellen, davor hatte er sich mit dem Helm im Rock einer Madga verfangen, bevor er verschwand. dann sang einer vom Frühling. bis dahin sangen die Schüler, als er verschwunden war, und irgend jemand sang was vom Frühling.'<br><br>Bernstein, Sigrid: Edelsteinbäume – ein Traumbuch, edition fischer, 2019, Frankfurt, S. 18<br><br>Wer folgende Fragen während der Ausstellung zu dem Video beantwortet, kann diese Antworten dem Künstler erzählen, und einen signierten Fine-Art-Print von „Mir Minsk' dafür erhalten:<br>Nicht alle Soldaten machen beim Spießrutenlauf mit – wie viele küssen stattdessen?<br>Wie viele Uniform-Knöpfe haben die russischen Soldaten im Traum?<br>Welche Verbindungen gibt es zu dem Bild „Mir Minsk' in der Ausstellung?<br><br>Antworten bitte an jendrik@gmx.de",
-      link: "https://www.traumdatenbank.de/Wordpress/2023/08/19/s-b-1994/"
     }
   }
 }
