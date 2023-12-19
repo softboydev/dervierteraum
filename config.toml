@@ -1,0 +1,7 @@
+baseURL = "/"
+languageCode = "de"
+title = "ACIDATM"
+defaultContentLanguage = 'de'
+disableKinds = ["section", "taxonomy","taxonomyTerm","term", "RSS"]
+[permalinks]
+blog="/:filename/"
