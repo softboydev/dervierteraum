@@ -27,7 +27,7 @@ const UNIT = 60 //virtual grid units to onscreen units
 const FOV = 12 //size of the displayed grid
 const SPEED = 0.9 //moving speed in grid units per second
 var LIMES = 0 //virtual border for repeating objects, set dynamically
-const SPACING = FOV //average spacing between pillars
+const SPACING = Math.floor(FOV * 0.8) //average spacing between pillars
 const SEED = 42069
 const UPDATE_UI_AFTER = 10
 const INFO_CD = 10
@@ -590,29 +590,21 @@ function main() {
     return obj
   }
   function displacePillarsAndSetLimes(array,spacing){
-    let m = 0.2
-    let tX = 0
-    let tY = 0
-    let mX = 0
     let l = Math.ceil(Math.sqrt(array.length))
+    let d = 0.5
     for(let y = 0; y < l; y++){
-      tY += Math.round((m + ((1+noise.simplex2(SEED,y*10000))*0.5)*(1-m)) * spacing)
       for(let x = 0; x < l; x++){
         let p = y * l + x
         if(array[p]){
-          let pillar = array[p]
-          tX += Math.round((m + ((1+noise.simplex3(x*10000,y*10000,SEED))*0.5)*(1-m)) * spacing)
-          pillar.x = tX
-          pillar.y = tY
-          array[p] = pillar
+          let _x = Math.abs(Math.round(x * SPACING + noise.simplex3(p/array.length,2,SEED) * SPACING * d))
+          let _y = Math.abs(Math.round(y * SPACING + noise.simplex3(2,p/array.length,SEED) * SPACING * d))
+          array[p].x = _x
+          array[p].y = _y
         }
       }
-      if(tX > mX){
-        mX = tX
-      }
-      tX = 0
     }
-    LIMES = Math.max(mX,tY) + Math.round(spacing * m)
+    LIMES = (l-1) * SPACING + Math.ceil(SPACING * d)
+    console.log(LIMES);
     return array
   }
 
@@ -642,7 +634,9 @@ function main() {
     var colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     setColors(gl,objectColors);
-    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+    var desiredCSSWidth = 400;
+    var devicePixelRatio = window.devicePixelRatio || 1;
+    webglUtils.resizeCanvasToDisplaySize(gl.canvas,devicePixelRatio);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.CULL_FACE);

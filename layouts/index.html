@@ -6,7 +6,7 @@
   </head>
   <body>
     <ul id="content">
-      {{range .Pages}}
+      {{range .Site.RegularPages}}
       <li class="pillar" data-id="{{.File.BaseFileName}}" data-pillar="{{.Params.pillar | safeHTML}}" {{if isset .Params "poi"}}data-poi="true"{{end}} data-type="{{.Type}}">
          <h2 class="pillar_title">{{.Title}}</h2>
         {{if isset .Params "date"}}

@@ -1,6 +1,6 @@
 baseURL = "/"
 languageCode = "de"
-title = "ACIDATM"
+title = "dervierteraum.org"
 defaultContentLanguage = 'de'
 disableKinds = ["section", "taxonomy","taxonomyTerm","term", "RSS"]
 [permalinks]
