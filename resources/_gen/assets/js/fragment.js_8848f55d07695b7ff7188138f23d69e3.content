@@ -1,0 +1,24 @@
+precision mediump float;
+uniform float time;
+uniform vec2 resolution;
+uniform float cutoff;
+uniform float seed;
+float step = mod(time,cutoff) / cutoff;
+float ctime = float(int((time)/cutoff));
+float sclstep = pow((step + 0.3),10.0);
+float pitch = sclstep * cutoff;
+vec4 rndc (float ray) {
+  return vec4(mod(sin(ray*4568.5453123*seed),1.0),mod(sin(ray*3923.3292304*seed),1.0),mod(sin(ray*1004.414012*seed),1.0),1);
+}
+void main() {
+  vec4 colorA = rndc(ctime);
+  vec4 colorB = rndc(ctime+1.0);
+  float vx = abs(gl_FragCoord.x - resolution.x * 0.5);
+  float vy  = abs(gl_FragCoord.y - resolution.y * 0.5);
+  if (int(mod(vx, pitch)) == int(0.5 * pitch) ||
+      int(mod(vy, pitch)) == int(0.5 * pitch)) {
+      gl_FragColor = colorA;
+  } else {
+      gl_FragColor = colorB;
+  }
+}

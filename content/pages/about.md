@@ -1,0 +1,6 @@
+---
+title: About
+poi: true
+pillar: '{"shapes":[1,5,5,5,5,1,0,4],"colors":["#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#000000","#ffffff"],"animations": {"1":{"keys":[{"x":0,"y":0,"z":0},{"x":0,"y":0,"z":0},{"x":0.5,"y":0,"z":0},{"x":0,"y":0,"z":0},{"x":0,"y":0,"z":0}]},"2":{"keys":[{"x":0,"y":0,"z":0},{"x":0,"y":0,"z":0},{"x":0,"y":0.5,"z":0},{"x":0,"y":0,"z":0}]},"3":{"keys":[{"x":0,"y":0,"z":0},{"x":-0.5,"y":0,"z":0},{"x":0,"y":0,"z":0}]},"4":{"keys":[{"x":0,"y":0,"z":0},{"x":0,"y":0,"z":0},{"x":0,"y":0,"z":0},{"x":0,"y":-0.5,"z":0},{"x":0,"y":0,"z":0}]}}}'
+---
+Der Vierte Raum is a dynamic platform for conceptual, time based and performative exhibition formats. It happens outside the realm of the white cube and is meant to function as an extension of the Hamburg project space Frappant Galerie to create new contextual meaning.<br><br>Der Vierte Raum calls on all digital artists, designers, architects, coders and activists to collaborate and together create projects that observe, critique, question, queer, redesign and deconstruct.<br><br>We give preference to digital formats of collaboration including algorithms, bots, discussions, films, online projects, performances, sounds, mapping, experiments and essays.<br><br>Next Open Call: September 2023

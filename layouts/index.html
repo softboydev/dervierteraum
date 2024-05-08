@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <title>Der Vierte Raum - Frappant e.V.</title>
+    {{ partial "head.html" . }}
+  </head>
+  <body>
+    <ul id="content">
+      {{range .Site.RegularPages}}
+      <li class="pillar" data-id="{{.File.BaseFileName}}" data-pillar="{{.Params.pillar | safeHTML}}" {{if isset .Params "poi"}}data-poi="true"{{end}} data-type="{{.Type}}">
+         <h2 class="pillar_title">{{.Title}}</h2>
+        {{if isset .Params "date"}}
+        <time class="pillar_date">{{ dateFormat "02.01.2006" .Date }}</time>
+        {{end}}
+        {{if isset .Params "artists"}}
+        <aside class="pillar_artists">{{.Params.artists}}</aside>
+        {{end}}
+        <div class="pillar_description">{{.Content}}</div>
+        {{if isset .Params "link"}}
+        <a class="pillar_link" href="{{.Params.link}}">{{if isset .Params "linktitle"}}{{.Params.linktitle}}{{else}}Enter{{end}}</a>
+        {{end}}
+      </li>
+      {{end}}
+    </ul>
+    <canvas id="canvas"></canvas>
+    <table id="outputPlayer">
+      <tr>
+        <th>P_X</th>
+        <td id="avatarX"></td>
+        <th>P_Y</th>
+        <td id="avatarY"></td>
+      </tr>
+      <tr>
+        <th>C_1</th>
+        <td><span class="color" style="background:white" id="avatarFirstColor"></span></td>
+        <th>C_2</th>
+        <td><span class="color" style="background:white" id="avatarSecondColor"></span></td>
+      </tr>
+    </table>
+    <table id="outputPOI">
+    </table>
+    <div id="info">
+      <div class="info-inner">
+        <div class="info-header">
+          <h2 id="infoTitle">
+            Rabbithole
+          </h2>
+          <h3 id="infoArtists">
+            Peter Lustig, Franka Potente
+          </h3>
+          <div id="infoDate">
+            15.12.21 - 06.09.22, Mo - So, 6 - 22
+          </div>
+        </div>
+        <div class="info-body">
+          <div id="infoDesc">
+            It's urgent, but we don't have time in the next two years to test it, but we must prioritize it. At least we don't need to obfuscate it. You must rethink the whole process. We will give you a slice of pizza if you finish the code until yesterday. Make it pop remember, the entirety is equal or better. We must build a queue system to ensure it gets the data from our API so this will result in a delay. How does this indicator should look? Also please answer to question from the next mail. Kind reminder. Please inform us where we are on this. After the release, we will need to test it individually.
+          </div>
+        </div>
+      </div>
+      <div class="info-footer">
+        <a onclick="G.openLink()" id="infoOpen">
+          Enter
+        </a>
+        <a id="infoExit">
+          Exit
+        </a>
+      </div>
+    </div>
+    <div id="tutorial">
+      Welcome<br><br>
+      This website uses cookies to deploy its services.<br>
+      We do not store anything but the default sessions cookies.<br>
+      We do not connect or store any personal information.<br>
+      Click anywhere to accept and continue.<br><br>
+      Use your mouse or finger.<br>
+      Hold to move.<br>
+      Slide to turn.<br><br>
+      Stand close to a pillar to inspect it.
+    </div>
+    <nav id="menu">
+      <ul id="links">
+        <li>
+          <a id="programLink">Program 2023</a>
+        </li>
+        <li>
+          <a href="https://frappant.org" target="_blank">Frappant Gallery</a>
+        </li>
+        <li>
+          <a id="aboutLink">About</a>
+        </li>
+        <li>
+          <a id="archiveLink">Archive</a>
+        </li>
+        <li>
+          <a id="fundersLink">Funders</a>
+        </li>
+        <li>
+          <a href="mailto:ausstellung@frappant.org" target="_blank">Contact</a>
+        </li>
+        <li>
+          <a href="https://frappant.org/kontakt" target="_blank">Imprint + Privacy</a>
+        </li>
+
+      </ul>
+      <div id="logos"></div>
+    </nav>
+    <img id="logo" src="./img/logo.png" alt="">
+    <button id="menubutton" ><div class="menubutton-inner"></div></button>
+    <div id="vierterRaumCurtain"></div>
+    {{ $script := resources.Get "js/scripts.js"}}
+    {{ $libs := resources.Get "js/libs.js"}}
+    {{ $utils := resources.Get "js/webgl-utils.js"}}
+    {{ $scripts := slice $utils $libs $script | resources.Concat "scripts.js"  | fingerprint }}
+    {{ partial "shader/vertex.html" . }}
+    {{ partial "shader/fragment.html" . }}
+    <script src="{{ $scripts.Permalink }}"></script>
+  </body>
+</html>
