@@ -1,6 +1,6 @@
 ---
 title: in between echoes
-link: https://inbetweenechoes.dervierteraum.org
+link: https://in-between-echoes.xyz/
 artists: Esteban Perez, Naomi Citlali, Paula Oltmann, Kim Filippa Kleinert, Emanuel Strauß und Fernanda Braun Santos, Olga Hohmann
 date: 2024-10-18
 pillar: '{"shapes":[1,5,4,4,4,5,4,4],"colors":["#545454","#e8e8e8","#757575","#ff0000","#787878","#d9d9d9","#999999","#ff0000"]}'
