@@ -471,6 +471,7 @@ const M = {
   },
 
 };
+var COLOR = M.randomColor()
 
 
 
@@ -515,6 +516,7 @@ function main() {
 
   _X = Math.floor(X)
   _Y = Math.floor(Y)
+  COLOR = color
   let cA = color
   let cB = M.invertHex(color)
   UI.colorA.style.background = cA
